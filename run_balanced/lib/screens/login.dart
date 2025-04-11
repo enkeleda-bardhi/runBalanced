@@ -9,6 +9,22 @@ class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
+  void _validateAndLogin(BuildContext context) {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (email == 'test@example.com' && password == 'password123') {
+      // NAVIGATION
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Login successful!')),
+      );
+    } else {
+      // Show error snackbar
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid email or password.')),
+      );
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -17,16 +33,16 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Login Run Balanced', // Primary title
+              'Login Run Balanced', 
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text(
-              'Welcome back!', // Secondary title
+              'Welcome back!', 
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ],
         ),
-        centerTitle: true, // Ensures the titles are centered
+        centerTitle: true,
       ),
       body: SafeArea(
         child: Padding(
@@ -51,13 +67,13 @@ class LoginPage extends StatelessWidget {
               ),
               obscureText: true,
             ),
-            SizedBox(height: kDefaultPadding ),
-            ElevatedButton(
-              onPressed: () {
-                // NAVIGATION
-              },
-              child: Text('Login'),
-            ),
+            SizedBox(height: kDefaultPadding),
+              ElevatedButton(
+                onPressed: () {
+                  _validateAndLogin(context);
+                },
+                child: Text('Login'),
+              ),
           ],
         ),
       ), 
