@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// TODO: add the logout functionality to the app
 
 const double kDefaultPadding = 16.0;
 
@@ -14,12 +15,12 @@ class LoginPage extends StatelessWidget {
     final password = passwordController.text.trim();
 
     if (email == 'test@example.com' && password == 'password123') {
-      // NAVIGATION
+      // NAVIGATION with pushReplacement to homepage to ensure that
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Login successful!')),
       );
     } else {
-      // Show error snackbar
+      // error snackbar
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Invalid email or password.')),
       );
