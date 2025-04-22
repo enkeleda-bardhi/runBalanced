@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// first widget
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
