@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
-// TODO: add the logout functionality to the app
+import 'package:run_balanced/screens/signup.dart';
 
 const double kDefaultPadding = 16.0;
 
@@ -12,31 +11,12 @@ class LoginPage extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  void _validateAndLogin(BuildContext context) {
-    final email = emailController.text.trim();
-    final password = passwordController.text.trim();
-
-    if (email == 'test@example.com' && password == 'password123') {
-      // NAVIGATION with pushReplacement to homepage to ensure that
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Login successful!')));
-    } else {
-      // error snackbar
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Invalid email or password.')));
-    }
-  }
-
   Future<void> loginUserWithEmailAndPassword(BuildContext context) async {
     try {
-      final userCredential = await FirebaseAuth.instance
-          .signInWithEmailAndPassword(
-            email: emailController.text.trim(),
-            password: passwordController.text.trim(),
-          );
-      print(userCredential);
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: emailController.text.trim(),
+        password: passwordController.text.trim(),
+      );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -85,6 +65,29 @@ class LoginPage extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
+              ),
+              SizedBox(height: kDefaultPadding),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text("Don't have an account yet? "),
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                      );
+                    },
+                    child: Text(
+                      'Sign up',
+                      style: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               SizedBox(height: kDefaultPadding),
               ElevatedButton(
