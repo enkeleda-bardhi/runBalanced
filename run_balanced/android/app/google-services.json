@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "875660399293",
+    "project_id": "run-balanced-ca5ef",
+    "storage_bucket": "run-balanced-ca5ef.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:875660399293:android:7a4ed27a5a2bd18a105dd4",
+        "android_client_info": {
+          "package_name": "com.example.run_balanced"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkEYLuaKQlbo-axyJFv9hNJvJ733nkP0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
