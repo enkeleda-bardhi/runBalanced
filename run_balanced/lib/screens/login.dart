@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 // TODO: add the logout functionality to the app
 
@@ -16,16 +18,30 @@ class LoginPage extends StatelessWidget {
 
     if (email == 'test@example.com' && password == 'password123') {
       // NAVIGATION with pushReplacement to homepage to ensure that
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Login successful!')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Login successful!')));
     } else {
       // error snackbar
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Invalid email or password.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Invalid email or password.')));
     }
   }
+
+  Future<void> loginUserWithEmailAndPassword() async {
+    try {
+      final userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(
+            email: emailController.text.trim(),
+            password: passwordController.text.trim(),
+          );
+      print(userCredential);
+    } on FirebaseAuthException catch (e) {
+      print(e.message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,11 +50,11 @@ class LoginPage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Login Run Balanced', 
+              'Login Run Balanced',
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             Text(
-              'Welcome back!', 
+              'Welcome back!',
               style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
             ),
           ],
@@ -47,38 +63,38 @@ class LoginPage extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-        padding: const EdgeInsets.all(kDefaultPadding),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: emailController,
-              decoration: InputDecoration(
-                labelText: 'Email',
-                border: OutlineInputBorder(),
+          padding: const EdgeInsets.all(kDefaultPadding),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.emailAddress,
               ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-            SizedBox(height: kDefaultPadding),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                border: OutlineInputBorder(),
+              SizedBox(height: kDefaultPadding),
+              TextField(
+                controller: passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
               ),
-              obscureText: true,
-            ),
-            SizedBox(height: kDefaultPadding),
+              SizedBox(height: kDefaultPadding),
               ElevatedButton(
-                onPressed: () {
-                  _validateAndLogin(context);
+                onPressed: () async {
+                  await loginUserWithEmailAndPassword();
                 },
                 child: Text('Login'),
               ),
-          ],
+            ],
+          ),
         ),
-      ), 
-      )
+      ),
     );
   }
 }
