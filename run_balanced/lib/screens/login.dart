@@ -29,7 +29,7 @@ class LoginPage extends StatelessWidget {
     }
   }
 
-  Future<void> loginUserWithEmailAndPassword() async {
+  Future<void> loginUserWithEmailAndPassword(BuildContext context) async {
     try {
       final userCredential = await FirebaseAuth.instance
           .signInWithEmailAndPassword(
@@ -38,7 +38,9 @@ class LoginPage extends StatelessWidget {
           );
       print(userCredential);
     } on FirebaseAuthException catch (e) {
-      print(e.message);
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message ?? "Error logging in")));
     }
   }
 
@@ -87,7 +89,7 @@ class LoginPage extends StatelessWidget {
               SizedBox(height: kDefaultPadding),
               ElevatedButton(
                 onPressed: () async {
-                  await loginUserWithEmailAndPassword();
+                  await loginUserWithEmailAndPassword(context);
                 },
                 child: Text('Login'),
               ),

@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'training_screen.dart';
 import 'programs_screen.dart';
@@ -44,7 +45,9 @@ class _HomeScreenState extends State<HomeScreen> {
           style: TextStyle(color: Colors.white), // Colore del testo in bianco
         ),
         backgroundColor: Colors.black,
-        iconTheme: IconThemeData(color: Colors.white), // Per cambiare colore delle icone (es. menu)
+        iconTheme: IconThemeData(
+          color: Colors.white,
+        ), // Per cambiare colore delle icone (es. menu)
       ),
       drawer: Drawer(
         child: ListView(
@@ -69,22 +72,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       Navigator.pop(context); // chiude il drawer
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => ProfileScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => ProfileScreen(),
+                        ),
                       );
                     },
                     child: Column(
-                      mainAxisSize: MainAxisSize.min,  // Riduce al minimo lo spazio verticale utilizzato
+                      mainAxisSize:
+                          MainAxisSize
+                              .min, // Riduce al minimo lo spazio verticale utilizzato
                       children: [
                         CircleAvatar(
-                          radius: 30,  // Avatar di dimensioni fisse
-                          backgroundColor: Colors.white,  // Sfondo bianco
+                          radius: 30, // Avatar di dimensioni fisse
+                          backgroundColor: Colors.white, // Sfondo bianco
                         ),
                         SizedBox(height: 10),
-
                       ],
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -102,6 +107,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                 },
               ),
+            Divider(), // Optional: separates the sign out from the rest
+
+            ListTile(
+              leading: Icon(Icons.logout),
+              title: Text('Sign Out'),
+              onTap: () async {
+                Navigator.pop(context); // Close the drawer
+                await FirebaseAuth.instance.signOut();
+              },
+            ),
           ],
         ),
       ),
