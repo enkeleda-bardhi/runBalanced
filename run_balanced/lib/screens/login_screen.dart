@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:run_balanced/screens/signup.dart';
+import 'package:run_balanced/screens/signup_screen.dart';
 
 const double kDefaultPadding = 16.0;
 
-class LoginPage extends StatelessWidget {
-  LoginPage({super.key});
+class LoginScreen extends StatelessWidget {
+  LoginScreen({super.key});
 
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -75,7 +75,7 @@ class LoginPage extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                        MaterialPageRoute(builder: (context) => SignupScreen()),
                       );
                     },
                     child: Text(

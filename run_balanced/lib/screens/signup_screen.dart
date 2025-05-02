@@ -1,16 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:run_balanced/main.dart';
-import 'package:run_balanced/screens/homepage.dart';
+import 'package:run_balanced/screens/profile_screen.dart';
 
 const double kDefaultPadding = 16.0;
 
-class SignUpPage extends StatefulWidget {
+class SignupScreen extends StatefulWidget {
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -38,7 +37,7 @@ class _SignUpPageState extends State<SignUpPage> {
       ).showSnackBar(SnackBar(content: Text('Account created!')));
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => HomeScreen()),
+        MaterialPageRoute(builder: (context) => ProfileScreen()),
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
