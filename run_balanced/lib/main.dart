@@ -1,18 +1,24 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:run_balanced/firebase_options.dart';
-import 'package:run_balanced/screens/homepage.dart';
+import 'package:run_balanced/providers/user_profile_provider.dart';
+import 'package:run_balanced/screens/homepage_screen.dart';
+import 'package:run_balanced/screens/profile_screen.dart';
 import 'package:run_balanced/theme/theme_provider.dart';
-import 'screens/login.dart';
+import 'screens/login_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
-    ChangeNotifierProvider(
-      create: (contex) => ThemeProvider(),
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+      ],
       child: const MyApp(),
     ),
   );
@@ -29,18 +35,60 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'runBalanced',
       theme: themeProvider.themeData,
-      home: StreamBuilder(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (snapshot.data != null) {
-            return HomeScreen();
-          }
-          return LoginPage();
-        },
-      ),
+      home: AuthWrapper(),
+    );
+  }
+}
+
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  Future<bool> _userDetailsExist(String uid) async {
+    final doc =
+        await FirebaseFirestore.instance.collection('Users').doc(uid).get();
+    return doc.exists;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<User?>(
+      stream: FirebaseAuth.instance.authStateChanges(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final user = snapshot.data;
+
+        if (user == null) {
+          return LoginScreen(); // Or LoginPage if you have one
+        }
+
+        return FutureBuilder<bool>(
+          future: _userDetailsExist(user.uid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              );
+            }
+
+            if (snapshot.hasData && snapshot.data == true) {
+              final userProfileProvider = Provider.of<UserProfileProvider>(
+                context,
+                listen: false,
+              );
+              userProfileProvider
+                  .loadUserProfile(); // Safe to call multiple times
+              return HomeScreen(); // Details exist
+            } else {
+              return ProfileScreen(); // First login, details missing
+            }
+          },
+        );
+      },
     );
   }
 }

@@ -68,7 +68,7 @@ ThemeData darkMode = ThemeData(
     foregroundColor: Colors.black,
     iconTheme: IconThemeData(color: Colors.grey.shade900),
     titleTextStyle: TextStyle(
-      color: Colors.white,
+      color: Colors.black,
       fontSize: 22,
     ), // Larger font size
   ),

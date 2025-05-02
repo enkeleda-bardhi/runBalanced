@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/theme/theme_provider.dart';
 import 'training_screen.dart';
 import 'programs_screen.dart';
@@ -9,9 +11,12 @@ import 'connection_screen.dart';
 import 'challenges_screen.dart';
 import 'settings_screen.dart';
 import 'profile_screen.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 // il contenuto visualizzato (pagina selezionata) cambia dinamicamente
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -40,10 +45,30 @@ class _HomeScreenState extends State<HomeScreen> {
     'Profile',
   ];
 
+  Future<Map<String, String>> getUserDetails(String uid) async {
+    try {
+      DocumentSnapshot userDoc =
+          await FirebaseFirestore.instance.collection('Users').doc(uid).get();
+
+      if (userDoc.exists) {
+        var data = userDoc.data() as Map<String, dynamic>;
+        return {
+          'firstName': data['firstName'] ?? '',
+          'lastName': data['lastName'] ?? '',
+          'imageUrl': data['imageUrl'] ?? '',
+        };
+      }
+    } catch (e) {
+      print("Error fetching user details: $e");
+    }
+    return {'firstName': '', 'lastName': '', 'imageUrl': ''};
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
+    final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
       appBar: AppBar(
@@ -73,24 +98,45 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedIndex = 6; // Index of ProfileScreen
-                      });
-                      Navigator.pop(context); // Close the drawer
-                    },
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: theme.cardColor,
-                        ),
-                        SizedBox(height: 10),
-                      ],
+                  if (user != null)
+                    FutureBuilder<Map<String, String>>(
+                      future: getUserDetails(user.uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        }
+
+                        if (snapshot.hasData) {
+                          final userProfile = Provider.of<UserProfileProvider>(
+                            context,
+                          );
+
+                          return Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 30,
+                                backgroundImage:
+                                    userProfile.imagePath.isNotEmpty
+                                        ? FileImage(File(userProfile.imagePath))
+                                        : null,
+                                child:
+                                    userProfile.imagePath.isEmpty
+                                        ? Icon(Icons.person, size: 30)
+                                        : null,
+                              ),
+                              SizedBox(width: 10),
+                              Text(
+                                "${userProfile.firstName} ${userProfile.lastName}",
+                                style: theme.appBarTheme.titleTextStyle,
+                              ),
+                            ],
+                          );
+                        } else {
+                          return Text('Loading...');
+                        }
+                      },
                     ),
-                  ),
                 ],
               ),
             ),
