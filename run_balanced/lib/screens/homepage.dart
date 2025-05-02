@@ -1,5 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:run_balanced/theme/theme_provider.dart';
 import 'training_screen.dart';
 import 'programs_screen.dart';
 import 'recap_screen.dart';
@@ -25,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     ConnectionScreen(),
     ChallengesScreen(),
     SettingsScreen(),
+    ProfileScreen(),
   ];
 
   final List<String> _titles = [
@@ -34,57 +37,55 @@ class _HomeScreenState extends State<HomeScreen> {
     'Connection',
     'Challenges',
     'Settings',
+    'Profile',
   ];
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           _titles[_selectedIndex],
-          style: TextStyle(color: Colors.white), // Colore del testo in bianco
+          style: theme.appBarTheme.titleTextStyle,
         ),
-        backgroundColor: Colors.black,
-        iconTheme: IconThemeData(
-          color: Colors.white,
-        ), // Per cambiare colore delle icone (es. menu)
+        backgroundColor: theme.appBarTheme.backgroundColor,
+        iconTheme: theme.appBarTheme.iconTheme,
       ),
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
             DrawerHeader(
-              decoration: BoxDecoration(color: Colors.black),
+              decoration: BoxDecoration(
+                color: theme.appBarTheme.backgroundColor,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     'RunBalance',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
+                    style: theme.textTheme.headlineSmall?.copyWith(
+                      color: theme.appBarTheme.foregroundColor,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   SizedBox(height: 10),
                   GestureDetector(
                     onTap: () {
-                      Navigator.pop(context); // chiude il drawer
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ProfileScreen(),
-                        ),
-                      );
+                      setState(() {
+                        _selectedIndex = 6; // Index of ProfileScreen
+                      });
+                      Navigator.pop(context); // Close the drawer
                     },
                     child: Column(
-                      mainAxisSize:
-                          MainAxisSize
-                              .min, // Riduce al minimo lo spazio verticale utilizzato
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         CircleAvatar(
-                          radius: 30, // Avatar di dimensioni fisse
-                          backgroundColor: Colors.white, // Sfondo bianco
+                          radius: 30,
+                          backgroundColor: theme.cardColor,
                         ),
                         SizedBox(height: 10),
                       ],
@@ -99,22 +100,36 @@ class _HomeScreenState extends State<HomeScreen> {
                 leading: _iconForIndex(i),
                 title: Text(_titles[i]),
                 selected: _selectedIndex == i,
-                selectedTileColor: Colors.lightBlue.shade100,
+                selectedTileColor: theme.listTileTheme.selectedTileColor,
+                selectedColor: theme.listTileTheme.selectedColor,
                 onTap: () {
                   setState(() {
                     _selectedIndex = i;
-                    Navigator.pop(context); // chiude il drawer
+                    Navigator.pop(context);
                   });
                 },
               ),
-            Divider(), // Optional: separates the sign out from the rest
 
+            Divider(),
             ListTile(
               leading: Icon(Icons.logout),
               title: Text('Sign Out'),
               onTap: () async {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 await FirebaseAuth.instance.signOut();
+              },
+            ),
+
+            Divider(),
+            ListTile(
+              leading: Icon(isDark ? Icons.light_mode : Icons.dark_mode),
+              title: Text('Switch Theme'),
+              onTap: () {
+                Provider.of<ThemeProvider>(
+                  context,
+                  listen: false,
+                ).toggleTheme();
+                Navigator.pop(context);
               },
             ),
           ],
