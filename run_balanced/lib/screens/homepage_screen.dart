@@ -15,6 +15,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 // il contenuto visualizzato (pagina selezionata) cambia dinamicamente
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -106,8 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
 
                         if (snapshot.hasData) {
-                          final data = snapshot.data!;
-                          final imageUrl = data['imageUrl'];
                           final userProfile = Provider.of<UserProfileProvider>(
                             context,
                           );

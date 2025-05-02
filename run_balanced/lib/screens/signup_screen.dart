@@ -5,6 +5,8 @@ import 'package:run_balanced/screens/profile_screen.dart';
 const double kDefaultPadding = 16.0;
 
 class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
+
   @override
   _SignupScreenState createState() => _SignupScreenState();
 }

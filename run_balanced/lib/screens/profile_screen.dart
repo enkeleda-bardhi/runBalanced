@@ -9,6 +9,8 @@ import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -21,7 +23,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String gender = 'Male';
   bool _isLoading = true;
   File? _localImage;
-  String? _imagePath;
   String? _localImagePath;
   String? _imageName; // To store the name of the selected image
   String? _lastEdited; // To store the formatted last edited time
@@ -55,7 +56,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           lastNameController.text = data['lastName'] ?? '';
           ageController.text = (data['age'] ?? '').toString();
           gender = data['gender'] ?? 'Male';
-          _imagePath = data['imageUrl'] ?? '';
           _imageName = data['imageName'] ?? '';
           _localImagePath = data['imageUrl'] ?? '';
           if (_localImagePath != null && _localImagePath!.isNotEmpty) {

@@ -5,13 +5,16 @@ class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTap;
 
-  BottomNavBar({required this.currentIndex, required this.onTap});
+  BottomNavBar({super.key, required this.currentIndex, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
       items: [
-        BottomNavigationBarItem(icon: Icon(Icons.fitness_center), label: 'Training'),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.fitness_center),
+          label: 'Training',
+        ),
         BottomNavigationBarItem(icon: Icon(Icons.list), label: 'Programs'),
         BottomNavigationBarItem(icon: Icon(Icons.analytics), label: 'Recap'),
         BottomNavigationBarItem(icon: Icon(Icons.link), label: 'Connection'),
