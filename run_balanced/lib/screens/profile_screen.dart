@@ -7,6 +7,7 @@ import 'package:intl/intl.dart'; // Importing intl package for formatting the da
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
+import 'package:run_balanced/screens/homepage_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -97,7 +98,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> submitDetails() async {
     if (_formKey.currentState!.validate()) {
       final uid = FirebaseAuth.instance.currentUser!.uid;
-      final now = DateTime.now(); // exact timestamp used for both
+      final userDocRef = FirebaseFirestore.instance
+          .collection('Users')
+          .doc(uid);
+      final docSnapshot = await userDocRef.get();
+      final now = DateTime.now();
+
+      final isNewUser = !docSnapshot.exists;
 
       await FirebaseFirestore.instance.collection('Users').doc(uid).set({
         'firstName': firstNameController.text.trim(),
@@ -106,7 +113,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'gender': gender,
         'imageUrl': _localImagePath,
         'imageName': _imageName,
-        'editedAt': Timestamp.fromDate(now), // save as Firestore timestamp
+        if (isNewUser)
+          'createdAt': Timestamp.fromDate(now)
+        else
+          'editedAt': Timestamp.fromDate(now),
       }, SetOptions(merge: true));
 
       setState(() {
@@ -126,9 +136,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
         imagePath: _localImagePath ?? '',
       );
 
+      final message = isNewUser ? 'Profile created' : 'Profile updated';
+
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Profile updated')));
+      ).showSnackBar(SnackBar(content: Text(message)));
+
+      if (isNewUser) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomeScreen()),
+        );
+      }
     }
   }
 
@@ -147,7 +166,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Profile')),
       body:
           _isLoading
               ? Center(child: CircularProgressIndicator())
