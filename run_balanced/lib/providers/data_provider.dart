@@ -42,7 +42,7 @@ class DataProvider extends ChangeNotifier {
       // Simulazione (puoi sostituire con dati reali)
       distance += 0.05; // 50 metri al secondo
       calories += 1;
-      pace = 5.5;
+      pace = 5.5; //sarà [(tempo in secondi)/(60*(distanza in km))]
 
       breathState = (breathState + 10) % 100;
       jointState = (jointState + 5) % 100;
