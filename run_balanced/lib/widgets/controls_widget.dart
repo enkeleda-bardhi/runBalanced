@@ -18,10 +18,10 @@ class ControlsWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        Flexible(child: ElevatedButton(onPressed: onStart, child: Text("Avvia"))),
-        Flexible(child: ElevatedButton(onPressed: onPause, child: Text("Pausa"))),
-        Flexible(child: ElevatedButton(onPressed: onReset, child: Text("Reset"))),
-        Flexible(child: ElevatedButton(onPressed: onStopSave, child: FittedBox(child: Text("Stop & Salva")))),
+        Flexible(child: ElevatedButton(onPressed: onStart, child: Icon(Icons.play_arrow))),
+        Flexible(child: ElevatedButton(onPressed: onPause, child: Icon(Icons.pause))),
+        Flexible(child: ElevatedButton(onPressed: onReset, child: Icon(Icons.stop))),
+        Flexible(child: ElevatedButton(onPressed: onStopSave, child: FittedBox(child: Icon(Icons.save)))),
       ],
     );
   }
