@@ -11,6 +11,7 @@ class ImpactApiService {
 
   static const String _username = 'qWgEn2F4fj';
   static const String _password = '12345678!';
+  static const String _patientUsername = 'Jpefaq6m58';
 
   static String? _accessToken;
   static String? _refreshToken;
@@ -61,14 +62,11 @@ class ImpactApiService {
     }
   }
 
-  static Future<List<dynamic>> fetchHeartRateDay({
-    required String patientUsername,
-    required String day,
-  }) async {
+  static Future<List<dynamic>> fetchHeartRateDay({required String day}) async {
     await _ensureAuthorized();
 
     final url = Uri.parse(
-      '$_baseUrl$_heartRateEndpoint$patientUsername/day/$day/',
+      '$_baseUrl$_heartRateEndpoint$_patientUsername/day/$day/',
     );
 
     final headers = {HttpHeaders.authorizationHeader: 'Bearer $_accessToken'};

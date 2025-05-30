@@ -20,10 +20,7 @@ class _TrainingScreenState extends State<TrainingScreen> {
 
   void _loadHeartRate() {
     setState(() {
-      _heartRateData = ImpactApiService.fetchHeartRateDay(
-        patientUsername: 'Jpefaq6m58',
-        day: '2025-05-13',
-      );
+      _heartRateData = ImpactApiService.fetchHeartRateDay(day: '2025-05-13');
     });
   }
 
