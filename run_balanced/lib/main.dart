@@ -8,6 +8,7 @@ import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/screens/homepage_screen.dart';
 import 'package:run_balanced/screens/profile_screen.dart';
 import 'package:run_balanced/theme/theme_provider.dart';
+import 'package:run_balanced/services/impact_api_service.dart';
 import 'screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/data_provider.dart';
@@ -15,6 +16,7 @@ import 'package:run_balanced/providers/data_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await ImpactApiService.loadSettings();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(
     MultiProvider(
