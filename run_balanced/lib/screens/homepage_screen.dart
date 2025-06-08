@@ -29,7 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     TrainingScreen(),
     ProgramsScreen(),
     RecapScreen(),
-    ConnectionScreen(),
+    ConnectionsScreen(),
     ChallengesScreen(),
     SettingsScreen(),
     ProfileScreen(),
