@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:run_balanced/firebase_options.dart';
-import 'package:run_balanced/providers/activity_provider.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/screens/homepage_screen.dart';
 import 'package:run_balanced/screens/profile_screen.dart';
@@ -12,7 +11,6 @@ import 'package:run_balanced/services/impact_api_service.dart';
 import 'screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/data_provider.dart';
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +26,6 @@ void main() async {
       child: const MyApp(),
     ),
   );
-
 }
 
 class MyApp extends StatelessWidget {
