@@ -21,6 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final firstNameController = TextEditingController();
   final lastNameController = TextEditingController();
   final ageController = TextEditingController();
+  final weightController = TextEditingController();
+  final heightController = TextEditingController();
   String gender = 'Male';
   bool _isLoading = true;
   File? _localImage;
@@ -57,6 +59,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           lastNameController.text = data['lastName'] ?? '';
           ageController.text = (data['age'] ?? '').toString();
           gender = data['gender'] ?? 'Male';
+          weightController.text = (data['weight'] ?? '').toString();
+          heightController.text = (data['height'] ?? '').toString();
           _imageName = data['imageName'] ?? '';
           _localImagePath = data['imageUrl'] ?? '';
           if (_localImagePath != null && _localImagePath!.isNotEmpty) {
@@ -111,6 +115,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         'lastName': lastNameController.text.trim(),
         'age': int.parse(ageController.text.trim()),
         'gender': gender,
+        'weight': double.tryParse(weightController.text.trim()) ?? 0.0,
+        'height': double.tryParse(heightController.text.trim()) ?? 0.0,
         'imageUrl': _localImagePath,
         'imageName': _imageName,
         if (isNewUser)
@@ -133,6 +139,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       userProfileProvider.updateProfile(
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
+        age: double.parse(ageController.text.trim()),
+        weight: double.tryParse(weightController.text.trim()) ?? 0.0,
+        height: double.tryParse(heightController.text.trim()) ?? 0.0,
         imagePath: _localImagePath ?? '',
       );
 
@@ -190,6 +199,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       TextFormField(
                         controller: ageController,
                         decoration: InputDecoration(labelText: 'Age'),
+                        keyboardType: TextInputType.number,
+                        validator:
+                            (value) => value!.isEmpty ? 'Required' : null,
+                      ),
+                      TextFormField(
+                        controller: weightController,
+                        decoration: InputDecoration(labelText: 'Weight (kg)'),
+                        keyboardType: TextInputType.number,
+                        validator:
+                            (value) => value!.isEmpty ? 'Required' : null,
+                      ),
+                      TextFormField(
+                        controller: heightController,
+                        decoration: InputDecoration(labelText: 'Height (cm)'),
                         keyboardType: TextInputType.number,
                         validator:
                             (value) => value!.isEmpty ? 'Required' : null,
