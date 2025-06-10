@@ -21,7 +21,12 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => DataProvider()),
+        ChangeNotifierProvider<DataProvider>(
+          create: (context) => DataProvider(
+            Provider.of<UserProfileProvider>(context, listen: false),
+          ),
+          child: MyApp(),
+        )
       ],
       child: const MyApp(),
     ),

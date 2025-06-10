@@ -1,13 +1,17 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:run_balanced/providers/user_profile_provider.dart';
 
 class DataProvider extends ChangeNotifier {
   // Stato
   Duration _elapsed = Duration.zero;
   Timer? _timer;
+  final UserProfileProvider userProfileProvider;
+  DataProvider(this.userProfileProvider);
 
+  double met = 9.8; // MET for running ~10 km/h
   double distance = 0.0;   // km
-  int calories = 0;        // kcal
+  double calories = 0.0;        // kcal
   double pace = 0.0;       // min/km
 
   double breathState = 0;
@@ -38,15 +42,42 @@ class DataProvider extends ChangeNotifier {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       _elapsed += Duration(seconds: 1);
-
+      if (distance > 0) {
+        pace = _elapsed.inSeconds / (60 * distance);
+        if (pace.isNaN || pace.isInfinite || pace <= 0) {
+        pace = 6.0; // set a default safe pace
+        }
+      } else {
+        pace = 0.0; // evita divisione per zero
+      }
+      double speedKmh = 60 / pace;
+      if (speedKmh.isNaN || speedKmh.isInfinite) {
+        speedKmh = 10.0; // set a default safe speed
+      }
+      double distanceIncrement = speedKmh / 3600; // km per second
+      if (distanceIncrement.isNaN || distanceIncrement.isInfinite) {
+        distanceIncrement = 0.0;
+      }
+      distance += distanceIncrement;
       // Simulazione (puoi sostituire con dati reali)
-      distance += 0.05; // 50 metri al secondo
-      calories += 1;
-      pace = 5.5; //sarà [(tempo in secondi)/(60*(distanza in km))]
+      double userWeightKg = userProfileProvider.weight > 0 ? userProfileProvider.weight : 70;
+      double hoursElapsed = 1 / 3600; // 1 second in hours
+      double caloriesIncrement = met * userWeightKg * hoursElapsed;
+      calories += caloriesIncrement;
 
-      breathState = (breathState + 10) % 100;
-      jointState = (jointState + 5) % 100;
-      muscleState = (muscleState + 7) % 100;
+      // vario pace
+      pace += ([-0.05, 0, 0.05]..shuffle()).first;
+      if (pace < 4.0) pace = 4.0;
+      if (pace > 8.0) pace = 8.0;
+
+      breathState += (pace > 6.0 ? 2 : 1) + (0.5 * (pace - 5.0)).clamp(0, 2) + ([-1, 0, 1]..shuffle()).first;
+      breathState = breathState.clamp(0, 100);
+
+      jointState += (distance > 5 ? 1.5 : 1) + (0.2 * distance).clamp(0, 2) + ([-1, 0, 1]..shuffle()).first;
+      jointState = jointState.clamp(0, 100);
+
+      muscleState += (distance > 3 ? 2 : 1) + (0.3 * distance).clamp(0, 2) + ([-1, 0, 1]..shuffle()).first;
+      muscleState = muscleState.clamp(0, 100);
 
       // Aggiungi ai buffer
       breathBuffer.add(breathState);
@@ -91,7 +122,7 @@ class DataProvider extends ChangeNotifier {
     _timer?.cancel();
     _elapsed = Duration.zero;
     distance = 0.0;
-    calories = 0;
+    calories = 0.0;
     pace = 0.0;
     breathState = 0;
     jointState = 0;

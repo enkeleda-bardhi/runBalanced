@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class StatsRowWidget extends StatelessWidget {
   final double distance;
-  final int calories;
+  final double calories;
   final double pace;
 
   const StatsRowWidget({
@@ -17,7 +17,7 @@ class StatsRowWidget extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         _StatItem(label: "Distanza (km)", value: distance.toStringAsFixed(2)),
-        _StatItem(label: "Calorie (kcal)", value: calories.toString()),
+        _StatItem(label: "Calorie (kcal)", value: calories.toStringAsFixed(2)),
         _StatItem(label: "Ritmo (min/km)", value: pace.toStringAsFixed(2)),
       ],
     );
