@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/providers/data_provider.dart';
 import 'package:run_balanced/screens/recap_detail_screen.dart';
 
@@ -30,7 +29,7 @@ class _RecapScreenState extends State<RecapScreen> {
     data = Provider.of<DataProvider>(context);
 
     // Map savedSessions to TrainingSession objects, reversed for most recent first
-    final sessions = data.savedSessions.reversed.toList();
+    final sessions = data.savedSessions.toList();
 
     final theme = Theme.of(context);
 

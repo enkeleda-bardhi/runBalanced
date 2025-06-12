@@ -50,69 +50,60 @@ class DataProvider extends ChangeNotifier {
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       _elapsed += Duration(seconds: 1);
 
-      if (distance > 0) {
-        pace = _elapsed.inSeconds / (60 * distance);
-        if (pace.isNaN || pace.isInfinite || pace <= 0) {
-          pace = 6.0; // safe default pace
-        }
-      } else {
-        pace = 0.0; // avoid divide by zero
-      }
+      // Randomly vary pace up or down by 0.1-0.3 min/km
+      final paceChangeOptions = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3];
+      paceChangeOptions.shuffle();
+      pace += paceChangeOptions.first;
 
-      double speedKmh = 60 / pace;
-      if (speedKmh.isNaN || speedKmh.isInfinite) {
-        speedKmh = 10.0; // safe default speed
-      }
-
-      double distanceIncrement = speedKmh / 3600; // km per second
-      if (distanceIncrement.isNaN || distanceIncrement.isInfinite) {
-        distanceIncrement = 0.0;
-      }
-
-      distance += distanceIncrement;
-
-      // Simulation (can be replaced with real data)
-      double userWeightKg =
-          userProfileProvider.weight > 0 ? userProfileProvider.weight : 70;
-      double hoursElapsed = 1 / 3600; // 1 second in hours
-      double caloriesIncrement = met * userWeightKg * hoursElapsed;
-      calories += caloriesIncrement;
-
-      // vary pace
-      pace += ([-0.05, 0, 0.05]..shuffle()).first;
+      // Clamp pace between 4.0 and 8.0 min/km
       if (pace < 4.0) pace = 4.0;
       if (pace > 8.0) pace = 8.0;
 
-      breathState +=
-          (pace > 6.0 ? 2 : 1) +
-          (0.5 * (pace - 5.0)).clamp(0, 2) +
-          ([-1, 0, 1]..shuffle()).first;
-      breathState = breathState.clamp(0, 100);
+      // Calculate speed from pace
+      double speedKmh = 60 / pace;
 
-      jointState +=
-          (distance > 5 ? 1.5 : 1) +
-          (0.2 * distance).clamp(0, 2) +
-          ([-1, 0, 1]..shuffle()).first;
-      jointState = jointState.clamp(0, 100);
+      // Add a small random multiplier to speed for natural fluctuation (0.9 to 1.1)
+      final speedMultipliers = [0.9, 1.0, 1.1];
+      speedMultipliers.shuffle();
+      speedKmh *= speedMultipliers.first;
 
-      muscleState +=
-          (distance > 3 ? 2 : 1) +
-          (0.3 * distance).clamp(0, 2) +
-          ([-1, 0, 1]..shuffle()).first;
-      muscleState = muscleState.clamp(0, 100);
+      // Distance increment based on speed (km per second)
+      double distanceIncrement = speedKmh / 3600;
+      distance += distanceIncrement;
 
-      // Add to buffer
+      // Calories calculation
+      double userWeightKg =
+          userProfileProvider.weight > 0 ? userProfileProvider.weight : 70;
+      double hoursElapsed = 1 / 3600; // 1 second
+      calories += met * userWeightKg * hoursElapsed;
+
+      // Slowly increase breathState with small random increments, capped below 90
+      final breathIncrements = [0.1, 0.2, 0.3];
+      breathIncrements.shuffle();
+      breathState = (breathState + breathIncrements.first).clamp(0, 90);
+
+      // Slowly increase jointState capped below 85
+      final jointIncrements = [0.1, 0.2, 0.3];
+      jointIncrements.shuffle();
+      jointState = (jointState + jointIncrements.first).clamp(0, 85);
+
+      // Slowly increase muscleState capped below 90
+      final muscleIncrements = [0.1, 0.2, 0.3];
+      muscleIncrements.shuffle();
+      muscleState = (muscleState + muscleIncrements.first).clamp(0, 90);
+
+      // Add current states to buffers
       breathBuffer.add(breathState);
       jointBuffer.add(jointState);
       muscleBuffer.add(muscleState);
 
-      // If a new km is reached, save averages
+      // Save averages per km if needed
       final currentKm = distance.floor();
-      if (!statePerKm.containsKey(currentKm) && breathBuffer.length >= 1) {
+      if (!statePerKm.containsKey(currentKm) && breathBuffer.isNotEmpty) {
         _saveKmAverage(currentKm);
       }
 
-      // Add snapshot every 30 seconds
+      // Add rhythm snapshot every 5 seconds
       if (_elapsed.inSeconds - _lastSnapshotSecond >= 5) {
         rhythmSnapshots.add({
           'time': _elapsed.inSeconds,

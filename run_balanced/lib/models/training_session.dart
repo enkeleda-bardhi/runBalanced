@@ -12,6 +12,9 @@ class TrainingSession {
   final Map<String, Map<String, double>> statesPerKm;
   final DateTime timestamp;
 
+  /// New: List of rhythm snapshots, each is a map with time, km, rhythm values
+  final List<Map<String, dynamic>>? rhythmSnapshots;
+
   TrainingSession({
     required this.id,
     required this.time,
@@ -23,6 +26,7 @@ class TrainingSession {
     required this.muscles,
     required this.statesPerKm,
     required this.timestamp,
+    this.rhythmSnapshots,
   });
 
   /// From Firestore map
@@ -48,6 +52,16 @@ class TrainingSession {
         ),
       ),
       timestamp: (map['timestamp'] as Timestamp).toDate(),
+
+      // Parse rhythmSnapshots if present, else null
+      rhythmSnapshots:
+          map['rhythmSnapshots'] != null
+              ? List<Map<String, dynamic>>.from(
+                (map['rhythmSnapshots'] as List).map(
+                  (e) => Map<String, dynamic>.from(e as Map),
+                ),
+              )
+              : null,
     );
   }
 
@@ -65,6 +79,8 @@ class TrainingSession {
         (key, value) => MapEntry(key, value.map((k, v) => MapEntry(k, v))),
       ),
       'timestamp': Timestamp.fromDate(timestamp),
+      // Save rhythmSnapshots only if not null
+      if (rhythmSnapshots != null) 'rhythmSnapshots': rhythmSnapshots,
     };
   }
 }
