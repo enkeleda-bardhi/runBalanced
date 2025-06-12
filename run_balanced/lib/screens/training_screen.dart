@@ -24,6 +24,7 @@ class TrainingScreen extends StatelessWidget {
               distance: data.distance,
               calories: data.calories,
               pace: data.pace,
+              heartRate: data.heartRate,
             ),
             const SizedBox(height: 20),
             ProgressBarWidget(label: "Breath", value: data.breathState),

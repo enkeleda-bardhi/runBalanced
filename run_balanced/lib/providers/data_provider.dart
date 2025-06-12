@@ -2,42 +2,44 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
+import 'package:run_balanced/services/impact_api_service.dart';
 
 class DataProvider extends ChangeNotifier {
-  // State
   Duration _elapsed = Duration.zero;
   Timer? _timer;
   final UserProfileProvider userProfileProvider;
   DataProvider(this.userProfileProvider);
 
-  double met = 9.8; // MET for running ~10 km/h
-  double distance = 0.0; // km
-  double calories = 0.0; // kcal
-  double pace = 0.0; // min/km
+  double met = 9.8;
+  double distance = 0.0;
+  double calories = 0.0;
+  double pace = 0.0;
+  int heartRate = 0;
 
   double breathState = 0;
   double jointState = 0;
   double muscleState = 0;
 
-  // Buffer per second (to average every km)
   final List<double> breathBuffer = [];
   final List<double> jointBuffer = [];
   final List<double> muscleBuffer = [];
-
-  // Map to save averages per km
   final Map<int, Map<String, double>> statePerKm = {};
 
-  // Saved sessions
   final List<TrainingSession> savedSessions = [];
   TrainingSession? lastSession;
 
-  // Rhythm snapshots stored every 30 seconds
   final List<Map<String, dynamic>> rhythmSnapshots = [];
   int _lastSnapshotSecond = 0;
 
-  // Time formatting hh:mm:ss
+  List<dynamic> _heartRateData = [];
+  int _heartRateIndex = 0;
+
+  List<dynamic> _calorieData = [];
+  int _calorieIndex = 0;
+
   String get formattedTime {
     final h = _elapsed.inHours.toString().padLeft(2, '0');
     final m = (_elapsed.inMinutes % 60).toString().padLeft(2, '0');
@@ -45,65 +47,79 @@ class DataProvider extends ChangeNotifier {
     return "$h:$m:$s";
   }
 
-  void startSimulation() {
+  Future<void> startSimulation() async {
     _timer?.cancel();
+
+    try {
+      _heartRateData = await ImpactApiService.fetchHeartRateDay(
+        day: DateFormat(
+          'yyyy-MM-dd',
+        ).format(DateTime.now().subtract(Duration(days: 1))),
+      );
+    } catch (e) {
+      debugPrint("Heart rate API error: $e");
+      _heartRateData = [];
+    }
+
+    try {
+      _calorieData = await ImpactApiService.fetchCaloriesDay(
+        day: DateFormat(
+          'yyyy-MM-dd',
+        ).format(DateTime.now().subtract(Duration(days: 1))),
+      );
+    } catch (e) {
+      debugPrint("Calories API error: $e");
+      _calorieData = [];
+    }
+
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       _elapsed += Duration(seconds: 1);
 
-      // Randomly vary pace up or down by 0.1-0.3 min/km
-      final paceChangeOptions = [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3];
-      paceChangeOptions.shuffle();
-      pace += paceChangeOptions.first;
+      if (_heartRateIndex < _heartRateData.length) {
+        final reading = _heartRateData[_heartRateIndex];
+        heartRate = reading['value'] ?? heartRate;
+        _heartRateIndex++;
+      }
 
-      // Clamp pace between 4.0 and 8.0 min/km
-      if (pace < 4.0) pace = 4.0;
-      if (pace > 8.0) pace = 8.0;
+      if (_calorieIndex < _calorieData.length) {
+        final reading = _calorieData[_calorieIndex];
+        calories += double.tryParse(reading['value'].toString()) ?? 0.0;
+        _calorieIndex++;
+      }
 
-      // Calculate speed from pace
-      double speedKmh = 60 / pace;
+      const double minPace = 6.0; // fast jog (~10 km/h)
+      const double maxPace = 12.0; // normal walk (~5 km/h)
+      const int minHR = 50;
+      const int maxHR = 180;
 
-      // Add a small random multiplier to speed for natural fluctuation (0.9 to 1.1)
-      final speedMultipliers = [0.9, 1.0, 1.1];
-      speedMultipliers.shuffle();
-      speedKmh *= speedMultipliers.first;
+      final clampedHR = heartRate.clamp(minHR, maxHR);
+      final normalizedHR = (clampedHR - minHR) / (maxHR - minHR);
+      final targetPace = maxPace - normalizedHR * (maxPace - minPace);
+      final randomAdjustment = ([-0.2, -0.1, 0, 0.1, 0.2]..shuffle()).first;
+      pace = (targetPace + randomAdjustment).clamp(minPace, maxPace);
 
-      // Distance increment based on speed (km per second)
-      double distanceIncrement = speedKmh / 3600;
-      distance += distanceIncrement;
+      final speedMultiplier = ([0.9, 1.0, 1.1]..shuffle()).first;
+      double speedKmh = 60 / pace * speedMultiplier;
+      distance += speedKmh / 3600;
 
-      // Calories calculation
-      double userWeightKg =
-          userProfileProvider.weight > 0 ? userProfileProvider.weight : 70;
-      double hoursElapsed = 1 / 3600; // 1 second
-      calories += met * userWeightKg * hoursElapsed;
+      final breathIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+      breathState = (breathState + breathIncrement).clamp(0, 90);
 
-      // Slowly increase breathState with small random increments, capped below 90
-      final breathIncrements = [0.1, 0.2, 0.3];
-      breathIncrements.shuffle();
-      breathState = (breathState + breathIncrements.first).clamp(0, 90);
+      final jointIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+      jointState = (jointState + jointIncrement).clamp(0, 85);
 
-      // Slowly increase jointState capped below 85
-      final jointIncrements = [0.1, 0.2, 0.3];
-      jointIncrements.shuffle();
-      jointState = (jointState + jointIncrements.first).clamp(0, 85);
+      final muscleIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+      muscleState = (muscleState + muscleIncrement).clamp(0, 90);
 
-      // Slowly increase muscleState capped below 90
-      final muscleIncrements = [0.1, 0.2, 0.3];
-      muscleIncrements.shuffle();
-      muscleState = (muscleState + muscleIncrements.first).clamp(0, 90);
-
-      // Add current states to buffers
       breathBuffer.add(breathState);
       jointBuffer.add(jointState);
       muscleBuffer.add(muscleState);
 
-      // Save averages per km if needed
       final currentKm = distance.floor();
       if (!statePerKm.containsKey(currentKm) && breathBuffer.isNotEmpty) {
         _saveKmAverage(currentKm);
       }
 
-      // Add rhythm snapshot every 5 seconds
       if (_elapsed.inSeconds - _lastSnapshotSecond >= 5) {
         rhythmSnapshots.add({
           'time': _elapsed.inSeconds,
@@ -115,6 +131,7 @@ class DataProvider extends ChangeNotifier {
 
       notifyListeners();
     });
+
     notifyListeners();
   }
 
@@ -153,24 +170,26 @@ class DataProvider extends ChangeNotifier {
     breathState = 0;
     jointState = 0;
     muscleState = 0;
+    heartRate = 0;
 
     breathBuffer.clear();
     jointBuffer.clear();
     muscleBuffer.clear();
     statePerKm.clear();
-
     rhythmSnapshots.clear();
     _lastSnapshotSecond = 0;
+
+    _heartRateData.clear();
+    _heartRateIndex = 0;
 
     notifyListeners();
   }
 
   Future<TrainingSession?> save() async {
-    // If you're mid-way through a km, save a partial average
-    final partialKm = distance - distance.floor();
-    if (partialKm > 0.05 && breathBuffer.isNotEmpty) {
+    if ((distance - distance.floor()) > 0.05 && breathBuffer.isNotEmpty) {
       _saveKmAverage(distance.floor() + 1);
     }
+
     final now = DateTime.now();
     final session = {
       'time': formattedTime,
@@ -180,6 +199,7 @@ class DataProvider extends ChangeNotifier {
       'breath': breathState,
       'joints': jointState,
       'muscles': muscleState,
+      'heartRate': heartRate,
       'statesPerKm': statePerKm.map((k, v) => MapEntry(k.toString(), v)),
       'rhythmSnapshots':
           rhythmSnapshots
@@ -218,26 +238,23 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTrainingSessions() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
     try {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId != null) {
-        final snapshot =
-            await FirebaseFirestore.instance
-                .collection('Users')
-                .doc(userId)
-                .collection('TrainingSessions')
-                .orderBy('timestamp', descending: true)
-                .get();
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(userId)
+              .collection('TrainingSessions')
+              .orderBy('timestamp', descending: true)
+              .get();
 
-        savedSessions.clear();
-
-        for (final doc in snapshot.docs) {
-          final session = TrainingSession.fromMap(doc.data(), id: doc.id);
-          savedSessions.add(session);
-        }
-
-        notifyListeners();
+      savedSessions.clear();
+      for (final doc in snapshot.docs) {
+        savedSessions.add(TrainingSession.fromMap(doc.data(), id: doc.id));
       }
+      notifyListeners();
     } catch (e) {
       debugPrint('Error fetching training sessions: $e');
     }
