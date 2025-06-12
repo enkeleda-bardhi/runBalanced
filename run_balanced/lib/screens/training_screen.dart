@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:run_balanced/screens/homepage_screen.dart';
+import 'package:run_balanced/screens/recap_detail_screen.dart';
 import 'package:run_balanced/screens/recap_screen.dart';
 import 'package:run_balanced/widgets/timer_widget.dart';
 import 'package:run_balanced/widgets/stats_row_widget.dart';
@@ -36,11 +38,13 @@ class TrainingScreen extends StatelessWidget {
               onReset: data.reset,
               onStopSave: () async {
                 try {
-                  await data.save(); // save the data
-                  if (context.mounted) {
+                  final session = await data.save(); // save the data
+                  if (context.mounted && session != null) {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => RecapScreen()),
+                      MaterialPageRoute(
+                        builder: (_) => RecapDetailScreen(session: session),
+                      ),
                     );
                   }
                 } catch (e) {

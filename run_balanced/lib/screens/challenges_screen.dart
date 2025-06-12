@@ -48,7 +48,7 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
             ...myChallenges.map((challenge) => _buildChallengeCard(challenge)),
             const SizedBox(height: 24),
           ],
-          Text("Other Challenges", style: theme.textTheme.displayMedium),
+          Text("Challenges", style: theme.textTheme.displayMedium),
           const SizedBox(height: 8),
           ...otherChallenges.map((challenge) => _buildChallengeCard(challenge)),
         ],

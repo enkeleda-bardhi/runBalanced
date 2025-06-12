@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 
 class DataProvider extends ChangeNotifier {
@@ -29,8 +30,8 @@ class DataProvider extends ChangeNotifier {
   final Map<int, Map<String, double>> statePerKm = {};
 
   // Saved sessions
-  final List<Map<String, dynamic>> savedSessions = [];
-  Map<String, dynamic>? lastSession;
+  final List<TrainingSession> savedSessions = [];
+  TrainingSession? lastSession;
 
   // Time formatting hh:mm:ss
   String get formattedTime {
@@ -154,7 +155,7 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> save() async {
+  Future<TrainingSession?> save() async {
     // If you're mid-way through a km, save a partial average
     final partialKm = distance - distance.floor();
     if (partialKm > 0.05 && breathBuffer.isNotEmpty) {
@@ -182,9 +183,9 @@ class DataProvider extends ChangeNotifier {
             .collection('TrainingSessions')
             .add(session);
 
-        session['id'] = docRef.id; // Optional: track document ID locally
-        lastSession = session;
-        savedSessions.add(session);
+        final newSession = TrainingSession.fromMap(session, id: docRef.id);
+        lastSession = newSession;
+        savedSessions.add(newSession);
         notifyListeners();
       } else {
         throw Exception('No logged in user');
@@ -192,6 +193,8 @@ class DataProvider extends ChangeNotifier {
     } catch (e) {
       debugPrint('Error saving training session: $e');
     }
+
+    return lastSession;
   }
 
   Future<void> fetchTrainingSessions() async {
@@ -209,9 +212,8 @@ class DataProvider extends ChangeNotifier {
         savedSessions.clear();
 
         for (final doc in snapshot.docs) {
-          final data = doc.data();
-          data['id'] = doc.id;
-          savedSessions.add(data);
+          final session = TrainingSession.fromMap(doc.data(), id: doc.id);
+          savedSessions.add(session);
         }
 
         notifyListeners();
@@ -233,7 +235,7 @@ class DataProvider extends ChangeNotifier {
           .doc(id)
           .delete();
 
-      savedSessions.removeWhere((session) => session['id'] == id);
+      savedSessions.removeWhere((session) => session.id == id);
       notifyListeners();
     } catch (e) {
       debugPrint('Error deleting session: $e');
