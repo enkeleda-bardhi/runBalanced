@@ -39,7 +39,6 @@ class _ChallengesScreenState extends State<ChallengesScreen> {
     final otherChallenges = allChallenges.where((c) => !c.isJoined).toList();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Challenges")),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

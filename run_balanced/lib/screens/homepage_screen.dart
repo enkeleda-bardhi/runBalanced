@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Training',
     'Programs',
     'Recap',
-    'Connection',
+    'Connections',
     'Challenges',
     'Settings',
     'Profile',

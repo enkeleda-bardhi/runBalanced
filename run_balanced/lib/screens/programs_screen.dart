@@ -142,7 +142,6 @@ class ProgramsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Programs")),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: programs.length,

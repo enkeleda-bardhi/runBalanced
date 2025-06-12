@@ -18,7 +18,6 @@ class ConnectionsScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Connections")),
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: connections.length,

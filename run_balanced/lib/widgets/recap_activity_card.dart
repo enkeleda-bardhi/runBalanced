@@ -11,14 +11,18 @@ class RecapActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final formattedDate = DateFormat('dd MMM yyyy – HH:mm').format(activity.date);
+    final formattedDate = DateFormat(
+      'dd MMM yyyy – HH:mm',
+    ).format(activity.date);
 
     return Card(
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        title: Text('Allenamento del $formattedDate'),
-        subtitle: Text('Distanza: ${activity.distance} km, Tempo: ${activity.duration}'),
+        title: Text('Training on $formattedDate'),
+        subtitle: Text(
+          'Distance: ${activity.distance} km, Duration: ${activity.duration}',
+        ),
         trailing: Icon(Icons.arrow_forward_ios),
         onTap: () {
           Navigator.push(
