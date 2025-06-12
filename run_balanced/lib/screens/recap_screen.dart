@@ -1,64 +1,112 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/providers/data_provider.dart';
+import 'package:run_balanced/screens/recap_detail_screen.dart';
 
-class RecapScreen extends StatelessWidget {
+class RecapScreen extends StatefulWidget {
+  const RecapScreen({super.key});
+
+  @override
+  _RecapScreenState createState() => _RecapScreenState();
+}
+
+class _RecapScreenState extends State<RecapScreen> {
+  late DataProvider data;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fetch sessions once when screen initializes
+    // Use listen: false because we don't want to rebuild on this call
+    data = Provider.of<DataProvider>(context, listen: false);
+    data.fetchTrainingSessions();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final data = Provider.of<DataProvider>(context);
-    final sessions = data.savedSessions.reversed.toList(); // per mostrare la più recente prima
+    // Listen to DataProvider updates here
+    data = Provider.of<DataProvider>(context);
+
+    // Map savedSessions to TrainingSession objects, reversed for most recent first
+    final sessions = data.savedSessions.reversed.toList();
+
+    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text("Sessioni salvate")),
-      body: sessions.isEmpty
-          ? Center(child: Text("Nessuna sessione salvata"))
-          : ListView.builder(
-        itemCount: sessions.length,
-        itemBuilder: (context, index) {
-          final s = sessions[index];
-          final date = DateTime.parse(s['timestamp']);
-          return Card(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: ListTile(
-                title: Text(
-                  "Sessione del ${date.day}/${date.month} alle ${date.hour}:${date.minute.toString().padLeft(2, '0')}",
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Text(
-                  "Tempo: ${s['time']} - Distanza: ${s['distance'].toStringAsFixed(2)} km\n"
-                      "Calorie: ${s['calories']} - Pace: ${s['pace']}\n"
-                      "Respiro: ${s['breath'].toStringAsFixed(1)}%, "
-                      "Articolazioni: ${s['joints'].toStringAsFixed(1)}%, "
-                      "Muscoli: ${s['muscles'].toStringAsFixed(1)}%",
-                ),
-                isThreeLine: true,
-                trailing: IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red),
-                  onPressed: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (_) => AlertDialog(
-                        title: Text("Conferma eliminazione"),
-                        content: Text("Vuoi davvero eliminare questa sessione?"),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(context, false), child: Text("Annulla")),
-                          TextButton(onPressed: () => Navigator.pop(context, true), child: Text("Elimina")),
-                        ],
-                      ),
-                    );
-
-                    if (confirm == true) {
-                      Provider.of<DataProvider>(context, listen: false)
-                          .removeSession(sessions.length - 1 - index);
-                    }
-                  },
-
+      body:
+          sessions.isEmpty
+              ? Center(
+                child: Text(
+                  "No saved sessions",
+                  style: theme.textTheme.titleLarge,
                 ),
               )
-          );
-        },
-      ),
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: sessions.length,
+                itemBuilder: (context, index) {
+                  final session = sessions[index];
+                  final dateFormatted = DateFormat(
+                    'yyyy-MM-dd HH:mm:ss',
+                  ).format(session.timestamp);
+
+                  return Card(
+                    color: theme.cardColor,
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    margin: const EdgeInsets.symmetric(vertical: 8),
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: Icon(
+                        Icons.directions_run,
+                        color: theme.iconTheme.color,
+                        size: 32,
+                      ),
+                      title: Text(
+                        "Session on $dateFormatted",
+                        style: theme.textTheme.bodyLarge!.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          Text(
+                            "Time: ${session.time}  •  Distance: ${session.distance.toStringAsFixed(2)} km",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            "Calories: ${session.calories.toStringAsFixed(2)}  •  Pace: ${session.pace.toStringAsFixed(2)}",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            "Breath: ${session.breath.toStringAsFixed(2)}%, Joints: ${session.joints.toStringAsFixed(2)}%, Muscles: ${session.muscles.toStringAsFixed(2)}%",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                        ],
+                      ),
+                      isThreeLine: true,
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        color: theme.iconTheme.color,
+                      ),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => RecapDetailScreen(session: session),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
     );
   }
 }
-
