@@ -33,6 +33,10 @@ class DataProvider extends ChangeNotifier {
   final List<TrainingSession> savedSessions = [];
   TrainingSession? lastSession;
 
+  // Rhythm snapshots stored every 30 seconds
+  final List<Map<String, dynamic>> rhythmSnapshots = [];
+  int _lastSnapshotSecond = 0;
+
   // Time formatting hh:mm:ss
   String get formattedTime {
     final h = _elapsed.inHours.toString().padLeft(2, '0');
@@ -45,6 +49,7 @@ class DataProvider extends ChangeNotifier {
     _timer?.cancel();
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       _elapsed += Duration(seconds: 1);
+
       if (distance > 0) {
         pace = _elapsed.inSeconds / (60 * distance);
         if (pace.isNaN || pace.isInfinite || pace <= 0) {
@@ -107,6 +112,16 @@ class DataProvider extends ChangeNotifier {
         _saveKmAverage(currentKm);
       }
 
+      // Add snapshot every 30 seconds
+      if (_elapsed.inSeconds - _lastSnapshotSecond >= 5) {
+        rhythmSnapshots.add({
+          'time': _elapsed.inSeconds,
+          'km': distance,
+          'rhythm': pace,
+        });
+        _lastSnapshotSecond = _elapsed.inSeconds;
+      }
+
       notifyListeners();
     });
     notifyListeners();
@@ -152,6 +167,10 @@ class DataProvider extends ChangeNotifier {
     jointBuffer.clear();
     muscleBuffer.clear();
     statePerKm.clear();
+
+    rhythmSnapshots.clear();
+    _lastSnapshotSecond = 0;
+
     notifyListeners();
   }
 
@@ -171,6 +190,16 @@ class DataProvider extends ChangeNotifier {
       'joints': jointState,
       'muscles': muscleState,
       'statesPerKm': statePerKm.map((k, v) => MapEntry(k.toString(), v)),
+      'rhythmSnapshots':
+          rhythmSnapshots
+              .map(
+                (e) => {
+                  'time': e['time'],
+                  'km': e['km'],
+                  'rhythm': e['rhythm'],
+                },
+              )
+              .toList(),
       'timestamp': Timestamp.fromDate(now),
     };
 
