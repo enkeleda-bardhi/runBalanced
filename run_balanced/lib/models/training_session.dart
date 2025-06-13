@@ -5,44 +5,58 @@ class TrainingSession {
   final String time;
   final double distance;
   final double calories;
-  final double pace;
-  final double breath;
-  final double joints;
-  final double muscles;
   final Map<String, Map<String, double>> statesPerKm;
+  final List<Map<String, dynamic>>? dataSnapshots;
   final DateTime timestamp;
 
-  /// New: List of rhythm snapshots, each is a map with time, km, rhythm values
-  final List<Map<String, dynamic>>? rhythmSnapshots;
+  final double? avgPace;
+  final double? avgHeartRate;
+  final double? avgBreath;
+  final double? avgJoints;
+  final double? avgMuscles;
 
   TrainingSession({
     required this.id,
     required this.time,
     required this.distance,
     required this.calories,
-    required this.pace,
-    required this.breath,
-    required this.joints,
-    required this.muscles,
     required this.statesPerKm,
+    required this.dataSnapshots,
     required this.timestamp,
-    this.rhythmSnapshots,
+    this.avgPace,
+    this.avgHeartRate,
+    this.avgBreath,
+    this.avgJoints,
+    this.avgMuscles,
   });
-
-  /// From Firestore map
   factory TrainingSession.fromMap(
     Map<String, dynamic> map, {
     required String id,
   }) {
+    // Extract dataSnapshots safely
+    final List<Map<String, dynamic>>? dataSnapshots =
+        map['dataSnapshots'] != null
+            ? List<Map<String, dynamic>>.from(
+              (map['dataSnapshots'] as List).map(
+                (e) => Map<String, dynamic>.from(e as Map),
+              ),
+            )
+            : null;
+
+    // Helper to compute average of a key
+    double computeAvg(String key) {
+      if (dataSnapshots == null || dataSnapshots.isEmpty) return 0.0;
+      return dataSnapshots
+              .map((e) => (e[key] ?? 0) as num)
+              .reduce((a, b) => a + b) /
+          dataSnapshots.length;
+    }
+
     return TrainingSession(
       id: id,
       time: map['time'] ?? '',
       distance: (map['distance'] as num).toDouble(),
       calories: (map['calories'] as num).toDouble(),
-      pace: (map['pace'] as num).toDouble(),
-      breath: (map['breath'] as num).toDouble(),
-      joints: (map['joints'] as num).toDouble(),
-      muscles: (map['muscles'] as num).toDouble(),
       statesPerKm: (map['statesPerKm'] as Map<String, dynamic>).map(
         (key, value) => MapEntry(
           key,
@@ -52,16 +66,12 @@ class TrainingSession {
         ),
       ),
       timestamp: (map['timestamp'] as Timestamp).toDate(),
-
-      // Parse rhythmSnapshots if present, else null
-      rhythmSnapshots:
-          map['rhythmSnapshots'] != null
-              ? List<Map<String, dynamic>>.from(
-                (map['rhythmSnapshots'] as List).map(
-                  (e) => Map<String, dynamic>.from(e as Map),
-                ),
-              )
-              : null,
+      dataSnapshots: dataSnapshots,
+      avgPace: computeAvg('pace'),
+      avgHeartRate: computeAvg('heartRate'),
+      avgBreath: computeAvg('breath'),
+      avgJoints: computeAvg('joints'),
+      avgMuscles: computeAvg('muscles'),
     );
   }
 
@@ -71,16 +81,12 @@ class TrainingSession {
       'time': time,
       'distance': distance,
       'calories': calories,
-      'pace': pace,
-      'breath': breath,
-      'joints': joints,
-      'muscles': muscles,
       'statesPerKm': statesPerKm.map(
         (key, value) => MapEntry(key, value.map((k, v) => MapEntry(k, v))),
       ),
       'timestamp': Timestamp.fromDate(timestamp),
-      // Save rhythmSnapshots only if not null
-      if (rhythmSnapshots != null) 'rhythmSnapshots': rhythmSnapshots,
+      // Save dataSnapshots only if not null
+      if (dataSnapshots != null) 'dataSnapshots': dataSnapshots,
     };
   }
 }

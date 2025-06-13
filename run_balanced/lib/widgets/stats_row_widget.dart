@@ -25,18 +25,18 @@ class StatsRowWidget extends StatelessWidget {
               label: "Distance (km)",
               value: distance.toStringAsFixed(2),
             ),
-            _StatItem(
-              label: "Calories (kcal)",
-              value: calories.toStringAsFixed(2),
-            ),
+            _StatItem(label: "Pace (min/km)", value: pace.toStringAsFixed(2)),
           ],
         ),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            _StatItem(label: "Pace (min/km)", value: pace.toStringAsFixed(2)),
-            _StatItem(label: "Heart Rate (bpm)", value: heartRate.toString()),
+            _StatItem(label: "Heart rate (bpm)", value: heartRate.toString()),
+            _StatItem(
+              label: "Calories (kcal)",
+              value: calories.toStringAsFixed(2),
+            ),
           ],
         ),
       ],

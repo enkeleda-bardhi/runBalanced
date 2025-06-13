@@ -24,11 +24,10 @@ class RecapDetailScreen extends StatelessWidget {
       'yyyy-MM-dd HH:mm:ss',
     ).format(session.timestamp);
 
-    // Defensive check in case rhythmSnapshots is null or empty
-    final rhythmSnapshots = session.rhythmSnapshots ?? [];
+    final dataSnapshots = session.dataSnapshots ?? [];
 
-    final distanceSpots = _convertToSpots(rhythmSnapshots, 'km');
-    final rhythmSpots = _convertToSpots(rhythmSnapshots, 'rhythm');
+    final distanceSpots = _convertToSpots(dataSnapshots, 'distance');
+    final rhythmSpots = _convertToSpots(dataSnapshots, 'pace');
 
     return Scaffold(
       appBar: AppBar(title: const Text("Session Details")),
@@ -49,26 +48,30 @@ class RecapDetailScreen extends StatelessWidget {
               style: theme.textTheme.bodyLarge,
             ),
             Text(
-              "Calories: ${session.calories.toStringAsFixed(0)}",
+              "Avg. pace: ${session.avgPace?.toStringAsFixed(2)} min/km",
               style: theme.textTheme.bodyLarge,
             ),
             Text(
-              "Pace: ${session.pace.toStringAsFixed(2)}",
+              "Calories: ${session.calories.toStringAsFixed(2)} kcal",
+              style: theme.textTheme.bodyLarge,
+            ),
+            Text(
+              "Avg. heart rate: ${session.avgHeartRate?.toStringAsFixed(0)} bpm",
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 20),
             Text("Physiological Metrics", style: theme.textTheme.displayMedium),
             const SizedBox(height: 12),
             Text(
-              "Breath: ${session.breath.toStringAsFixed(1)}%",
+              "Avg. breath: ${session.avgBreath?.toStringAsFixed(1)}%",
               style: theme.textTheme.bodyLarge,
             ),
             Text(
-              "Joints: ${session.joints.toStringAsFixed(1)}%",
+              "Avg. joints: ${session.avgJoints?.toStringAsFixed(1)}%",
               style: theme.textTheme.bodyLarge,
             ),
             Text(
-              "Muscles: ${session.muscles.toStringAsFixed(1)}%",
+              "Avg. muscles: ${session.avgMuscles?.toStringAsFixed(1)}%",
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 30),
@@ -80,6 +83,7 @@ class RecapDetailScreen extends StatelessWidget {
               xAxisLabel: 'Time (s)',
               yAxisLabel: 'Distance (km)',
               lineColor: Colors.blue,
+              fixedMaxY: null,
             ),
 
             const SizedBox(height: 30),
@@ -91,6 +95,7 @@ class RecapDetailScreen extends StatelessWidget {
               xAxisLabel: 'Time (s)',
               yAxisLabel: 'Pace (min/km)',
               lineColor: Colors.red,
+              fixedMaxY: 20,
             ),
           ],
         ),

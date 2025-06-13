@@ -14,6 +14,7 @@ class GeneralLineChart extends StatelessWidget {
   final double? fixedMinX;
   final double? fixedMaxX;
   final double? fixedXInterval;
+  final double? fixedMaxY;
 
   const GeneralLineChart({
     super.key,
@@ -27,6 +28,7 @@ class GeneralLineChart extends StatelessWidget {
     this.fixedMinX,
     this.fixedMaxX,
     this.fixedXInterval,
+    this.fixedMaxY,
   });
 
   @override
@@ -39,9 +41,10 @@ class GeneralLineChart extends StatelessWidget {
 
     final minY = 0.0;
     final maxY =
-        spots.isNotEmpty
+        fixedMaxY ??
+        (spots.isNotEmpty
             ? spots.map((s) => s.y).reduce((a, b) => a > b ? a : b)
-            : 10.0;
+            : 10.0);
     final yInterval = ((maxY - minY) / 5).clamp(1.0, double.infinity);
 
     return Column(
@@ -118,7 +121,7 @@ class GeneralLineChart extends StatelessWidget {
                           return touchedSpots.map((spot) {
                             return LineTooltipItem(
                               spot.y.toStringAsFixed(
-                                2,
+                                3,
                               ), // Show value with 2 decimal places
                               const TextStyle(
                                 color: Colors.white,

@@ -31,7 +31,7 @@ class DataProvider extends ChangeNotifier {
   final List<TrainingSession> savedSessions = [];
   TrainingSession? lastSession;
 
-  final List<Map<String, dynamic>> rhythmSnapshots = [];
+  final List<Map<String, dynamic>> dataSnapshots = [];
   int _lastSnapshotSecond = 0;
 
   List<dynamic> _heartRateData = [];
@@ -54,7 +54,7 @@ class DataProvider extends ChangeNotifier {
       _heartRateData = await ImpactApiService.fetchHeartRateDay(
         day: DateFormat(
           'yyyy-MM-dd',
-        ).format(DateTime.now().subtract(Duration(days: 1))),
+        ).format(DateTime.now().subtract(Duration(days: 2))),
       );
     } catch (e) {
       debugPrint("Heart rate API error: $e");
@@ -65,7 +65,7 @@ class DataProvider extends ChangeNotifier {
       _calorieData = await ImpactApiService.fetchCaloriesDay(
         day: DateFormat(
           'yyyy-MM-dd',
-        ).format(DateTime.now().subtract(Duration(days: 1))),
+        ).format(DateTime.now().subtract(Duration(days: 2))),
       );
     } catch (e) {
       debugPrint("Calories API error: $e");
@@ -83,7 +83,8 @@ class DataProvider extends ChangeNotifier {
 
       if (_calorieIndex < _calorieData.length) {
         final reading = _calorieData[_calorieIndex];
-        calories += double.tryParse(reading['value'].toString()) ?? 0.0;
+        calories +=
+            (double.tryParse(reading['value'].toString()) ?? 0.0) / 1000;
         _calorieIndex++;
       }
 
@@ -92,14 +93,31 @@ class DataProvider extends ChangeNotifier {
       const int minHR = 50;
       const int maxHR = 180;
 
+      // Clamp and normalize HR to 0.0 - 1.0 range
       final clampedHR = heartRate.clamp(minHR, maxHR);
       final normalizedHR = (clampedHR - minHR) / (maxHR - minHR);
-      final targetPace = maxPace - normalizedHR * (maxPace - minPace);
-      final randomAdjustment = ([-0.2, -0.1, 0, 0.1, 0.2]..shuffle()).first;
-      pace = (targetPace + randomAdjustment).clamp(minPace, maxPace);
 
-      final speedMultiplier = ([0.9, 1.0, 1.1]..shuffle()).first;
-      double speedKmh = 60 / pace * speedMultiplier;
+      // Compute fatigue — make it have small impact (max 10%)
+      final fatigue = ((breathState + jointState + muscleState) / 3000).clamp(
+        0.0,
+        0.1,
+      );
+
+      // Pace varies between min and max — HR ↑ means pace ↓ (faster)
+      double basePace = maxPace - normalizedHR * (maxPace - minPace);
+
+      // Random fluctuation ±0.5
+      double variation = ([-0.5, -0.3, 0.0, 0.3, 0.5]..shuffle()).first;
+      basePace = (basePace + variation).clamp(minPace, maxPace);
+
+      // Apply fatigue
+      final adjustedPace = (basePace * (1 + fatigue)).clamp(minPace, maxPace);
+      pace = adjustedPace;
+
+      // Now compute speed in km/h
+      final speedKmh = 60 / adjustedPace;
+
+      // Increase distance over time
       distance += speedKmh / 3600;
 
       final breathIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
@@ -121,10 +139,15 @@ class DataProvider extends ChangeNotifier {
       }
 
       if (_elapsed.inSeconds - _lastSnapshotSecond >= 5) {
-        rhythmSnapshots.add({
+        dataSnapshots.add({
           'time': _elapsed.inSeconds,
-          'km': distance,
-          'rhythm': pace,
+          'distance': distance,
+          'calories': calories,
+          'pace': pace,
+          'heartRate': heartRate,
+          'breath': breathState,
+          'joints': jointState,
+          'muscles': muscleState,
         });
         _lastSnapshotSecond = _elapsed.inSeconds;
       }
@@ -176,7 +199,7 @@ class DataProvider extends ChangeNotifier {
     jointBuffer.clear();
     muscleBuffer.clear();
     statePerKm.clear();
-    rhythmSnapshots.clear();
+    dataSnapshots.clear();
     _lastSnapshotSecond = 0;
 
     _heartRateData.clear();
@@ -195,19 +218,19 @@ class DataProvider extends ChangeNotifier {
       'time': formattedTime,
       'distance': distance,
       'calories': calories,
-      'pace': pace,
-      'breath': breathState,
-      'joints': jointState,
-      'muscles': muscleState,
-      'heartRate': heartRate,
       'statesPerKm': statePerKm.map((k, v) => MapEntry(k.toString(), v)),
-      'rhythmSnapshots':
-          rhythmSnapshots
+      'dataSnapshots':
+          dataSnapshots
               .map(
                 (e) => {
                   'time': e['time'],
-                  'km': e['km'],
-                  'rhythm': e['rhythm'],
+                  'distance': e['distance'],
+                  'calories': e['calories'],
+                  'pace': e['pace'],
+                  'heartRate': e['heartRate'],
+                  'breath': e['breath'],
+                  'joints': e['joints'],
+                  'muscles': e['muscles'],
                 },
               )
               .toList(),

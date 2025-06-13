@@ -76,15 +76,35 @@ class _RecapScreenState extends State<RecapScreen> {
                         children: [
                           const SizedBox(height: 8),
                           Text(
-                            "Time: ${session.time}  •  Distance: ${session.distance.toStringAsFixed(2)} km",
+                            "Time: ${session.time}",
                             style: theme.textTheme.bodyMedium,
                           ),
                           Text(
-                            "Calories: ${session.calories.toStringAsFixed(2)}  •  Pace: ${session.pace.toStringAsFixed(2)}",
+                            "Distance: ${session.distance.toStringAsFixed(2)} km",
                             style: theme.textTheme.bodyMedium,
                           ),
                           Text(
-                            "Breath: ${session.breath.toStringAsFixed(2)}%, Joints: ${session.joints.toStringAsFixed(2)}%, Muscles: ${session.muscles.toStringAsFixed(2)}%",
+                            "Pace: ${session.avgPace?.toStringAsFixed(2)} min/km",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            "Calories: ${session.calories.toStringAsFixed(2)} kcal",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            "Heart rate: ${session.avgHeartRate?.toStringAsFixed(2)} bpm",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            "Breath: ${session.avgBreath?.toStringAsFixed(2)}%",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            "Joints: ${session.avgJoints?.toStringAsFixed(2)}%",
+                            style: theme.textTheme.bodyMedium,
+                          ),
+                          Text(
+                            "Muscles: ${session.avgMuscles?.toStringAsFixed(2)}%",
                             style: theme.textTheme.bodyMedium,
                           ),
                         ],
