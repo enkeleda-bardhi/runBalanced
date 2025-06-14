@@ -2,38 +2,44 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
+import 'package:run_balanced/services/impact_api_service.dart';
 
 class DataProvider extends ChangeNotifier {
-  // State
   Duration _elapsed = Duration.zero;
   Timer? _timer;
   final UserProfileProvider userProfileProvider;
   DataProvider(this.userProfileProvider);
 
-  double met = 9.8; // MET for running ~10 km/h
-  double distance = 0.0; // km
-  double calories = 0.0; // kcal
-  double pace = 0.0; // min/km
+  double met = 9.8;
+  double distance = 0.0;
+  double calories = 0.0;
+  double pace = 0.0;
+  int heartRate = 0;
 
   double breathState = 0;
   double jointState = 0;
   double muscleState = 0;
 
-  // Buffer per second (to average every km)
   final List<double> breathBuffer = [];
   final List<double> jointBuffer = [];
   final List<double> muscleBuffer = [];
-
-  // Map to save averages per km
   final Map<int, Map<String, double>> statePerKm = {};
 
-  // Saved sessions
   final List<TrainingSession> savedSessions = [];
   TrainingSession? lastSession;
 
-  // Time formatting hh:mm:ss
+  final List<Map<String, dynamic>> dataSnapshots = [];
+  int _lastSnapshotSecond = 0;
+
+  List<dynamic> _heartRateData = [];
+  int _heartRateIndex = 0;
+
+  List<dynamic> _calorieData = [];
+  int _calorieIndex = 0;
+
   String get formattedTime {
     final h = _elapsed.inHours.toString().padLeft(2, '0');
     final m = (_elapsed.inMinutes % 60).toString().padLeft(2, '0');
@@ -41,74 +47,120 @@ class DataProvider extends ChangeNotifier {
     return "$h:$m:$s";
   }
 
-  void startSimulation() {
+  Future<void> startSimulation() async {
     _timer?.cancel();
+
+    try {
+      _heartRateData = await ImpactApiService.fetchHeartRateDay(
+        day: DateFormat(
+          'yyyy-MM-dd',
+        ).format(DateTime.now().subtract(Duration(days: 2))),
+      );
+    } catch (e) {
+      debugPrint("Heart rate API error: $e");
+      _heartRateData = [];
+    }
+
+    try {
+      _calorieData = await ImpactApiService.fetchCaloriesDay(
+        day: DateFormat(
+          'yyyy-MM-dd',
+        ).format(DateTime.now().subtract(Duration(days: 2))),
+      );
+    } catch (e) {
+      debugPrint("Calories API error: $e");
+      _calorieData = [];
+    }
+
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       _elapsed += Duration(seconds: 1);
-      if (distance > 0) {
-        pace = _elapsed.inSeconds / (60 * distance);
-        if (pace.isNaN || pace.isInfinite || pace <= 0) {
-          pace = 6.0; // safe default pace
+
+      final seconds = _elapsed.inSeconds;
+
+      // Every 5 seconds: update pace, distance, vitals
+      if (seconds % 5 == 0) {
+        if (pace != 0) {
+          final speedKmh = 60 / pace;
+          distance += (speedKmh / 3600) * 5;
         }
-      } else {
-        pace = 0.0; // avoid divide by zero
-      }
 
-      double speedKmh = 60 / pace;
-      if (speedKmh.isNaN || speedKmh.isInfinite) {
-        speedKmh = 10.0; // safe default speed
-      }
+        if (_heartRateIndex < _heartRateData.length) {
+          final reading = _heartRateData[_heartRateIndex];
+          heartRate = reading['value'] ?? heartRate;
+          _heartRateIndex++;
+        }
 
-      double distanceIncrement = speedKmh / 3600; // km per second
-      if (distanceIncrement.isNaN || distanceIncrement.isInfinite) {
-        distanceIncrement = 0.0;
-      }
+        if (_calorieIndex < _calorieData.length) {
+          final reading = _calorieData[_calorieIndex];
+          calories +=
+              (double.tryParse(reading['value'].toString()) ?? 0.0) / 1000;
+          _calorieIndex++;
+        }
 
-      distance += distanceIncrement;
+        const double minPace = 6.0; // fast jog
+        const double maxPace = 12.0; // walk
+        const int minHR = 50;
+        const int maxHR = 180;
 
-      // Simulation (can be replaced with real data)
-      double userWeightKg =
-          userProfileProvider.weight > 0 ? userProfileProvider.weight : 70;
-      double hoursElapsed = 1 / 3600; // 1 second in hours
-      double caloriesIncrement = met * userWeightKg * hoursElapsed;
-      calories += caloriesIncrement;
+        final clampedHR = heartRate.clamp(minHR, maxHR);
+        final normalizedHR = (clampedHR - minHR) / (maxHR - minHR);
 
-      // vary pace
-      pace += ([-0.05, 0, 0.05]..shuffle()).first;
-      if (pace < 4.0) pace = 4.0;
-      if (pace > 8.0) pace = 8.0;
+        final fatigue = ((breathState + jointState + muscleState) / 3000).clamp(
+          0.0,
+          0.1,
+        );
 
-      breathState +=
-          (pace > 6.0 ? 2 : 1) +
-          (0.5 * (pace - 5.0)).clamp(0, 2) +
-          ([-1, 0, 1]..shuffle()).first;
-      breathState = breathState.clamp(0, 100);
+        double basePace = maxPace - normalizedHR * (maxPace - minPace);
+        double variation = ([-0.5, -0.3, 0.0, 0.3, 0.5]..shuffle()).first;
+        basePace = (basePace + variation).clamp(minPace, maxPace);
 
-      jointState +=
-          (distance > 5 ? 1.5 : 1) +
-          (0.2 * distance).clamp(0, 2) +
-          ([-1, 0, 1]..shuffle()).first;
-      jointState = jointState.clamp(0, 100);
+        final adjustedPace = (basePace * (1 + fatigue)).clamp(minPace, maxPace);
+        pace = adjustedPace;
 
-      muscleState +=
-          (distance > 3 ? 2 : 1) +
-          (0.3 * distance).clamp(0, 2) +
-          ([-1, 0, 1]..shuffle()).first;
-      muscleState = muscleState.clamp(0, 100);
+        final fatigueFactor = ((breathState + jointState + muscleState) / 1000)
+            .clamp(0.0, 0.05);
+        double baseSpeed = 3.0 + normalizedHR * 9.0;
+        baseSpeed += variation;
+        double adjustedSpeedKmh = baseSpeed * (1 - fatigueFactor);
+        adjustedSpeedKmh = adjustedSpeedKmh.clamp(3.0, 12.0);
+        pace = (adjustedSpeedKmh > 0) ? 60 / adjustedSpeedKmh : 0;
 
-      // Add to buffer
-      breathBuffer.add(breathState);
-      jointBuffer.add(jointState);
-      muscleBuffer.add(muscleState);
+        final breathIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+        breathState = (breathState + breathIncrement).clamp(0, 90);
 
-      // If a new km is reached, save averages
-      final currentKm = distance.floor();
-      if (!statePerKm.containsKey(currentKm) && breathBuffer.length >= 1) {
-        _saveKmAverage(currentKm);
+        final jointIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+        jointState = (jointState + jointIncrement).clamp(0, 85);
+
+        final muscleIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+        muscleState = (muscleState + muscleIncrement).clamp(0, 90);
+
+        breathBuffer.add(breathState);
+        jointBuffer.add(jointState);
+        muscleBuffer.add(muscleState);
+
+        final currentKm = distance.floor();
+        if (!statePerKm.containsKey(currentKm) && breathBuffer.isNotEmpty) {
+          _saveKmAverage(currentKm);
+        }
+
+        if (seconds - _lastSnapshotSecond >= 5) {
+          dataSnapshots.add({
+            'time': seconds,
+            'distance': distance,
+            'calories': calories,
+            'pace': pace,
+            'heartRate': heartRate,
+            'breath': breathState,
+            'joints': jointState,
+            'muscles': muscleState,
+          });
+          _lastSnapshotSecond = seconds;
+        }
       }
 
       notifyListeners();
     });
+
     notifyListeners();
   }
 
@@ -147,30 +199,47 @@ class DataProvider extends ChangeNotifier {
     breathState = 0;
     jointState = 0;
     muscleState = 0;
+    heartRate = 0;
 
     breathBuffer.clear();
     jointBuffer.clear();
     muscleBuffer.clear();
     statePerKm.clear();
+    dataSnapshots.clear();
+    _lastSnapshotSecond = 0;
+
+    _heartRateData.clear();
+    _heartRateIndex = 0;
+
     notifyListeners();
   }
 
   Future<TrainingSession?> save() async {
-    // If you're mid-way through a km, save a partial average
-    final partialKm = distance - distance.floor();
-    if (partialKm > 0.05 && breathBuffer.isNotEmpty) {
+    if ((distance - distance.floor()) > 0.05 && breathBuffer.isNotEmpty) {
       _saveKmAverage(distance.floor() + 1);
     }
+
     final now = DateTime.now();
     final session = {
       'time': formattedTime,
       'distance': distance,
       'calories': calories,
-      'pace': pace,
-      'breath': breathState,
-      'joints': jointState,
-      'muscles': muscleState,
       'statesPerKm': statePerKm.map((k, v) => MapEntry(k.toString(), v)),
+      'dataSnapshots':
+          dataSnapshots
+              .map(
+                (e) => {
+                  'time': e['time'],
+                  'distance': e['distance'],
+                  'calories': e['calories'],
+                  'pace': e['pace'],
+                  'heartRate': e['heartRate'],
+                  'breath': e['breath'],
+                  'joints': e['joints'],
+                  'muscles': e['muscles'],
+                },
+              )
+              .toList(),
       'timestamp': Timestamp.fromDate(now),
     };
 
@@ -198,26 +267,23 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTrainingSessions() async {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    if (userId == null) return;
+
     try {
-      final userId = FirebaseAuth.instance.currentUser?.uid;
-      if (userId != null) {
-        final snapshot =
-            await FirebaseFirestore.instance
-                .collection('Users')
-                .doc(userId)
-                .collection('TrainingSessions')
-                .orderBy('timestamp', descending: true)
-                .get();
+      final snapshot =
+          await FirebaseFirestore.instance
+              .collection('Users')
+              .doc(userId)
+              .collection('TrainingSessions')
+              .orderBy('timestamp', descending: true)
+              .get();
 
-        savedSessions.clear();
-
-        for (final doc in snapshot.docs) {
-          final session = TrainingSession.fromMap(doc.data(), id: doc.id);
-          savedSessions.add(session);
-        }
-
-        notifyListeners();
+      savedSessions.clear();
+      for (final doc in snapshot.docs) {
+        savedSessions.add(TrainingSession.fromMap(doc.data(), id: doc.id));
       }
+      notifyListeners();
     } catch (e) {
       debugPrint('Error fetching training sessions: $e');
     }

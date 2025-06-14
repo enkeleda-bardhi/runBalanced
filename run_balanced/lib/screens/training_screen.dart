@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:run_balanced/screens/homepage_screen.dart';
 import 'package:run_balanced/screens/recap_detail_screen.dart';
-import 'package:run_balanced/screens/recap_screen.dart';
 import 'package:run_balanced/widgets/timer_widget.dart';
 import 'package:run_balanced/widgets/stats_row_widget.dart';
 import 'package:run_balanced/widgets/progress_bar_widget.dart';
@@ -26,6 +24,7 @@ class TrainingScreen extends StatelessWidget {
               distance: data.distance,
               calories: data.calories,
               pace: data.pace,
+              heartRate: data.heartRate,
             ),
             const SizedBox(height: 20),
             ProgressBarWidget(label: "Breath", value: data.breathState),
@@ -40,6 +39,7 @@ class TrainingScreen extends StatelessWidget {
                 try {
                   final session = await data.save(); // save the data
                   if (context.mounted && session != null) {
+                    data.reset();
                     Navigator.push(
                       context,
                       MaterialPageRoute(

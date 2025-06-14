@@ -100,4 +100,24 @@ class ImpactApiService {
       throw Exception('Failed to fetch heart rate: ${response.statusCode}');
     }
   }
+
+  static Future<List<dynamic>> fetchCaloriesDay({required String day}) async {
+    await _ensureAuthorized();
+
+    final url = Uri.parse(
+      '$_baseUrl/data/v1/calories/patients/$_patientUsername/day/$day/',
+    );
+
+    final headers = {HttpHeaders.authorizationHeader: 'Bearer $_accessToken'};
+
+    final response = await http.get(url, headers: headers);
+
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      // Directly return the `data` field assuming it is always a list
+      return data['data']['data'] as List<dynamic>;
+    } else {
+      throw Exception('Failed to fetch calories: ${response.statusCode}');
+    }
+  }
 }
