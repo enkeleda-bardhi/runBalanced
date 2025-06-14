@@ -13,6 +13,8 @@ class DataProvider extends ChangeNotifier {
   final UserProfileProvider userProfileProvider;
   DataProvider(this.userProfileProvider);
 
+  bool _isLoading = false;
+
   double met = 9.8;
   double distance = 0.0;
   double calories = 0.0;
@@ -39,6 +41,12 @@ class DataProvider extends ChangeNotifier {
 
   List<dynamic> _calorieData = [];
   int _calorieIndex = 0;
+
+  bool get isLoading => _isLoading;
+
+  void _setLoading(bool value) {
+    _isLoading = value;
+  }
 
   String get formattedTime {
     final h = _elapsed.inHours.toString().padLeft(2, '0');
@@ -267,6 +275,8 @@ class DataProvider extends ChangeNotifier {
   }
 
   Future<void> fetchTrainingSessions() async {
+    _setLoading(true);
+
     final userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) return;
 
@@ -283,6 +293,8 @@ class DataProvider extends ChangeNotifier {
       for (final doc in snapshot.docs) {
         savedSessions.add(TrainingSession.fromMap(doc.data(), id: doc.id));
       }
+      _setLoading(false);
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching training sessions: $e');
