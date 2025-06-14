@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/data_provider.dart';
 import 'package:run_balanced/screens/recap_detail_screen.dart';
+import 'package:run_balanced/widgets/loading_spinner_widget.dart';
 
 class RecapScreen extends StatefulWidget {
   const RecapScreen({super.key});
@@ -25,17 +26,15 @@ class _RecapScreenState extends State<RecapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen to DataProvider updates here
     data = Provider.of<DataProvider>(context);
-
-    // Map savedSessions to TrainingSession objects, reversed for most recent first
     final sessions = data.savedSessions.toList();
-
     final theme = Theme.of(context);
 
     return Scaffold(
       body:
-          sessions.isEmpty
+          data.isLoading
+              ? const Center(child: LoadingSpinnerWidget())
+              : sessions.isEmpty
               ? Center(
                 child: Text(
                   "No saved sessions",
