@@ -75,81 +75,87 @@ class DataProvider extends ChangeNotifier {
     _timer = Timer.periodic(Duration(seconds: 1), (_) {
       _elapsed += Duration(seconds: 1);
 
-      if (_heartRateIndex < _heartRateData.length) {
-        final reading = _heartRateData[_heartRateIndex];
-        heartRate = reading['value'] ?? heartRate;
-        _heartRateIndex++;
-      }
+      final seconds = _elapsed.inSeconds;
 
-      if (_calorieIndex < _calorieData.length) {
-        final reading = _calorieData[_calorieIndex];
-        calories +=
-            (double.tryParse(reading['value'].toString()) ?? 0.0) / 1000;
-        _calorieIndex++;
-      }
+      // Every 5 seconds: update pace, distance, vitals
+      if (seconds % 5 == 0) {
+        if (pace != 0) {
+          final speedKmh = 60 / pace;
+          distance += (speedKmh / 3600) * 5;
+        }
 
-      const double minPace = 6.0; // fast jog (~10 km/h)
-      const double maxPace = 12.0; // normal walk (~5 km/h)
-      const int minHR = 50;
-      const int maxHR = 180;
+        if (_heartRateIndex < _heartRateData.length) {
+          final reading = _heartRateData[_heartRateIndex];
+          heartRate = reading['value'] ?? heartRate;
+          _heartRateIndex++;
+        }
 
-      // Clamp and normalize HR to 0.0 - 1.0 range
-      final clampedHR = heartRate.clamp(minHR, maxHR);
-      final normalizedHR = (clampedHR - minHR) / (maxHR - minHR);
+        if (_calorieIndex < _calorieData.length) {
+          final reading = _calorieData[_calorieIndex];
+          calories +=
+              (double.tryParse(reading['value'].toString()) ?? 0.0) / 1000;
+          _calorieIndex++;
+        }
 
-      // Compute fatigue — make it have small impact (max 10%)
-      final fatigue = ((breathState + jointState + muscleState) / 3000).clamp(
-        0.0,
-        0.1,
-      );
+        const double minPace = 6.0; // fast jog
+        const double maxPace = 12.0; // walk
+        const int minHR = 50;
+        const int maxHR = 180;
 
-      // Pace varies between min and max — HR ↑ means pace ↓ (faster)
-      double basePace = maxPace - normalizedHR * (maxPace - minPace);
+        final clampedHR = heartRate.clamp(minHR, maxHR);
+        final normalizedHR = (clampedHR - minHR) / (maxHR - minHR);
 
-      // Random fluctuation ±0.5
-      double variation = ([-0.5, -0.3, 0.0, 0.3, 0.5]..shuffle()).first;
-      basePace = (basePace + variation).clamp(minPace, maxPace);
+        final fatigue = ((breathState + jointState + muscleState) / 3000).clamp(
+          0.0,
+          0.1,
+        );
 
-      // Apply fatigue
-      final adjustedPace = (basePace * (1 + fatigue)).clamp(minPace, maxPace);
-      pace = adjustedPace;
+        double basePace = maxPace - normalizedHR * (maxPace - minPace);
+        double variation = ([-0.5, -0.3, 0.0, 0.3, 0.5]..shuffle()).first;
+        basePace = (basePace + variation).clamp(minPace, maxPace);
 
-      // Now compute speed in km/h
-      final speedKmh = 60 / adjustedPace;
+        final adjustedPace = (basePace * (1 + fatigue)).clamp(minPace, maxPace);
+        pace = adjustedPace;
 
-      // Increase distance over time
-      distance += speedKmh / 3600;
+        final fatigueFactor = ((breathState + jointState + muscleState) / 1000)
+            .clamp(0.0, 0.05);
+        double baseSpeed = 3.0 + normalizedHR * 9.0;
+        baseSpeed += variation;
+        double adjustedSpeedKmh = baseSpeed * (1 - fatigueFactor);
+        adjustedSpeedKmh = adjustedSpeedKmh.clamp(3.0, 12.0);
+        pace = (adjustedSpeedKmh > 0) ? 60 / adjustedSpeedKmh : 0;
 
-      final breathIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
-      breathState = (breathState + breathIncrement).clamp(0, 90);
+        final breathIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+        breathState = (breathState + breathIncrement).clamp(0, 90);
 
-      final jointIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
-      jointState = (jointState + jointIncrement).clamp(0, 85);
+        final jointIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+        jointState = (jointState + jointIncrement).clamp(0, 85);
 
-      final muscleIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
-      muscleState = (muscleState + muscleIncrement).clamp(0, 90);
+        final muscleIncrement = ([0.1, 0.2, 0.3]..shuffle()).first;
+        muscleState = (muscleState + muscleIncrement).clamp(0, 90);
 
-      breathBuffer.add(breathState);
-      jointBuffer.add(jointState);
-      muscleBuffer.add(muscleState);
+        breathBuffer.add(breathState);
+        jointBuffer.add(jointState);
+        muscleBuffer.add(muscleState);
 
-      final currentKm = distance.floor();
-      if (!statePerKm.containsKey(currentKm) && breathBuffer.isNotEmpty) {
-        _saveKmAverage(currentKm);
-      }
+        final currentKm = distance.floor();
+        if (!statePerKm.containsKey(currentKm) && breathBuffer.isNotEmpty) {
+          _saveKmAverage(currentKm);
+        }
 
-      if (_elapsed.inSeconds - _lastSnapshotSecond >= 5) {
-        dataSnapshots.add({
-          'time': _elapsed.inSeconds,
-          'distance': distance,
-          'calories': calories,
-          'pace': pace,
-          'heartRate': heartRate,
-          'breath': breathState,
-          'joints': jointState,
-          'muscles': muscleState,
-        });
-        _lastSnapshotSecond = _elapsed.inSeconds;
+        if (seconds - _lastSnapshotSecond >= 5) {
+          dataSnapshots.add({
+            'time': seconds,
+            'distance': distance,
+            'calories': calories,
+            'pace': pace,
+            'heartRate': heartRate,
+            'breath': breathState,
+            'joints': jointState,
+            'muscles': muscleState,
+          });
+          _lastSnapshotSecond = seconds;
+        }
       }
 
       notifyListeners();
