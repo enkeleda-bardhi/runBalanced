@@ -27,7 +27,8 @@ class RecapDetailScreen extends StatelessWidget {
     final dataSnapshots = session.dataSnapshots ?? [];
 
     final distanceSpots = _convertToSpots(dataSnapshots, 'distance');
-    final rhythmSpots = _convertToSpots(dataSnapshots, 'pace');
+    final paceSpots = _convertToSpots(dataSnapshots, 'pace');
+    final heartRateSpots = _convertToSpots(dataSnapshots, 'heartRate');
 
     return Scaffold(
       appBar: AppBar(title: const Text("Session Details")),
@@ -76,9 +77,9 @@ class RecapDetailScreen extends StatelessWidget {
             ),
             const SizedBox(height: 30),
 
-            // Line Chart: Time vs Distance
+            // Line Chart: Distance
             GeneralLineChart(
-              title: 'Time vs Distance',
+              title: 'Distance',
               spots: distanceSpots,
               xAxisLabel: 'Time (s)',
               yAxisLabel: 'Distance (km)',
@@ -88,14 +89,25 @@ class RecapDetailScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            // Line Chart: Time vs Pace
+            // Line Chart: Pace
             GeneralLineChart(
-              title: 'Time vs Pace',
-              spots: rhythmSpots,
+              title: 'Pace',
+              spots: paceSpots,
               xAxisLabel: 'Time (s)',
               yAxisLabel: 'Pace (min/km)',
               lineColor: Colors.red,
               fixedMaxY: 20,
+            ),
+            const SizedBox(height: 30),
+
+            // Line Chart: Heart rate
+            GeneralLineChart(
+              title: 'Heart rate',
+              spots: heartRateSpots,
+              xAxisLabel: 'Time (s)',
+              yAxisLabel: 'Pace (min/km)',
+              lineColor: Colors.purple,
+              fixedMaxY: 180,
             ),
           ],
         ),
