@@ -1,3 +1,5 @@
+import 'package:run_balanced/screens/metric_detail_screen.dart';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -63,18 +65,69 @@ class RecapDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text("Physiological Metrics", style: theme.textTheme.displayMedium),
             const SizedBox(height: 12),
-            Text(
-              "Avg. breath: ${session.avgBreath?.toStringAsFixed(1)}%",
-              style: theme.textTheme.bodyLarge,
+            // BREATH
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MetricDetailScreen(
+                      metricName: 'Breath',
+                      spots: _convertToSpots(dataSnapshots, 'breath'),
+                      unit: '%',
+                      color: Colors.teal,
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                "Avg. breath: ${session.avgBreath?.toStringAsFixed(1)}%",
+                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.teal),
+              ),
             ),
-            Text(
-              "Avg. joints: ${session.avgJoints?.toStringAsFixed(1)}%",
-              style: theme.textTheme.bodyLarge,
+
+// JOINTS
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MetricDetailScreen(
+                      metricName: 'Joints',
+                      spots: _convertToSpots(dataSnapshots, 'joints'),
+                      unit: '%',
+                      color: Colors.orange,
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                "Avg. joints: ${session.avgJoints?.toStringAsFixed(1)}%",
+                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.orange),
+              ),
             ),
-            Text(
-              "Avg. muscles: ${session.avgMuscles?.toStringAsFixed(1)}%",
-              style: theme.textTheme.bodyLarge,
+
+// MUSCLES
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => MetricDetailScreen(
+                      metricName: 'Muscles',
+                      spots: _convertToSpots(dataSnapshots, 'muscles'),
+                      unit: '%',
+                      color: Colors.green,
+                    ),
+                  ),
+                );
+              },
+              child: Text(
+                "Avg. muscles: ${session.avgMuscles?.toStringAsFixed(1)}%",
+                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.green),
+              ),
             ),
+
             const SizedBox(height: 30),
 
             // Line Chart: Distance
