@@ -1,32 +1,37 @@
-<<<<<<< Updated upstream
-//SELEZIONE AFFATICAMENTO
-=======
 import 'package:run_balanced/screens/metric_detail_screen.dart';
-
->>>>>>> Stashed changes
 import 'package:flutter/material.dart';
-import 'package:run_balanced/models/activity.dart';
-import '../widgets/fatigue_selector.dart';
+import 'package:intl/intl.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:run_balanced/models/training_session.dart';
+import 'package:run_balanced/widgets/line_chart_widget.dart';
 
 class RecapDetailScreen extends StatelessWidget {
-  final Activity activity;
+  final TrainingSession session;
 
-  RecapDetailScreen({required this.activity});
+  const RecapDetailScreen({super.key, required this.session});
+
+  List<FlSpot> _convertToSpots(List<Map<String, dynamic>> data, String key) {
+    return data.map((entry) {
+      final x = (entry['time'] as int).toDouble();
+      final y = (entry[key] as num).toDouble();
+      return FlSpot(x, y);
+    }).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final dateFormatted = DateFormat(
+      'yyyy-MM-dd HH:mm:ss',
+    ).format(session.timestamp);
+
+    final dataSnapshots = session.dataSnapshots ?? [];
+
+    final distanceSpots = _convertToSpots(dataSnapshots, 'distance');
+    final paceSpots = _convertToSpots(dataSnapshots, 'pace');
+    final heartRateSpots = _convertToSpots(dataSnapshots, 'heartRate');
+
     return Scaffold(
-<<<<<<< Updated upstream
-      appBar: AppBar(title: Text("Dettagli Allenamento")),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text("Seleziona una sezione da approfondire:", style: TextStyle(fontSize: 18)),
-          ),
-          FatigueSelector(activity: activity),
-        ],
-=======
       appBar: AppBar(title: const Text("Session Details")),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -122,7 +127,6 @@ class RecapDetailScreen extends StatelessWidget {
               ),
             ),
 
-            const SizedBox(height: 30),
 
             // Line Chart: Distance
             GeneralLineChart(
@@ -158,7 +162,6 @@ class RecapDetailScreen extends StatelessWidget {
             ),
           ],
         ),
->>>>>>> Stashed changes
       ),
     );
   }
