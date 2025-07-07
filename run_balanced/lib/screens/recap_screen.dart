@@ -33,9 +33,9 @@ class _RecapScreenState extends State<RecapScreen> {
     final theme = Theme.of(context);
 
     // Debug prints
-    print('Training sessions count: ${sessions.length}');
-    print('Exercise sessions count: ${exerciseSessions.length}');
-    print('Is loading: ${data.isLoading}');
+    debugPrint('Training sessions count: ${sessions.length}');
+    debugPrint('Exercise sessions count: ${exerciseSessions.length}');
+    debugPrint('Is loading: ${data.isLoading}');
 
     return Scaffold(
       appBar: AppBar(
@@ -44,7 +44,7 @@ class _RecapScreenState extends State<RecapScreen> {
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () async {
-              print('Manual refresh triggered');
+              debugPrint('Manual refresh triggered');
               await data.fetchAllSessions();
             },
           ),
