@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/theme.dart';
+import 'package:run_balanced/theme/theme.dart';
 
 class TimerWidget extends StatelessWidget {
   final String time;
@@ -12,7 +12,7 @@ class TimerWidget extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
     
     return Container(
-      padding: EdgeInsets.all(AppSpacing.lg),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: isDark 
