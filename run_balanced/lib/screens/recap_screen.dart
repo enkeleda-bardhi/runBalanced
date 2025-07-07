@@ -268,23 +268,15 @@ class _RecapScreenState extends State<RecapScreen> {
 
   IconData _getActivityIcon(String activityName) {
     switch (activityName.toLowerCase()) {
-      case 'run':
-      case 'running':
+      case 'corsa':
         return Icons.directions_run;
-      case 'walk':
-      case 'walking':
+      case 'camminata':
         return Icons.directions_walk;
-      case 'bike':
-      case 'cycling':
+      case 'bici':
         return Icons.directions_bike;
-      case 'swim':
-      case 'swimming':
-        return Icons.pool;
-      case 'workout':
-      case 'fitness':
-        return Icons.fitness_center;
       default:
-        return Icons.sports;
+        return Icons.help_outline;
     }
+
   }
 }
