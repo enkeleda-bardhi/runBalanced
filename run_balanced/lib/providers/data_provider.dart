@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:run_balanced/models/training_session.dart';
+import 'package:run_balanced/models/exercise.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/services/impact_api_service.dart';
 
@@ -31,6 +32,7 @@ class DataProvider extends ChangeNotifier {
   final Map<int, Map<String, double>> statePerKm = {};
 
   final List<TrainingSession> savedSessions = [];
+  final List<ExerciseSession> exerciseSessions = [];
   TrainingSession? lastSession;
 
   final List<Map<String, dynamic>> dataSnapshots = [];
@@ -298,6 +300,61 @@ class DataProvider extends ChangeNotifier {
       notifyListeners();
     } catch (e) {
       debugPrint('Error fetching training sessions: $e');
+      _setLoading(false);
+    }
+  }
+
+  Future<void> fetchAllSessions() async {
+    _setLoading(true);
+    try {
+      // Fetch user-generated training sessions from Firebase
+      await fetchTrainingSessions();
+
+      // Fetch exercise sessions from the external API
+      await fetchExerciseSessions();
+    } catch (e) {
+      debugPrint('Error fetching all sessions: $e');
+    } finally {
+      _setLoading(false);
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchExerciseSessions() async {
+    // Only fetch if the list is empty to avoid redundant API calls.
+    if (exerciseSessions.isNotEmpty) {
+      debugPrint('Exercise sessions already loaded. Skipping fetch.');
+      return;
+    }
+
+    _setLoading(true);
+    notifyListeners();
+
+    try {
+      debugPrint('Starting to fetch all historical exercise sessions...');
+      await ImpactApiService.loadSettings();
+      debugPrint('Settings loaded successfully.');
+
+      final allFetchedSessions =
+          await ImpactApiService.fetchAllExerciseSessions();
+
+      debugPrint(
+          'Total historical exercise sessions fetched: ${allFetchedSessions.length}');
+
+      // Sort sessions by date, most recent first
+      allFetchedSessions.sort((a, b) {
+        final dateA = a.date ?? DateTime(1970);
+        final dateB = b.date ?? DateTime(1970);
+        return dateB.compareTo(dateA);
+      });
+
+      exerciseSessions.clear();
+      exerciseSessions.addAll(allFetchedSessions);
+    } catch (e) {
+      debugPrint('An error occurred in fetchAllExerciseSessions: $e');
+    } finally {
+      _setLoading(false);
+      notifyListeners();
     }
   }
 
