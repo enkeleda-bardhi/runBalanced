@@ -22,11 +22,12 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider<DataProvider>(
-          create: (context) => DataProvider(
-            Provider.of<UserProfileProvider>(context, listen: false),
-          ),
+          create:
+              (context) => DataProvider(
+                Provider.of<UserProfileProvider>(context, listen: false),
+              ),
           child: MyApp(),
-        )
+        ),
       ],
       child: const MyApp(),
     ),

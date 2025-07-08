@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:run_balanced/theme/app_text_styles.dart';
 import '../theme/theme.dart';
+import '../theme/app_spacing.dart';
+import '../theme/app_colors.dart';
 
 class TimerWidget extends StatelessWidget {
   final String time;
@@ -10,23 +13,23 @@ class TimerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     return Container(
       padding: EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isDark 
-            ? AppColors.timerGradientDark
-            : AppColors.timerGradient,
+          colors:
+              isDark ? AppColors.timerGradientDark : AppColors.timerGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: isDark 
-              ? Colors.black.withOpacity(0.3)
-              : Colors.black.withOpacity(0.1),
+            color:
+                isDark
+                    ? Colors.black.withOpacity(0.3)
+                    : Colors.black.withOpacity(0.1),
             blurRadius: 10,
             offset: Offset(0, 5),
           ),
@@ -44,9 +47,7 @@ class TimerWidget extends StatelessWidget {
           SizedBox(height: AppSpacing.sm),
           Text(
             time,
-            style: AppTextStyles.timerTime.copyWith(
-              color: Colors.white,
-            ),
+            style: AppTextStyles.timerTime.copyWith(color: Colors.white),
           ),
         ],
       ),
