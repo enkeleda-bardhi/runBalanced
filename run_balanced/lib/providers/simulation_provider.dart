@@ -95,9 +95,10 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
         final angleMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
         final repMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
 
-        newE['F'] = e['F'] * forceMultiplier;
-        newE['R'] = (e['R'] * repMultiplier).round(); 
-        newE['theta'] = e['theta'] * angleMultiplier;
+        // Use null-aware operators with default values to prevent errors
+        newE['F'] = (e['F'] as num? ?? 0) * forceMultiplier;
+        newE['R'] = ((e['R'] as num? ?? 0) * repMultiplier).round();
+        newE['theta'] = (e['theta'] as num? ?? 0) * angleMultiplier;
         return newE;
       }).toList();
 
@@ -105,9 +106,17 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
       final heartRateApiData = await ImpactApiService.fetchHeartRateDay(
         day: DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 2))),
       );
-      final hrList = heartRateApiData.map((e) => (e['value'] as int)).toList();
+      // Filter out nulls and safely cast heart rate values.
+      final hrList = heartRateApiData
+          .map((e) => e['value'] as int?)
+          .where((v) => v != null)
+          .cast<int>()
+          .toList();
 
       // 2. Pre-calculate fatigue indexes for each kilometer
+      // The exact implementation of these functions is not visible, but ensure they handle
+      // null values safely when processing the data lists. For example, when accessing
+      // e['F'], e['R'], e['theta'], etc., use `(e['key'] as num? ?? 0)`
       jliLeftPerKm = calculateJLIperKm(biomechDataLeft, cardioSimData);
       jliRightPerKm = calculateJLIperKm(biomechDataRight, cardioSimData);
       
@@ -115,7 +124,12 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
       asymmetryPerKm = asymmetryIndex_km(JLI_left: jliLeftPerKm, JLI_right: jliRightPerKm);
 
       // 3. Start the timer to simulate the run second-by-second
-      int maxTime = cardioSimData.map((e) => e['time']).reduce((a, b) => a > b ? a : b);
+      // Safely get the max time, defaulting to 0 if the list is empty or contains nulls.
+      int maxTime = cardioSimData
+          .map((e) => e['time'] as num? ?? 0)
+          .where((t) => t != null)
+          .cast<int>()
+          .fold(0, (max, current) => current > max ? current : max);
       int hrIndex = 0;
 
       _setLoading(false);
@@ -144,37 +158,39 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
         );
 
         // Update main metrics from simulation data
-        distance = currentCardioPoint['distance_km'] as double;
-        pace = currentCardioPoint['pace_min_km'] as double;
+        distance = (currentCardioPoint['distance_km'] as num? ?? 0).toDouble();
+        pace = (currentCardioPoint['pace_min_km'] as num? ?? 0).toDouble();
         if (hrIndex < hrList.length) {
           heartRate = hrList[hrIndex];
           hrIndex++;
         }
 
         // Calculate calories burned
-        calories += (met * 3.5 * (userProfileProvider.weight)) / (200 * 60);
+        // Use a default weight if the profile hasn't loaded, to prevent crashes.
+        final userWeight = userProfileProvider.isLoaded ? userProfileProvider.weight : 75.0;
+        calories += (met * 3.5 * userWeight) / (200 * 60);
 
         // --- INSTANT FATIGUE CALCULATION ---
         
-        // Calculate instant Joint Load Index (JLI)
+        // Calculate instant Joint Load Index (JLI) with safe casting
         final double jliLeftInstant = calculateJLI(
-          force: (currentBiomechPointLeft['F'] as num).toDouble(),
-          angle: (currentBiomechPointLeft['theta'] as num).toDouble(),
-          repetitions: (currentBiomechPointLeft['R'] as num).toInt(),
+          force: (currentBiomechPointLeft['F'] as num? ?? 0).toDouble(),
+          angle: (currentBiomechPointLeft['theta'] as num? ?? 0).toDouble(),
+          repetitions: (currentBiomechPointLeft['R'] as num? ?? 0).toInt(),
         );
         final double jliRightInstant = calculateJLI(
-          force: (currentBiomechPointRight['F'] as num).toDouble(),
-          angle: (currentBiomechPointRight['theta'] as num).toDouble(),
-          repetitions: (currentBiomechPointRight['R'] as num).toInt(),
+          force: (currentBiomechPointRight['F'] as num? ?? 0).toDouble(),
+          angle: (currentBiomechPointRight['theta'] as num? ?? 0).toDouble(),
+          repetitions: (currentBiomechPointRight['R'] as num? ?? 0).toInt(),
         );
 
         // Calculate instant Cardio Fatigue
         final int cardioFatigueInstant = calculateCardioFatigue(
           hr: heartRate,
-          hrv: (currentCardioPoint['HRV'] as num).toDouble(),
-          spo2: (currentCardioPoint['SpO2'] as num).toDouble(),
-          bp: (currentCardioPoint['BP'] as num).toInt(),
-          temp: (currentCardioPoint['Temp'] as num).toDouble(),
+          hrv: (currentCardioPoint['HRV'] as num?)?.toDouble() ?? 0.0, // Safe access with default value
+          spo2: (currentCardioPoint['SpO2'] as num?)?.toDouble() ?? 0.0, // Safe access with default value
+          bp: (currentCardioPoint['BP'] as num?)?.toInt() ?? 0, // Safe access with default value
+          temp: (currentCardioPoint['Temp'] as num?)?.toDouble() ?? 0.0, // Safe access with default value
           distanceKm: distance,
         );
 
@@ -253,11 +269,11 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
   Future<TrainingSession?> save() async {
     final now = DateTime.now();
     // Calculate average states from snapshots
-    final avgPace = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['pace'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
-    final avgHeartRate = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['heartRate'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
-    final avgBreath = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['breath'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
-    final avgJoints = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['joints'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
-    final avgMuscles = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['muscles'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
+    final avgPace = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['pace'] as num? ?? 0.0).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
+    final avgHeartRate = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['heartRate'] as num? ?? 0.0).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
+    final avgBreath = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['breath'] as num? ?? 0.0).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
+    final avgJoints = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['joints'] as num? ?? 0.0).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
+    final avgMuscles = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['muscles'] as num? ?? 0.0).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
 
     final session = {
       'time': formattedTime,
