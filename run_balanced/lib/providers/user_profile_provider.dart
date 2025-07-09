@@ -42,20 +42,42 @@ class UserProfileProvider with ChangeNotifier {
     }
   }
 
-  void updateProfile({
-    required String firstName,
-    required String lastName,
-    required double age,
-    required double weight,
-    required double height,
-    required String imagePath,
-  }) {
-    _firstName = firstName;
-    _lastName = lastName;
-    _age = age;
-    _weight = weight;
-    _height = height;
-    _imagePath = imagePath;
+  Future<void> updateProfile({
+    String? firstName,
+    String? lastName,
+    double? age,
+    double? weight,
+    double? height,
+    String? imagePath,
+  }) async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return;
+
+    _firstName = firstName ?? _firstName;
+    _lastName = lastName ?? _lastName;
+    _age = age ?? _age;
+    _weight = weight ?? _weight;
+    _height = height ?? _height;
+    _imagePath = imagePath ?? _imagePath;
+
     notifyListeners();
+
+    final Map<String, dynamic> dataToUpdate = {
+      'firstName': _firstName,
+      'lastName': _lastName,
+      'age': _age,
+      'weight': _weight,
+      'height': _height,
+      'imageUrl': _imagePath,
+    };
+
+    try {
+      await FirebaseFirestore.instance
+          .collection('Users')
+          .doc(uid)
+          .set(dataToUpdate, SetOptions(merge: true));
+    } catch (e) {
+      print("Failed to update user profile: $e");
+    }
   }
 }
