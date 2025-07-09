@@ -127,7 +127,6 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
       // Safely get the max time, defaulting to 0 if the list is empty or contains nulls.
       int maxTime = cardioSimData
           .map((e) => e['time'] as num? ?? 0)
-          .where((t) => t != null)
           .cast<int>()
           .fold(0, (max, current) => current > max ? current : max);
       int hrIndex = 0;
