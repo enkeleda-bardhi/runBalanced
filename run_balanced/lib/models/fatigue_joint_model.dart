@@ -35,10 +35,32 @@ double calculateJLI({
   return rawScore.clamp(0.0, 100.0);
 }
 
-Map<int, double> calculateJLIperKm(List<Map<String, dynamic>> biomechData) {
-  final grouped = groupByKm(biomechData, 'time'); // Assume tempo in sec
+/// Calculates the Joint Load Index (JLI) per kilometer.
+/// It now requires cardioData to map time to distance correctly.
+Map<int, double> calculateJLIperKm(
+  List<Map<String, dynamic>> biomechData,
+  List<Map<String, dynamic>> cardioData,
+) {
+  // Create a quick lookup map for time -> distance
+  final timeToDistanceMap = {for (var e in cardioData) e['time']: e['distance_km']};
+
+  // Add a 'km' key to each biomechanical data point
+  final List<Map<String, dynamic>> enrichedBiomechData = biomechData.map((entry) {
+    final time = entry['time'];
+    // Find the corresponding distance for the given time
+    final distance = timeToDistanceMap[time] ?? 0.0;
+    return {
+      ...entry,
+      'km': (distance as double).floor(), // Add the kilometer as an integer
+    };
+  }).toList();
+
+  // Now, group by the new 'km' key instead of 'time'
+  final grouped = groupByKm(enrichedBiomechData, 'km');
   final Map<int, double> result = {};
+
   grouped.forEach((km, entries) {
+    // The casts are no longer needed if you've fixed the CSV loader
     final Favg = avg(entries.map((e) => e['F'] as num).toList());
     final thetaAvg = avg(entries.map((e) => e['theta'] as num).toList());
     final Ravg = avg(entries.map((e) => e['R'] as num).toList());
