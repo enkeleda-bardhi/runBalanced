@@ -41,57 +41,40 @@ Map<int, double> calculateJLIperKm(
   List<Map<String, dynamic>> biomechData,
   List<Map<String, dynamic>> cardioData,
 ) {
-  // Create a quick lookup map for time -> distance
-  final timeToDistanceMap = {for (var e in cardioData) e['time']: e['distance_km']};
+  if (cardioData.isEmpty) {
+    return {};
+  }
 
-  // Add a 'km' key to each biomechanical data point
-  final List<Map<String, dynamic>> enrichedBiomechData = biomechData.map((entry) {
-    final time = entry['time'];
-    // Find the corresponding distance for the given time
-    final distance = timeToDistanceMap[time] ?? 0.0;
-    return {
-      ...entry,
-      'km': (distance as double).floor(), // Add the kilometer as an integer
-    };
-  }).toList();
-
-  // Now, group by the new 'km' key instead of 'time'
-  final grouped = groupByKm(enrichedBiomechData, 'km');
-  final Map<int, double> result = {};
-
-  grouped.forEach((km, entries) {
-    // The casts are no longer needed if you've fixed the CSV loader
-    final Favg = avg(entries.map((e) => e['F'] as num).toList());
-    final thetaAvg = avg(entries.map((e) => e['theta'] as num).toList());
-    final Ravg = avg(entries.map((e) => e['R'] as num).toList());
-    result[km] = calculateJLI(force: Favg, angle: thetaAvg, repetitions: Ravg.toInt());
-  });
-  return result;
-}
-
-/// Alternative implementation of JLI calculation per kilometer.
-/// This version directly groups entries by kilometer from the biomechData.
-Map<int, double> calculateJLIperKmAlternative(
-  List<Map<String, dynamic>> biomechData,
-  List<Map<String, dynamic>> cardioData,
-) {
-  // Group entries by kilometer
+  // Group biomech entries by kilometer using cardio data for time-to-distance mapping.
   final Map<int, List<Map<String, dynamic>>> groupedByKm = {};
-  for (var entry in biomechData) {
-    final int km = (cardioData.firstWhere(
-      (ce) => (ce['time'] as int) >= (entry['time'] as int),
-      orElse: () => cardioData.last,
-    )['distance_km'] as double).floor();
-    
+  int cardioIndex = 0;
+  for (var biomechEntry in biomechData) {
+    final biomechTime = biomechEntry['time'] as num? ?? 0;
+
+    // Find the corresponding cardio entry without re-scanning the whole list.
+    // This assumes both lists are sorted by time.
+    while (cardioIndex < cardioData.length - 1 &&
+           (cardioData[cardioIndex]['time'] as num? ?? 0) < biomechTime) {
+      cardioIndex++;
+    }
+
+    final cardioEntry = cardioData[cardioIndex];
+    final int km = (cardioEntry['distance_km'] as num? ?? 0.0).floor();
+
     if (!groupedByKm.containsKey(km)) {
       groupedByKm[km] = [];
     }
-    groupedByKm[km]!.add(entry);
+    groupedByKm[km]!.add(biomechEntry);
   }
 
-  // Calculate average JLI for each kilometer
+  // Calculate average JLI for each kilometer using the helper function.
+  return _calculateAverages(groupedByKm);
+}
+
+/// Helper function to calculate the average JLI from data grouped by kilometer.
+Map<int, double> _calculateAverages(Map<int, List<Map<String, dynamic>>> groupedData) {
   final Map<int, double> result = {};
-  groupedByKm.forEach((km, entries) {
+  groupedData.forEach((km, entries) {
     // Use safe casting with default values to prevent null errors.
     final Favg = avg(entries.map((e) => (e['F'] as num? ?? 0)).toList());
     final thetaAvg = avg(entries.map((e) => (e['theta'] as num? ?? 0)).toList());

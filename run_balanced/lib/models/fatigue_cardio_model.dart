@@ -38,11 +38,12 @@ Map<int, int> calculateCardioFatiguePerKm(List<Map<String, dynamic>> cardioData,
   final Map<int, int> result = {};
   int i = 0;
   grouped.forEach((km, entries) {
-    final hrvAvg = avg(entries.map((e) => e['HRV'] as num).toList());
-    final spo2Avg = avg(entries.map((e) => e['SpO2'] as num).toList());
-    final bpAvg = avg(entries.map((e) => e['BP'] as num).toList());
-    final tempAvg = avg(entries.map((e) => e['Temp'] as num).toList());
-    final hr = hrList[i.clamp(0, hrList.length - 1)];
+    // Use safe casting with default values to prevent null errors.
+    final hrvAvg = avg(entries.map((e) => (e['HRV'] as num? ?? 0)).toList());
+    final spo2Avg = avg(entries.map((e) => (e['SpO2'] as num? ?? 0)).toList());
+    final bpAvg = avg(entries.map((e) => (e['BP'] as num? ?? 0)).toList());
+    final tempAvg = avg(entries.map((e) => (e['Temp'] as num? ?? 0)).toList());
+    final hr = hrList.isNotEmpty ? hrList[i.clamp(0, hrList.length - 1)] : 0;
     i++;
     result[km] = calculateCardioFatigue(
       hr: hr,
