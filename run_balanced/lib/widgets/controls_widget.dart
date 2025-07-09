@@ -32,6 +32,7 @@ class _ControlsWidgetState extends State<ControlsWidget> {
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.all(AppSpacing.md),
             foregroundColor: AppColors.error,
+            backgroundColor: AppColors.surface,
             side: const BorderSide(color: AppColors.error, width: 2),
           ),
           child: Row(
@@ -50,23 +51,31 @@ class _ControlsWidgetState extends State<ControlsWidget> {
             onPressed: widget.onPlayPause,
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(),
-              padding: EdgeInsets.all(AppSpacing.xl),
-              backgroundColor: AppColors.primary,
+              padding: const EdgeInsets.all(0), // Remove padding from the button
+              backgroundColor: Colors.transparent, // Make button transparent for the gradient
+              shadowColor: Colors.transparent,
               elevation: 4,
-              side: BorderSide(
-                color: AppColors.primary,
-                width: 2, 
-              ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.max,
-              children: [
-                Icon(
-                  Icons.play_arrow,
-                  size: AppTextStyles.displayLargeSize,
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.xl), // Apply padding to the container
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [AppColors.primary, AppColors.secondary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
                 ),
-//                const SizedBox(width: AppSpacing.xl),
-              ],
+                  border: Border.all(
+                  color: Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.play_arrow,
+                size: AppTextStyles.displayLargeSize + 3,
+                color: AppColors.surface,
+                
+              ),
             ),
           )
         else
@@ -74,24 +83,26 @@ class _ControlsWidgetState extends State<ControlsWidget> {
             onPressed: widget.onPlayPause,
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(),
-              padding: EdgeInsets.all(AppSpacing.xl),
-              backgroundColor: AppColors.tertiary,
+              padding: const EdgeInsets.all(0), // Remove padding from the button
+              backgroundColor: Colors.transparent, // Make button transparent
+              shadowColor: Colors.transparent,
               elevation: 4,
-              side: BorderSide(
-                color: AppColors.primary,
-                width: 2, 
-              ),
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.pause,
-                  size: AppTextStyles.displayLargeSize,
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.xl), // Apply padding to the container
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.surface, // Use a solid color for the background
+                border: Border.all( // Add the border here
                   color: AppColors.primary,
+                  width: 2,
                 ),
-//                const SizedBox(width: AppSpacing.xl),
-              ],
+              ),
+              child: Icon(
+                Icons.pause,
+                size: AppTextStyles.displayLargeSize + 3,
+                color: AppColors.primary,
+              ),
             ),
           ),
 
@@ -100,7 +111,7 @@ class _ControlsWidgetState extends State<ControlsWidget> {
         onPressed: widget.onStopSave,
         style: ElevatedButton.styleFrom(
           padding: const EdgeInsets.all(AppSpacing.md),
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.surface,
           foregroundColor: AppColors.secondary,
           side: BorderSide(
             color: AppColors.secondary,

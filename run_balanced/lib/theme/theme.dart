@@ -5,7 +5,7 @@ class AppColors {
   // Primary theme colors (using your existing deep purple)
   static const Color primary = Colors.indigoAccent;
   static const Color secondary = Colors.lightBlueAccent;
-  static const Color tertiary = Colors.white;
+  static const Color tertiary = Color.fromARGB(255, 193, 193, 193);
   
   // Others
   static const Color error = Colors.redAccent;
@@ -29,8 +29,8 @@ class AppColors {
   static const Color muscleFatigue = Colors.green; // Green for muscle fatigue
 
   // UI colors
-  static const Color surface = Color(0xFFF7FAFC);
-  static const Color onSurface = Color(0xFF2D3748);
+  static const Color surface = Color.fromARGB(255, 248, 250, 251);
+  static const Color onSurface = Color.fromARGB(255, 30, 30, 30);
   
   // Timer specific gradients (using your primary color)
   static const List<Color> timerGradient = [
@@ -39,8 +39,8 @@ class AppColors {
   ];
   
   static const List<Color> timerGradientDark = [
-    Color(0xFF553C9A), // Darker purple for dark mode
-    primary,
+    Color.fromARGB(255, 52, 36, 94), // Darker purple for dark mode
+    Color.fromARGB(255, 53, 70, 162),
   ];
 }
 
@@ -103,115 +103,87 @@ class AppTextStyles {
   );
 }
 
-/// Shared theme components to avoid repetition
-class ButtonsThemeData {
-  // Shared button theme
-  static ElevatedButtonThemeData elevatedButtonTheme = ElevatedButtonThemeData(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: AppColors.primary,
-      foregroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(AppSpacing.sm),
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: 12,
-        horizontal: 20,
-      ),
-    ),
-  );
-  
-  // Shared color scheme factory
-  static ColorScheme colorSchemeLight = ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    brightness: Brightness.light,
-  );
-  
-  static ColorScheme colorSchemeDark = ColorScheme.fromSeed(
-    seedColor: AppColors.primary,
-    brightness: Brightness.dark,
-  );
-}
-
 ThemeData lightMode = ThemeData(
+  useMaterial3: true,
   brightness: Brightness.light,
   primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: Colors.white,
-  canvasColor: Colors.white,
-  iconTheme: IconThemeData(color: Colors.black),
+  scaffoldBackgroundColor: AppColors.surface,
+  canvasColor: AppColors.surface,
+  iconTheme: IconThemeData(color: AppColors.onSurface),
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.black,
-    foregroundColor: Colors.white,
-    iconTheme: IconThemeData(color: Colors.white),
+    backgroundColor: AppColors.onSurface,
+    foregroundColor: AppColors.surface,
+    iconTheme: IconThemeData(color: AppColors.surface),
     titleTextStyle: TextStyle(
-      color: Colors.white,
+      color: AppColors.surface,
       fontSize: AppTextStyles.appBarTitleSize,
     ),
   ),
-  drawerTheme: DrawerThemeData(backgroundColor: Colors.white),
+  drawerTheme: DrawerThemeData(backgroundColor: AppColors.surface),
   listTileTheme: ListTileThemeData(
-    selectedColor: Colors.black,
-    selectedTileColor: Colors.lightBlue.shade100,
-    iconColor: Colors.black,
-    textColor: Colors.black,
+    selectedColor: AppColors.surface,
+    selectedTileColor: AppColors.tertiary,
+    iconColor: AppColors.onSurface,
+    textColor: AppColors.onSurface,
   ),
   textTheme: TextTheme(
-    bodyLarge: TextStyle(color: Colors.black),
-    bodyMedium: TextStyle(color: Colors.black),
+    bodyLarge: TextStyle(color: AppColors.onSurface),
+    bodyMedium: TextStyle(color: AppColors.onSurface),
     displayLarge: TextStyle(
       fontSize: AppTextStyles.displayLargeSize,
       fontWeight: FontWeight.bold,
-      color: Colors.black,
+      color: AppColors.onSurface,
     ),
     displayMedium: TextStyle(
       fontSize: AppTextStyles.displayMediumSize,
       fontWeight: FontWeight.w600,
-      color: Colors.black,
+      color: AppColors.onSurface,
     ),
   ),
-  colorScheme: ButtonsThemeData.colorSchemeLight,
-  focusColor: Colors.lightBlue.shade200,
-  cardColor: Colors.grey.shade50,
-  elevatedButtonTheme: ButtonsThemeData.elevatedButtonTheme,
+
+  cardColor: AppColors.tertiary,
 );
 
 ThemeData darkMode = ThemeData(
+  useMaterial3: true, // Keep Material 3 enabled
   brightness: Brightness.dark,
   primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: Colors.black,
-  canvasColor: Colors.black,
-  iconTheme: IconThemeData(color: Colors.grey.shade900),
+  scaffoldBackgroundColor: AppColors.onSurface,
+  canvasColor: AppColors.onSurface,
+  // FIX: Use a light color for icons to be visible on a dark background
+  iconTheme: IconThemeData(color: AppColors.surface),
   appBarTheme: AppBarTheme(
-    backgroundColor: Colors.white,
-    foregroundColor: Colors.black,
-    iconTheme: IconThemeData(color: Colors.grey.shade900),
+    backgroundColor: AppColors.surface,
+    foregroundColor: AppColors.onSurface,
+    // FIX: Make AppBar icons match the title color for consistency
+    iconTheme: IconThemeData(color: AppColors.onSurface),
     titleTextStyle: TextStyle(
-      color: Colors.black,
+      color: AppColors.onSurface,
       fontSize: AppTextStyles.appBarTitleSize,
     ),
   ),
   drawerTheme: DrawerThemeData(backgroundColor: Colors.grey[900]),
   listTileTheme: ListTileThemeData(
-    selectedColor: Colors.white,
-    selectedTileColor: Colors.blue.shade800,
-    iconColor: Colors.white,
-    textColor: Colors.white,
+    selectedColor: AppColors.surface,
+    selectedTileColor: AppColors.primary,
+    iconColor: AppColors.surface,
+    textColor: AppColors.surface,
   ),
   textTheme: TextTheme(
-    bodyLarge: TextStyle(color: Colors.white),
-    bodyMedium: TextStyle(color: Colors.white),
+    bodyLarge: TextStyle(color: AppColors.surface),
+    bodyMedium: TextStyle(color: AppColors.surface),
     displayLarge: TextStyle(
       fontSize: AppTextStyles.displayLargeSize,
       fontWeight: FontWeight.bold,
-      color: Colors.white,
+      color: AppColors.surface,
     ),
     displayMedium: TextStyle(
       fontSize: AppTextStyles.displayMediumSize,
       fontWeight: FontWeight.w600,
-      color: Colors.white,
+      color: AppColors.surface,
     ),
   ),
-  colorScheme: ButtonsThemeData.colorSchemeDark,
-  focusColor: Colors.blue.shade600,
-  cardColor: Colors.grey.shade800,
-  elevatedButtonTheme: ButtonsThemeData.elevatedButtonTheme,
+
+  focusColor: AppColors.primary,
+  cardColor: AppColors.secondary,
 );

@@ -17,10 +17,6 @@ class TrainingScreen extends StatelessWidget {
     return Consumer<DataProvider>(
       builder: (context, data, child) {
         return Scaffold(
-          appBar: AppBar(
-            title: const Text("Live Training"),
-            centerTitle: true,
-          ),
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(

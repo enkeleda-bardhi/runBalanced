@@ -18,17 +18,6 @@ class RecapScreen extends StatelessWidget {
         final theme = Theme.of(context);
 
         return Scaffold(
-          appBar: AppBar(
-            title: const Text('Recap'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () async {
-                  await dataProvider.fetchAllSessions();
-                },
-              ),
-            ],
-          ),
           body: dataProvider.isLoading
               ? const Center(child: LoadingSpinnerWidget())
               : (sessions.isEmpty && exerciseSessions.isEmpty)
