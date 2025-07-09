@@ -5,7 +5,7 @@ class FatigueChartWidget extends StatelessWidget {
   final String title;
   final List<double> data;
 
-  const FatigueChartWidget({required this.title, required this.data});
+  const FatigueChartWidget({super.key, required this.title, required this.data});
 
   @override
   Widget build(BuildContext context) {

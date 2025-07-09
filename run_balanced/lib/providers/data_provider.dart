@@ -382,6 +382,15 @@ class DataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void togglePlayPause() {
+    if (_timer?.isActive ?? false) {
+      pauseSimulation();
+    } else {
+      startSimulation();
+    }
+    notifyListeners();
+  }
+  
   @override
   void dispose() {
     _timer?.cancel();

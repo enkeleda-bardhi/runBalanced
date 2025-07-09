@@ -5,7 +5,7 @@ import 'package:run_balanced/widgets/timer_widget.dart';
 import 'package:run_balanced/widgets/stats_row_widget.dart';
 import 'package:run_balanced/widgets/progress_bar_widget.dart';
 import 'package:run_balanced/widgets/controls_widget.dart';
-import 'package:run_balanced/providers/data_provider.dart';
+import 'package:run_balanced/providers/simulation_provider.dart';
 
 class TrainingScreen extends StatelessWidget {
   const TrainingScreen({super.key});
@@ -27,14 +27,15 @@ class TrainingScreen extends StatelessWidget {
               heartRate: data.heartRate,
             ),
             const SizedBox(height: 20),
-            ProgressBarWidget(label: "Breath", value: data.breathState),
-            ProgressBarWidget(label: "Joints", value: data.jointState),
-            ProgressBarWidget(label: "Muscles", value: data.muscleState),
+            ProgressBarWidget(label: "Cardio Fatigue", value: data.breathState),
+            ProgressBarWidget(label: "Joint Fatigue", value: data.jointState),
+            ProgressBarWidget(label: "Muscle Fatigue", value: data.muscleState),
             const Spacer(),
             ControlsWidget(
-              onStart: data.startSimulation,
-              onPause: data.pauseSimulation,
+              onPlayPause: data.togglePlayPause,
               onReset: data.reset,
+              // Use the new getter from the provider instead of a hardcoded value
+              isPlaying: data.isPlaying,
               onStopSave: () async {
                 try {
                   final session = await data.save(); // save the data

@@ -1,186 +1,148 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:run_balanced/providers/data_provider.dart';
+import 'package:run_balanced/providers/simulation_provider.dart';
 import 'package:run_balanced/screens/recap_detail_screen.dart';
 import 'package:run_balanced/widgets/loading_spinner_widget.dart';
 import 'package:run_balanced/models/exercise.dart';
 
-class RecapScreen extends StatefulWidget {
+class RecapScreen extends StatelessWidget {
   const RecapScreen({super.key});
 
   @override
-  _RecapScreenState createState() => _RecapScreenState();
-}
-
-class _RecapScreenState extends State<RecapScreen> {
-  late DataProvider data;
-
-  @override
-  void initState() {
-    super.initState();
-    // Fetch sessions once when screen initializes
-    // Use listen: false because we don't want to rebuild on this call
-    data = Provider.of<DataProvider>(context, listen: false);
-    data.fetchAllSessions(); // This will fetch both training and exercise sessions
-  }
-
-  @override
   Widget build(BuildContext context) {
-    data = Provider.of<DataProvider>(context);
-    final sessions = data.savedSessions.toList();
-    final exerciseSessions = data.exerciseSessions.toList();
-    final theme = Theme.of(context);
+    return Consumer<DataProvider>(
+      builder: (context, dataProvider, child) {
+        final sessions = dataProvider.savedSessions;
+        final exerciseSessions = dataProvider.exerciseSessions;
+        final theme = Theme.of(context);
 
-    // Debug prints
-    debugPrint('Training sessions count: ${sessions.length}');
-    debugPrint('Exercise sessions count: ${exerciseSessions.length}');
-    debugPrint('Is loading: ${data.isLoading}');
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Recap'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () async {
-              debugPrint('Manual refresh triggered');
-              await data.fetchAllSessions();
-            },
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Recap'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.refresh),
+                onPressed: () async {
+                  await dataProvider.fetchAllSessions();
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: data.isLoading
-          ? const Center(child: LoadingSpinnerWidget())
-          : (sessions.isEmpty && exerciseSessions.isEmpty)
-              ? Center(
-                  child: Text(
-                    "No saved sessions",
-                    style: theme.textTheme.titleLarge,
-                  ),
-                )
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Original Training Sessions
-                      if (sessions.isNotEmpty) ...[
-                        ...sessions.map((session) {
-                          final dateFormatted = DateFormat(
-                            'yyyy-MM-dd HH:mm:ss',
-                          ).format(session.timestamp);
+          body: dataProvider.isLoading
+              ? const Center(child: LoadingSpinnerWidget())
+              : (sessions.isEmpty && exerciseSessions.isEmpty)
+                  ? Center(
+                      child: Text(
+                        "No saved sessions",
+                        style: theme.textTheme.titleLarge,
+                      ),
+                    )
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Original Training Sessions
+                          if (sessions.isNotEmpty) ...[
+                            ...sessions.map((session) {
+                              final dateFormatted = DateFormat(
+                                'yyyy-MM-dd HH:mm:ss',
+                              ).format(session.timestamp);
 
-                          return Card(
-                            color: theme.cardColor,
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.all(16),
-                              leading: Icon(
-                                Icons.directions_run,
-                                color: theme.iconTheme.color,
-                                size: 32,
-                              ),
-                              title: Text(
-                                "Session on $dateFormatted",
-                                style: theme.textTheme.bodyLarge!.copyWith(
-                                  fontWeight: FontWeight.bold,
+                              return Card(
+                                color: theme.cardColor,
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                child: ListTile(
+                                  contentPadding: const EdgeInsets.all(16),
+                                  leading: Icon(
+                                    Icons.directions_run,
+                                    color: theme.iconTheme.color,
+                                    size: 32,
+                                  ),
+                                  title: Text(
+                                    "Session on $dateFormatted",
+                                    style: theme.textTheme.bodyLarge!.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        "Time: ${session.time}",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        "Distance: ${session.distance.toStringAsFixed(2)} km",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        "Pace: ${session.avgPace?.toStringAsFixed(2)} min/km",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        "Calories: ${session.calories.toStringAsFixed(2)} kcal",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        "Heart rate: ${session.avgHeartRate?.toStringAsFixed(2)} bpm",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        "Cardio fatigue: ${session.avgBreath?.toStringAsFixed(2)}%",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        "Joint fatigue: ${session.avgJoints?.toStringAsFixed(2)}%",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                      Text(
+                                        "Muscle fatigue: ${session.avgMuscles?.toStringAsFixed(2)}%",
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                    ],
+                                  ),
+                                  isThreeLine: true,
+                                  trailing: Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: theme.iconTheme.color,
+                                  ),
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => RecapDetailScreen(session: session),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              );
+                            }),
+                          ],
+                          
+                          // Exercise Sessions Section
+                          if (exerciseSessions.isNotEmpty) ...[
+                            if (sessions.isNotEmpty) const SizedBox(height: 24),
+                            Text(
+                              "Past Exercise Sessions",
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
                               ),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    "Time: ${session.time}",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  Text(
-                                    "Distance: ${session.distance.toStringAsFixed(2)} km",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  Text(
-                                    "Pace: ${session.avgPace?.toStringAsFixed(2)} min/km",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  Text(
-                                    "Calories: ${session.calories.toStringAsFixed(2)} kcal",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  Text(
-                                    "Heart rate: ${session.avgHeartRate?.toStringAsFixed(2)} bpm",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  Text(
-                                    "Breath: ${session.avgBreath?.toStringAsFixed(2)}%",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  Text(
-                                    "Joints: ${session.avgJoints?.toStringAsFixed(2)}%",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                  Text(
-                                    "Muscles: ${session.avgMuscles?.toStringAsFixed(2)}%",
-                                    style: theme.textTheme.bodyMedium,
-                                  ),
-                                ],
-                              ),
-                              isThreeLine: true,
-                              trailing: Icon(
-                                Icons.arrow_forward_ios,
-                                color: theme.iconTheme.color,
-                              ),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => RecapDetailScreen(session: session),
-                                  ),
-                                );
-                              },
                             ),
-                          );
-                        }),
-                      ],
-                      
-                      // Exercise Sessions Section (new addition)
-                      if (exerciseSessions.isNotEmpty) ...[
-                        if (sessions.isNotEmpty) const SizedBox(height: 24),
-                        Text(
-                          "Past Exercise Sessions",
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ...exerciseSessions.map((session) => _buildExerciseSessionCard(session, theme)),
-                      ] else ...[
-                        // Debug section - show even when no exercise sessions
-                        if (sessions.isNotEmpty) const SizedBox(height: 24),
-                        Text(
-                          "Exercise Sessions",
-                          style: theme.textTheme.headlineSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Card(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Text(
-                              "No exercise sessions found. Check debug console for API errors.",
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
+                            const SizedBox(height: 16),
+                            ...exerciseSessions.map((session) => _buildExerciseSessionCard(session, theme)),
+                          ],
+                        ],
+                      ),
+                    ),
+        );
+      },
     );
   }
 
@@ -277,6 +239,5 @@ class _RecapScreenState extends State<RecapScreen> {
       default:
         return Icons.help_outline;
     }
-
   }
 }
