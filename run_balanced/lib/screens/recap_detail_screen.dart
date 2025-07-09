@@ -72,10 +72,7 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-                      metricName: 'Breath',
-                      spots: _convertToSpots(dataSnapshots, 'breath'),
-                      unit: '%',
-                      color: Colors.teal,
+
                     ),
                   ),
                 );
@@ -93,10 +90,6 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-                      metricName: 'Joints',
-                      spots: _convertToSpots(dataSnapshots, 'joints'),
-                      unit: '%',
-                      color: Colors.orange,
                     ),
                   ),
                 );
@@ -114,10 +107,6 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-                      metricName: 'Muscles',
-                      spots: _convertToSpots(dataSnapshots, 'muscles'),
-                      unit: '%',
-                      color: Colors.green,
                     ),
                   ),
                 );
