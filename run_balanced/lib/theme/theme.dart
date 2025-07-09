@@ -23,6 +23,11 @@ class AppColors {
   static const Color fatigueHigh = Color(0xFFF56565);
   static const Color fatigueCritical = Color(0xFFE53E3E);
   
+  // Fatigue types
+  static const Color cardioFatigue = Colors.red; // Red for cardio fatigue
+  static const Color jointFatigue = Colors.orange; // Orange for joint fatigue
+  static const Color muscleFatigue = Colors.green; // Green for muscle fatigue
+
   // UI colors
   static const Color surface = Color(0xFFF7FAFC);
   static const Color onSurface = Color(0xFF2D3748);
@@ -52,46 +57,46 @@ class AppSpacing {
 /// Typography system - shared font sizes and weights
 class AppTextStyles {
   // Font sizes
-  static const double displayLargeSize = 32;
-  static const double displayMediumSize = 28;
-  static const double headlineSize = 24;
-  static const double bodySize = 16;
-  static const double captionSize = 12;
-  static const double timerLabelSize = 14;
-  static const double timerTimeSize = 56;
-  static const double appBarTitleSize = 22;
-  
-  static const TextStyle headline1 = TextStyle(
+  static double displayLargeSize = 32.0;
+  static double displayMediumSize = 28.0;
+  static double headlineSize = 24.0;
+  static double bodySize = 16.0;
+  static double captionSize = 12.0;
+  static double timerLabelSize = 14.0;
+  static double timerTimeSize = 56.0;
+  static double appBarTitleSize = 22.0;
+
+  static TextStyle headline1 = TextStyle(
     fontSize: displayLargeSize,
     fontWeight: FontWeight.bold,
     height: 1.2,
   );
   
-  static const TextStyle headline2 = TextStyle(
+  static TextStyle headline2 = TextStyle(
     fontSize: headlineSize,
     fontWeight: FontWeight.w600,
     height: 1.3,
   );
-  
-  static const TextStyle body1 = TextStyle(
+
+  static TextStyle body1 = TextStyle(
     fontSize: bodySize,
     fontWeight: FontWeight.normal,
     height: 1.5,
   );
-  
-  static const TextStyle caption = TextStyle(
+
+  static TextStyle caption = TextStyle(
     fontSize: captionSize,
     fontWeight: FontWeight.w500,
     height: 1.4,
   );
-  
-  static const TextStyle timerLabel = TextStyle(
+
+  static TextStyle timerLabel = TextStyle(
     fontSize: timerLabelSize,
     fontWeight: FontWeight.w500,
     letterSpacing: 1.2,
   );
   
-  static const TextStyle timerTime = TextStyle(
+  static TextStyle timerTime = TextStyle(
     fontSize: timerTimeSize,
     fontWeight: FontWeight.w300,
     fontFeatures: [FontFeature.tabularFigures()],
