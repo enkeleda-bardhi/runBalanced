@@ -22,15 +22,6 @@ class TimerWidget extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: isDark 
-              ? Colors.black.withOpacity(0.3)
-              : Colors.black.withOpacity(0.1),
-            blurRadius: 10,
-            offset: Offset(0, 5),
-          ),
-        ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
