@@ -27,11 +27,15 @@ double calculateJLI({
   double alpha = 0.3,
   double beta = 0.5,
   double gamma = 0.2,
+  double maxTheta = 45.0,
+  double maxForce = 3.0,
+  double maxReps = 300.0,
+
 }) {
   if (force < 0 || angle < 0 || repetitions < 0) {
     throw ArgumentError('I parametri non possono essere negativi.');
   }
-  final rawScore = alpha * force + beta * angle + gamma * repetitions;
+  final rawScore = (alpha * force / maxForce + beta * angle / maxTheta + gamma * repetitions / maxReps) * 100;
   return rawScore.clamp(0.0, 100.0);
 }
 

@@ -72,7 +72,7 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-                      metricName: 'Breath',
+                      metricName: 'Cardio Fatigue',
                       spots: _convertToSpots(dataSnapshots, 'breath'),
                       unit: '%',
                       color: Colors.teal,
@@ -81,7 +81,7 @@ class RecapDetailScreen extends StatelessWidget {
                 );
               },
               child: Text(
-                "Avg. breath: ${session.avgBreath?.toStringAsFixed(1)}%",
+                "Avg. cardio fatigue: ${session.avgBreath?.toStringAsFixed(1)}%",
                 style: theme.textTheme.bodyLarge?.copyWith(color: Colors.teal),
               ),
             ),
@@ -93,7 +93,7 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-                      metricName: 'Joints',
+                      metricName: 'Joints Fatigue',
                       spots: _convertToSpots(dataSnapshots, 'joints'),
                       unit: '%',
                       color: Colors.orange,
@@ -102,7 +102,7 @@ class RecapDetailScreen extends StatelessWidget {
                 );
               },
               child: Text(
-                "Avg. joints: ${session.avgJoints?.toStringAsFixed(1)}%",
+                "Avg. joints fatigue : ${session.avgJoints?.toStringAsFixed(1)}%",
                 style: theme.textTheme.bodyLarge?.copyWith(color: Colors.orange),
               ),
             ),
@@ -114,7 +114,7 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-                      metricName: 'Muscles',
+                      metricName: 'Muscles Fatigue',
                       spots: _convertToSpots(dataSnapshots, 'muscles'),
                       unit: '%',
                       color: Colors.green,
@@ -123,7 +123,7 @@ class RecapDetailScreen extends StatelessWidget {
                 );
               },
               child: Text(
-                "Avg. muscles: ${session.avgMuscles?.toStringAsFixed(1)}%",
+                "Avg. muscles fatigue: ${session.avgMuscles?.toStringAsFixed(1)}%",
                 style: theme.textTheme.bodyLarge?.copyWith(color: Colors.green),
               ),
             ),

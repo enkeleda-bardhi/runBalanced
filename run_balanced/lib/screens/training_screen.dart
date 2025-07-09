@@ -46,7 +46,7 @@ class TrainingScreen extends StatelessWidget {
                       final session = await data.save();
                       if (context.mounted && session != null) {
                         data.reset();
-                        Navigator.pushReplacement(
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => RecapDetailScreen(session: session),
