@@ -24,8 +24,8 @@ double calculateJLI({
   required double force,
   required double angle,
   required int repetitions,
-  double alpha = 15.0,
-  double beta = 1.0,
+  double alpha = 0.3,
+  double beta = 0.5,
   double gamma = 0.2,
 }) {
   if (force < 0 || angle < 0 || repetitions < 0) {
@@ -64,6 +64,38 @@ Map<int, double> calculateJLIperKm(
     final Favg = avg(entries.map((e) => e['F'] as num).toList());
     final thetaAvg = avg(entries.map((e) => e['theta'] as num).toList());
     final Ravg = avg(entries.map((e) => e['R'] as num).toList());
+    result[km] = calculateJLI(force: Favg, angle: thetaAvg, repetitions: Ravg.toInt());
+  });
+  return result;
+}
+
+/// Alternative implementation of JLI calculation per kilometer.
+/// This version directly groups entries by kilometer from the biomechData.
+Map<int, double> calculateJLIperKmAlternative(
+  List<Map<String, dynamic>> biomechData,
+  List<Map<String, dynamic>> cardioData,
+) {
+  // Group entries by kilometer
+  final Map<int, List<Map<String, dynamic>>> groupedByKm = {};
+  for (var entry in biomechData) {
+    final int km = (cardioData.firstWhere(
+      (ce) => (ce['time'] as int) >= (entry['time'] as int),
+      orElse: () => cardioData.last,
+    )['distance_km'] as double).floor();
+    
+    if (!groupedByKm.containsKey(km)) {
+      groupedByKm[km] = [];
+    }
+    groupedByKm[km]!.add(entry);
+  }
+
+  // Calculate average JLI for each kilometer
+  final Map<int, double> result = {};
+  groupedByKm.forEach((km, entries) {
+    // Use safe casting with default values to prevent null errors.
+    final Favg = avg(entries.map((e) => (e['F'] as num? ?? 0)).toList());
+    final thetaAvg = avg(entries.map((e) => (e['theta'] as num? ?? 0)).toList());
+    final Ravg = avg(entries.map((e) => (e['R'] as num? ?? 0)).toList());
     result[km] = calculateJLI(force: Favg, angle: thetaAvg, repetitions: Ravg.toInt());
   });
   return result;
