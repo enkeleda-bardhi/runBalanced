@@ -5,6 +5,7 @@ int calculateCardioFatigue({
   required double spo2,
   required int bp,
   required double temp,
+  required double distanceKm,
 }) {
   int score = 0;
   if (hr >= 90 && hr < 100) score += 5;
@@ -49,6 +50,7 @@ Map<int, int> calculateCardioFatiguePerKm(List<Map<String, dynamic>> cardioData,
       spo2: spo2Avg,
       bp: bpAvg.toInt(),
       temp: tempAvg,
+      distanceKm: km.toDouble(),
     );
   });
   return result;
