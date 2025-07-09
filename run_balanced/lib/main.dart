@@ -10,7 +10,7 @@ import 'package:run_balanced/theme/theme_provider.dart';
 import 'package:run_balanced/services/impact_api_service.dart';
 import 'screens/login_screen.dart';
 import 'package:provider/provider.dart';
-import 'package:run_balanced/providers/data_provider.dart';
+import 'package:run_balanced/providers/simulation_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,13 +21,16 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider<DataProvider>(
+        // The DataProvider now correctly depends on UserProfileProvider
+        ChangeNotifierProxyProvider<UserProfileProvider, DataProvider>(
           create: (context) => DataProvider(
             Provider.of<UserProfileProvider>(context, listen: false),
           ),
-          child: MyApp(),
-        )
+          update: (context, userProfile, previousDataProvider) =>
+              previousDataProvider!..updateUserProfile(userProfile),
+        ),
       ],
+      // The child should be here, at the end of the MultiProvider
       child: const MyApp(),
     ),
   );
