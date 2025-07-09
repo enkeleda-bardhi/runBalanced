@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 /// Enhanced color system with semantic colors for RunBalanced app
 class AppColors {
   // Primary theme colors (using your existing deep purple)
-  static const Color primary = Colors.deepPurple;
-  static const Color secondary = Color(0xFF8B5CF6);
+  static const Color primary = Colors.indigoAccent;
+  static const Color secondary = Colors.lightBlueAccent;
+  static const Color tertiary = Colors.white;
   
+  // Others
+  static const Color error = Colors.redAccent;
+
+
   // Fitness-specific colors
   static const Color heartRate = Color(0xFFE53E3E);
   static const Color calories = Color(0xFFFF8C00);
@@ -94,7 +99,7 @@ class AppTextStyles {
 }
 
 /// Shared theme components to avoid repetition
-class AppThemeData {
+class ButtonsThemeData {
   // Shared button theme
   static ElevatedButtonThemeData elevatedButtonTheme = ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
@@ -158,10 +163,10 @@ ThemeData lightMode = ThemeData(
       color: Colors.black,
     ),
   ),
-  colorScheme: AppThemeData.colorSchemeLight,
+  colorScheme: ButtonsThemeData.colorSchemeLight,
   focusColor: Colors.lightBlue.shade200,
   cardColor: Colors.grey.shade50,
-  elevatedButtonTheme: AppThemeData.elevatedButtonTheme,
+  elevatedButtonTheme: ButtonsThemeData.elevatedButtonTheme,
 );
 
 ThemeData darkMode = ThemeData(
@@ -200,8 +205,8 @@ ThemeData darkMode = ThemeData(
       color: Colors.white,
     ),
   ),
-  colorScheme: AppThemeData.colorSchemeDark,
+  colorScheme: ButtonsThemeData.colorSchemeDark,
   focusColor: Colors.blue.shade600,
   cardColor: Colors.grey.shade800,
-  elevatedButtonTheme: AppThemeData.elevatedButtonTheme,
+  elevatedButtonTheme: ButtonsThemeData.elevatedButtonTheme,
 );
