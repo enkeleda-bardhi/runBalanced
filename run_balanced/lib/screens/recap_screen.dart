@@ -64,26 +64,60 @@ class RecapScreen extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     const SizedBox(height: 8),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        _buildStat(
-                                          theme,
-                                          Icons.timer_outlined,
-                                          session.time,
-                                        ),
-                                        _buildStat(
-                                          theme,
-                                          Icons.space_bar_outlined,
-                                          "${session.distance.toStringAsFixed(2)} km",
-                                        ),
-                                        _buildStat(
-                                          theme,
-                                          Icons.speed_outlined,
-                                          "${session.avgPace?.toStringAsFixed(2)} min/km",
-                                        ),
-                                      ],
+                                    LayoutBuilder(
+                                      builder: (context, constraints) {
+                                        if (constraints.maxWidth < 400) {
+                                          // Small screen: show stats in a column
+                                          return Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              _buildStat(
+                                                theme,
+                                                Icons.timer_outlined,
+                                                session.time,
+                                              ),
+                                              const SizedBox(height: 8),
+                                              _buildStat(
+                                                theme,
+                                                Icons.space_bar_outlined,
+                                                "${session.distance.toStringAsFixed(2)} km",
+                                              ),
+                                              const SizedBox(height: 8),
+                                              _buildStat(
+                                                theme,
+                                                Icons.speed_outlined,
+                                                "${session.avgPace?.toStringAsFixed(2)} min/km",
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          // Large screen: show stats in a row
+                                          return Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            children: [
+                                              _buildStat(
+                                                theme,
+                                                Icons.timer_outlined,
+                                                session.time,
+                                              ),
+                                              const SizedBox(width: 24),
+                                              _buildStat(
+                                                theme,
+                                                Icons.space_bar_outlined,
+                                                "${session.distance.toStringAsFixed(2)} km",
+                                              ),
+                                              const SizedBox(width: 24),
+                                              _buildStat(
+                                                theme,
+                                                Icons.speed_outlined,
+                                                "${session.avgPace?.toStringAsFixed(2)} min/km",
+                                              ),
+                                            ],
+                                          );
+                                        }
+                                      },
                                     ),
                                     const Divider(height: 20),
                                     Text(
