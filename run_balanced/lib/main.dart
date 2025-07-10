@@ -11,6 +11,7 @@ import 'package:run_balanced/services/impact_api_service.dart';
 import 'screens/login_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/simulation_provider.dart';
+import 'package:run_balanced/theme/custom_page_transition.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -45,7 +46,17 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       title: 'runBalanced',
-      theme: themeProvider.themeData,
+      theme: themeProvider.themeData.copyWith(
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: CustomPageTransitionBuilder(),
+            TargetPlatform.iOS: CustomPageTransitionBuilder(),
+            TargetPlatform.linux: CustomPageTransitionBuilder(),
+            TargetPlatform.macOS: CustomPageTransitionBuilder(),
+            TargetPlatform.windows: CustomPageTransitionBuilder(),
+          },
+        ),
+      ),
       // darkTheme: darkMode,
       // themeMode: ThemeMode.system,
       home: AuthWrapper(),
