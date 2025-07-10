@@ -23,6 +23,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ageController = TextEditingController();
   final weightController = TextEditingController();
   final heightController = TextEditingController();
+  final newPasswordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
   String gender = 'Male';
   bool _isLoading = true;
   File? _localImage;
@@ -34,6 +36,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadUserProfile();
+  }
+
+  @override
+  void dispose() {
+    firstNameController.dispose();
+    lastNameController.dispose();
+    ageController.dispose();
+    weightController.dispose();
+    heightController.dispose();
+    newPasswordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 
   // Load user profile from Firestore and local storage
@@ -110,10 +124,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final isNewUser = !docSnapshot.exists;
 
-      await FirebaseFirestore.instance.collection('Users').doc(uid).set({
+      // Update Firestore user profile
+      await userDocRef.set({
         'firstName': firstNameController.text.trim(),
         'lastName': lastNameController.text.trim(),
-        'age': int.parse(ageController.text.trim()),
+        'age': (double.tryParse(ageController.text.trim()) ?? 0).toInt(),
         'gender': gender,
         'weight': double.tryParse(weightController.text.trim()) ?? 0.0,
         'height': double.tryParse(heightController.text.trim()) ?? 0.0,
@@ -125,28 +140,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
           'editedAt': Timestamp.fromDate(now),
       }, SetOptions(merge: true));
 
+      // Try to update password if user entered one
+      final newPassword = newPasswordController.text.trim();
+      if (newPassword.isNotEmpty) {
+        try {
+          await FirebaseAuth.instance.currentUser!.updatePassword(newPassword);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Password updated successfully')),
+          );
+        } catch (e) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Password update failed: $e')));
+        }
+      }
+
       setState(() {
-        _lastEdited = DateFormat(
-          'yyyy-MM-dd HH:mm:ss',
-        ).format(now); // update UI
+        _lastEdited = DateFormat('yyyy-MM-dd HH:mm:ss').format(now);
       });
 
-      final userProfileProvider = Provider.of<UserProfileProvider>(
-        context,
-        listen: false,
-      );
-
-      userProfileProvider.updateProfile(
+      // Update provider
+      Provider.of<UserProfileProvider>(context, listen: false).updateProfile(
         firstName: firstNameController.text.trim(),
         lastName: lastNameController.text.trim(),
-        age: double.parse(ageController.text.trim()),
+        age: (double.tryParse(ageController.text.trim()) ?? 0).toInt(),
         weight: double.tryParse(weightController.text.trim()) ?? 0.0,
         height: double.tryParse(heightController.text.trim()) ?? 0.0,
         imagePath: _localImagePath ?? '',
       );
 
       final message = isNewUser ? 'Profile created' : 'Profile updated';
-
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
@@ -217,6 +240,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         validator:
                             (value) => value!.isEmpty ? 'Required' : null,
                       ),
+                      TextFormField(
+                        controller: newPasswordController,
+                        decoration: InputDecoration(labelText: 'New Password'),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              value.length < 6) {
+                            return 'Password must be at least 6 characters';
+                          }
+                          return null;
+                        },
+                      ),
+                      TextFormField(
+                        controller: confirmPasswordController,
+                        decoration: InputDecoration(
+                          labelText: 'Confirm New Password',
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (newPasswordController.text.isNotEmpty &&
+                              value != newPasswordController.text) {
+                            return 'Passwords do not match';
+                          }
+                          return null;
+                        },
+                      ),
+
                       DropdownButtonFormField<String>(
                         value: gender,
                         items:
