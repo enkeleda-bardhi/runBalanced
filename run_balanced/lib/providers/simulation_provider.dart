@@ -151,7 +151,7 @@ class DataProvider with ChangeNotifier {
       }
 
       if (_hrIndex < _hrList.length) {
-        heartRate = _hrList[_hrIndex]*2; // Simulate heart rate doubling for testing
+        heartRate = _hrList[_hrIndex]*3; // Simulate heart rate doubling for testing
         _hrIndex++;
       }
 
@@ -259,7 +259,7 @@ class DataProvider with ChangeNotifier {
 
     final fatigueValues = cardioData.map((e) {
       final time = (e['time'] as num? ?? 0).toInt();
-      final hr = (time < hrList.length) ? hrList[time] * 2 : 0; // Apply the same *2 logic for testing
+      final hr = (time < hrList.length) ? hrList[time] * 3 : 0; // Apply the same *3 logic for testing
       final pointDistance = (e['distance_km'] as num? ?? 0.0).toDouble(); // Get the actual distance for this point
       return calculateCardioFatigue(
         hr: hr,
