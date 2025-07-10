@@ -1,10 +1,33 @@
-/// Calcola il Joint Load Index (JLI).
-/// 
-/// [force] Forza applicata.
-/// [angle] Angolo articolare.
-/// [repetitions] Numero di ripetizioni.
-/// [alpha], [beta], [gamma] sono coefficienti di ponderazione.
-/// Restituisce un valore compreso tra 0 e 100.
+/// Calculates Joint Load Index (JLI).
+///
+/// [force] Applied force.
+/// [angle] Joint angle.
+/// [repetitions] Number of repetitions.
+/// [alpha], [beta], [gamma] are weighting coefficients.
+/// Returns a value between 0 and 100.
+
+
+import 'km_avg.dart';
+double calculateJLI({
+  required double force,
+  required double angle,
+  required int repetitions,
+  double alpha = 0.3,
+  double beta = 0.5,
+  double gamma = 0.2,
+  double maxTheta = 45.0,
+  double maxForce = 3.0,
+  double maxReps = 300.0,
+
+}) {
+  if (force < 0 || angle < 0 || repetitions < 0) {
+    throw ArgumentError('I parametri non possono essere negativi.');
+  }
+  final rawScore = (alpha * force / maxForce + beta * angle / maxTheta + gamma * repetitions / maxReps) * 100;
+  return rawScore.clamp(0.0, 100.0);
+}
+
+
 /// Calculates the Joint Load Index (JLI) per kilometer from a list of biomechanical data.
 ///
 /// The function groups the input data by kilometer (using the 'time' field to determine the kilometer),
@@ -19,51 +42,48 @@
 ///
 /// Returns a map where the key is the kilometer (int) and the value is the calculated JLI (double) for that kilometer.
 
-import 'km_avg.dart';
-double calculateJLI({
-  required double force,
-  required double angle,
-  required int repetitions,
-  double alpha = 15.0,
-  double beta = 1.0,
-  double gamma = 0.2,
-}) {
-  if (force < 0 || angle < 0 || repetitions < 0) {
-    throw ArgumentError('I parametri non possono essere negativi.');
-  }
-  final rawScore = alpha * force + beta * angle + gamma * repetitions;
-  return rawScore.clamp(0.0, 100.0);
-}
-
-/// Calculates the Joint Load Index (JLI) per kilometer.
-/// It now requires cardioData to map time to distance correctly.
 Map<int, double> calculateJLIperKm(
   List<Map<String, dynamic>> biomechData,
   List<Map<String, dynamic>> cardioData,
 ) {
-  // Create a quick lookup map for time -> distance
-  final timeToDistanceMap = {for (var e in cardioData) e['time']: e['distance_km']};
+  if (cardioData.isEmpty) {
+    return {};
+  }
 
-  // Add a 'km' key to each biomechanical data point
-  final List<Map<String, dynamic>> enrichedBiomechData = biomechData.map((entry) {
-    final time = entry['time'];
-    // Find the corresponding distance for the given time
-    final distance = timeToDistanceMap[time] ?? 0.0;
-    return {
-      ...entry,
-      'km': (distance as double).floor(), // Add the kilometer as an integer
-    };
-  }).toList();
+  // Group biomech entries by kilometer using cardio data for time-to-distance mapping.
+  final Map<int, List<Map<String, dynamic>>> groupedByKm = {};
+  int cardioIndex = 0;
+  for (var biomechEntry in biomechData) {
+    final biomechTime = biomechEntry['time'] as num? ?? 0;
 
-  // Now, group by the new 'km' key instead of 'time'
-  final grouped = groupByKm(enrichedBiomechData, 'km');
+    // Find the corresponding cardio entry without re-scanning the whole list.
+    // This assumes both lists are sorted by time.
+    while (cardioIndex < cardioData.length - 1 &&
+           (cardioData[cardioIndex]['time'] as num? ?? 0) < biomechTime) {
+      cardioIndex++;
+    }
+
+    final cardioEntry = cardioData[cardioIndex];
+    final int km = (cardioEntry['distance_km'] as num? ?? 0.0).floor();
+
+    if (!groupedByKm.containsKey(km)) {
+      groupedByKm[km] = [];
+    }
+    groupedByKm[km]!.add(biomechEntry);
+  }
+
+  // Calculate average JLI for each kilometer using the helper function.
+  return _calculateAverages(groupedByKm);
+}
+
+/// Helper function to calculate the average JLI from data grouped by kilometer.
+Map<int, double> _calculateAverages(Map<int, List<Map<String, dynamic>>> groupedData) {
   final Map<int, double> result = {};
-
-  grouped.forEach((km, entries) {
-    // The casts are no longer needed if you've fixed the CSV loader
-    final Favg = avg(entries.map((e) => e['F'] as num).toList());
-    final thetaAvg = avg(entries.map((e) => e['theta'] as num).toList());
-    final Ravg = avg(entries.map((e) => e['R'] as num).toList());
+  groupedData.forEach((km, entries) {
+    // Use safe casting with default values to prevent null errors.
+    final Favg = avg(entries.map((e) => (e['F'] as num? ?? 0)).toList());
+    final thetaAvg = avg(entries.map((e) => (e['theta'] as num? ?? 0)).toList());
+    final Ravg = avg(entries.map((e) => (e['R'] as num? ?? 0)).toList());
     result[km] = calculateJLI(force: Favg, angle: thetaAvg, repetitions: Ravg.toInt());
   });
   return result;

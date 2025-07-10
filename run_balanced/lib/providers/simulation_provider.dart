@@ -95,9 +95,10 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
         final angleMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
         final repMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
 
-        newE['F'] = e['F'] * forceMultiplier;
-        newE['R'] = (e['R'] * repMultiplier).round(); 
-        newE['theta'] = e['theta'] * angleMultiplier;
+        // Use null-aware operators with default values to prevent errors
+        newE['F'] = (e['F'] as num? ?? 0) * forceMultiplier;
+        newE['R'] = ((e['R'] as num? ?? 0) * repMultiplier).round();
+        newE['theta'] = (e['theta'] as num? ?? 0) * angleMultiplier;
         return newE;
       }).toList();
 
@@ -112,10 +113,31 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
       jliRightPerKm = calculateJLIperKm(biomechDataRight, cardioSimData);
       
       cardioFatiguePerKm = calculateCardioFatiguePerKm(cardioSimData, hrList);
-      asymmetryPerKm = asymmetryIndex_km(JLI_left: jliLeftPerKm, JLI_right: jliRightPerKm);
+      
+      // Build a Map<int, double> where key is km and value is the AVERAGE SpO2 for that km.
+      final Map<int, List<double>> spo2ValuesPerKm = {};
+      for (final entry in cardioSimData) {
+        final km = (entry['distance_km'] as num? ?? 0.0).round();
+        final spo2 = (entry['SpO2'] as num? ?? 0.0).toDouble();
+        if (!spo2ValuesPerKm.containsKey(km)) {
+          spo2ValuesPerKm[km] = [];
+        }
+        spo2ValuesPerKm[km]!.add(spo2);
+      }
+
+      final spo2PerKm = spo2ValuesPerKm.map((km, values) {
+        final avgSpo2 = values.isNotEmpty ? values.reduce((a, b) => a + b) / values.length : 0.0;
+        return MapEntry(km, avgSpo2);
+      });
+
+      asymmetryPerKm = asymmetryIndexKm(
+        JLI_left: jliLeftPerKm,
+        JLI_right: jliRightPerKm,
+        SpO2: spo2PerKm,
+      );
 
       // 3. Start the timer to simulate the run second-by-second
-      int maxTime = cardioSimData.map((e) => e['time']).reduce((a, b) => a > b ? a : b);
+      int maxTime = cardioSimData.map((e) => e['time'] as num? ?? 0).reduce((a, b) => a > b ? a : b).toInt();
       int hrIndex = 0;
 
       _setLoading(false);
@@ -131,21 +153,21 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
 
         // Find the closest data point in the simulation data for the current time
         final currentCardioPoint = cardioSimData.firstWhere(
-          (e) => (e['time'] as int) >= currentTime,
+          (e) => (e['time'] as num? ?? 0) >= currentTime,
           orElse: () => cardioSimData.last,
         );
         final currentBiomechPointLeft = biomechDataLeft.firstWhere(
-          (e) => (e['time'] as int) >= currentTime,
+          (e) => (e['time'] as num? ?? 0) >= currentTime,
           orElse: () => biomechDataLeft.last,
         );
         final currentBiomechPointRight = biomechDataRight.firstWhere(
-          (e) => (e['time'] as int) >= currentTime,
+          (e) => (e['time'] as num? ?? 0) >= currentTime,
           orElse: () => biomechDataRight.last,
         );
 
         // Update main metrics from simulation data
-        distance = currentCardioPoint['distance_km'] as double;
-        pace = currentCardioPoint['pace_min_km'] as double;
+        distance = (currentCardioPoint['distance_km'] as num? ?? 0.0).toDouble();
+        pace = (currentCardioPoint['pace_min_km'] as num? ?? 0.0).toDouble();
         if (hrIndex < hrList.length) {
           heartRate = hrList[hrIndex];
           hrIndex++;
@@ -158,23 +180,23 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
         
         // Calculate instant Joint Load Index (JLI)
         final double jliLeftInstant = calculateJLI(
-          force: (currentBiomechPointLeft['F'] as num).toDouble(),
-          angle: (currentBiomechPointLeft['theta'] as num).toDouble(),
-          repetitions: (currentBiomechPointLeft['R'] as num).toInt(),
+          force: (currentBiomechPointLeft['F'] as num? ?? 0.0).toDouble(),
+          angle: (currentBiomechPointLeft['theta'] as num? ?? 0.0).toDouble(),
+          repetitions: (currentBiomechPointLeft['R'] as num? ?? 0).toInt(),
         );
         final double jliRightInstant = calculateJLI(
-          force: (currentBiomechPointRight['F'] as num).toDouble(),
-          angle: (currentBiomechPointRight['theta'] as num).toDouble(),
-          repetitions: (currentBiomechPointRight['R'] as num).toInt(),
+          force: (currentBiomechPointRight['F'] as num? ?? 0.0).toDouble(),
+          angle: (currentBiomechPointRight['theta'] as num? ?? 0.0).toDouble(),
+          repetitions: (currentBiomechPointRight['R'] as num? ?? 0).toInt(),
         );
 
         // Calculate instant Cardio Fatigue
         final int cardioFatigueInstant = calculateCardioFatigue(
           hr: heartRate,
-          hrv: (currentCardioPoint['HRV'] as num).toDouble(),
-          spo2: (currentCardioPoint['SpO2'] as num).toDouble(),
-          bp: (currentCardioPoint['BP'] as num).toInt(),
-          temp: (currentCardioPoint['Temp'] as num).toDouble(),
+          hrv: (currentCardioPoint['HRV'] as num? ?? 0.0).toDouble(),
+          spo2: (currentCardioPoint['SpO2'] as num? ?? 0.0).toDouble(),
+          bp: (currentCardioPoint['BP'] as num? ?? 0).toInt(),
+          temp: (currentCardioPoint['Temp'] as num? ?? 0.0).toDouble(),
           distanceKm: distance,
         );
 
@@ -182,6 +204,7 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
         final double asymmetryInstant = asymmetryIndex(
           JLI_left: jliLeftInstant,
           JLI_right: jliRightInstant,
+          SpO2: (currentCardioPoint['SpO2'] as num? ?? 0.0).toDouble(),
         );
 
         // Update UI state variables with instant values

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:run_balanced/theme/theme.dart';
 
 class ProgressBarWidget extends StatelessWidget {
   final String label;
@@ -7,11 +8,10 @@ class ProgressBarWidget extends StatelessWidget {
   const ProgressBarWidget({required this.label, required this.value, super.key});
 
   Color getColor(double val) {
-    if (val < 20) return Colors.red;
-    if (val < 40) return Colors.orange;
-    if (val < 60) return Colors.yellow;
-    if (val < 80) return Colors.lightGreen;
-    return Colors.green;
+    if (val < 25) return AppColors.fatigueOptimal;
+    if (val < 50) return AppColors.fatigueModerate;
+    if (val < 75) return AppColors.fatigueHigh;
+    return AppColors.fatigueCritical;
   }
 
   @override

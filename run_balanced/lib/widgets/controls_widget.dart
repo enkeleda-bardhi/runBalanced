@@ -27,60 +27,103 @@ class _ControlsWidgetState extends State<ControlsWidget> {
       children: [
         // Reset button
         // Stop/Reset button in secondary style
-        OutlinedButton(
+        ElevatedButton(
           onPressed: widget.onReset,
-          style: OutlinedButton.styleFrom(
+          style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.all(AppSpacing.md),
             foregroundColor: AppColors.error,
+            backgroundColor: AppColors.surface,
             side: const BorderSide(color: AppColors.error, width: 2),
           ),
-          child: const Row(
+          child: Row(
             children: [
               Icon(Icons.delete_forever, 
               color: AppColors.error,
               size: AppTextStyles.displayLargeSize,
-            ),
-          ],
+                  ),
+              ],
+          ),
         ),
-      ),
-        // Play/Pause toggle button
-        ElevatedButton(
-          onPressed: widget.onPlayPause,
-          style: ElevatedButton.styleFrom(
-            shape: const CircleBorder(),
-            padding: EdgeInsets.all(AppSpacing.xl),
-            backgroundColor: widget.isPlaying ? AppColors.tertiary : AppColors.primary,
-            shadowColor: widget.isPlaying ? AppColors.primary : AppColors.tertiary,
-            elevation: widget.isPlaying ? 0 : 4,
-            side: BorderSide(
-              color: AppColors.primary,
-              width: 2, 
+        
+        // Play/Pause Button
+        if (!widget.isPlaying)
+          ElevatedButton(
+            onPressed: widget.onPlayPause,
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(0), // Remove padding from the button
+              backgroundColor: Colors.transparent, // Make button transparent for the gradient
+              shadowColor: Colors.transparent,
+              elevation: 4,
             ),
-          ),
-          child: Icon(
-            widget.isPlaying ? Icons.pause : Icons.play_arrow,
-            size: AppTextStyles.displayLargeSize,
-            color: widget.isPlaying ?  AppColors.primary :AppColors.tertiary,
-          ),
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.xl), // Apply padding to the container
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [AppColors.primary, AppColors.secondary],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                  border: Border.all(
+                  color: Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.play_arrow,
+                size: AppTextStyles.displayLargeSize + 3,
+                color: AppColors.surface,
+                
+              ),
+            ),
+          )
+        else
+          ElevatedButton(
+            onPressed: widget.onPlayPause,
+            style: ElevatedButton.styleFrom(
+              shape: const CircleBorder(),
+              padding: const EdgeInsets.all(0), // Remove padding from the button
+              backgroundColor: Colors.transparent, // Make button transparent
+              shadowColor: Colors.transparent,
+              elevation: 4,
+            ),
+            child: Container(
+              padding: const EdgeInsets.all(AppSpacing.xl), // Apply padding to the container
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: AppColors.surface, // Use a solid color for the background
+                border: Border.all( // Add the border here
+                  color: AppColors.primary,
+                  width: 2,
+                ),
+              ),
+              child: Icon(
+                Icons.pause,
+                size: AppTextStyles.displayLargeSize + 3,
+                color: AppColors.primary,
+              ),
+            ),
           ),
 
-        // Save button
-        OutlinedButton(
-          onPressed: widget.onStopSave,
-          style: OutlinedButton.styleFrom(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            foregroundColor: AppColors.primary,
-            side: const BorderSide(color: AppColors.primary, width: 2),
-          ),
-          child: const Row(
-            children: [
-              Icon(Icons.save,
-                color: AppColors.primary,
-                size: AppTextStyles.displayLargeSize,
-              ),
-            ],
+      // Stop/Save button
+      ElevatedButton(
+        onPressed: widget.onStopSave,
+        style: ElevatedButton.styleFrom(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          backgroundColor: AppColors.surface,
+          foregroundColor: AppColors.secondary,
+          side: BorderSide(
+            color: AppColors.secondary,
+            width: 2,
           ),
         ),
+        child: Row(
+          children: [
+            Icon(Icons.save, size: AppTextStyles.displayLargeSize),
+          ],
+        ),
+      )
       ],
     );
   }

@@ -103,10 +103,10 @@ class _AnimatedFatigueWidgetState extends State<AnimatedFatigueWidget>
                     vertical: AppSpacing.xs,
                   ),
                   decoration: BoxDecoration(
-                    color: _getZoneColor(widget.value).withOpacity(0.1),
+                    color: _getZoneColor(widget.value).withAlpha(26),
                     borderRadius: BorderRadius.circular(AppSpacing.sm),
                     border: Border.all(
-                      color: _getZoneColor(widget.value).withOpacity(0.3),
+                      color: _getZoneColor(widget.value).withAlpha(77),
                     ),
                   ),
                   child: Text(
@@ -161,7 +161,7 @@ class _AnimatedFatigueWidgetState extends State<AnimatedFatigueWidget>
                 color: _getZoneColor(value),
                 boxShadow: [
                   BoxShadow(
-                    color: _getZoneColor(value).withOpacity(0.4),
+                    color: _getZoneColor(value).withAlpha(102),
                     blurRadius: 4,
                     offset: Offset(0, 2),
                   ),
@@ -191,7 +191,7 @@ class _AnimatedFatigueWidgetState extends State<AnimatedFatigueWidget>
     return Container(
       padding: EdgeInsets.all(AppSpacing.xs),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withAlpha(26),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Icon(
