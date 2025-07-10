@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:run_balanced/screens/signup_screen.dart';
+import 'package:run_balanced/screens/forgot_password_screen.dart';
 
 const double kDefaultPadding = 16.0;
 
@@ -16,6 +17,7 @@ class LoginScreen extends StatelessWidget {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
+      // On success, you can navigate to your home screen
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -64,6 +66,21 @@ class LoginScreen extends StatelessWidget {
                   border: OutlineInputBorder(),
                 ),
                 obscureText: true,
+              ),
+              SizedBox(height: 8),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ForgotPasswordScreen(),
+                      ),
+                    );
+                  },
+                  child: Text('Forgot Password?'),
+                ),
               ),
               SizedBox(height: kDefaultPadding),
               Row(
