@@ -141,22 +141,38 @@ class DataProvider with ChangeNotifier {
       distance = (currentCardioPoint['distance_km'] as num? ?? 0.0).toDouble();
       
       // Keep the new pace calculation
+      
       if (distance > 0) {
+        if ((_elapsed.inSeconds)%5 == 0) {
         pace = (_elapsed.inSeconds / 60.0) / distance;
+        }
       } else {
         pace = 0.0;
       }
 
       if (_hrIndex < _hrList.length) {
-        heartRate = _hrList[_hrIndex];
+        heartRate = _hrList[_hrIndex]*2; // Simulate heart rate doubling for testing
         _hrIndex++;
       }
 
-      calories += (met * 3.5 * (userProfileProvider.weight)) / (200 * 60);
+      // Calculate MET based on heart rate
+      if (heartRate < 100) {
+        met = 6.0; // Light activity
+      } else if (heartRate < 140) {
+        met = 8.0; // Moderate activity
+      } else {
+        met = 10.0; // Vigorous activity
+      } 
+
+      if ((_elapsed.inSeconds)%5 == 0) {
+        // Update heart rate every 5 seconds
+        calories += (met * 3.5 * (userProfileProvider.weight)) / (200 * 60);
+      }
+     
 
       // --- PER-KILOMETER FATIGUE CALCULATION ---
       // Check if a new kilometer has been completed
-      final int currentKm = distance.floor();
+      final int currentKm = distance.ceil();
       if (currentKm > 0 && currentKm > _lastCompletedKm) {
         // --- This block runs once per completed kilometer ---
         _lastCompletedKm = currentKm;

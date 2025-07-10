@@ -143,7 +143,7 @@ class MetricDetailScreen extends StatelessWidget {
                     return const SizedBox.shrink();
                   }
                   final deviation = kmFatigue - averageFatigue;
-                  final sign = deviation >= 0 ? '+' : '';
+                  final sign = deviation >= 0 ? '+' : '-';
                   final color = deviation > 0 ? Colors.red.shade700 : Colors.green.shade700;
 
                   return Container(
