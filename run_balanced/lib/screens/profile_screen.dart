@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/screens/homepage_screen.dart';
+import 'package:run_balanced/theme/theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -213,12 +214,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         validator:
                             (value) => value!.isEmpty ? 'Required' : null,
                       ),
+                      SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: lastNameController,
                         decoration: InputDecoration(labelText: 'Last Name'),
                         validator:
                             (value) => value!.isEmpty ? 'Required' : null,
                       ),
+                      SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: ageController,
                         decoration: InputDecoration(labelText: 'Age'),
@@ -226,6 +229,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         validator:
                             (value) => value!.isEmpty ? 'Required' : null,
                       ),
+                      SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: weightController,
                         decoration: InputDecoration(labelText: 'Weight (kg)'),
@@ -233,6 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         validator:
                             (value) => value!.isEmpty ? 'Required' : null,
                       ),
+                      SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: heightController,
                         decoration: InputDecoration(labelText: 'Height (cm)'),
@@ -240,6 +245,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         validator:
                             (value) => value!.isEmpty ? 'Required' : null,
                       ),
+                      SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: newPasswordController,
                         decoration: InputDecoration(labelText: 'New Password'),
@@ -253,6 +259,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return null;
                         },
                       ),
+                      SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: confirmPasswordController,
                         decoration: InputDecoration(
@@ -267,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           return null;
                         },
                       ),
-
+                      SizedBox(height: AppSpacing.md),
                       DropdownButtonFormField<String>(
                         value: gender,
                         items:
