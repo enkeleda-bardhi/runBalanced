@@ -16,21 +16,21 @@ class FatigueSelector extends StatelessWidget {
           child: Text("Joints"),
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => FatigueDetailScreen(title: "Joints", data: session.getJointData())),
+            MaterialPageRoute(builder: (_) => FatigueDetailScreen(title: "Joints", data: session.getJointData().whereType<double>().toList())),
           ),
         ),
         ElevatedButton(
           child: Text("Cardio"),
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => FatigueDetailScreen(title: "Cardio", data: session.getCardioData())),
+            MaterialPageRoute(builder: (_) => FatigueDetailScreen(title: "Cardio", data: session.getCardioData().whereType<double>().toList())),
           ),
         ),
         ElevatedButton(
           child: Text("Muscles"),
           onPressed: () => Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => FatigueDetailScreen(title: "Muscles", data: session.getMuscleData())),
+            MaterialPageRoute(builder: (_) => FatigueDetailScreen(title: "Muscles", data: session.getMuscleData().whereType<double>().toList())),
           ),
         ),
       ],

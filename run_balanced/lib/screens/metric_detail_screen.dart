@@ -50,8 +50,8 @@ class MetricDetailScreen extends StatelessWidget {
         break;
     }
 
-    final double maxFatigue = fatiguePerKm.whereType<double>().fold<double>(0, (prev, elem) => elem > prev ? elem : prev);
-    final int maxFatigueKm = fatiguePerKm.indexWhere((v) => v == maxFatigue) + 1;
+    final double maxFatigue = fatiguePerKm.isEmpty ? 0.0 : fatiguePerKm.whereType<double>().fold<double>(0, (prev, elem) => elem > prev ? elem : prev);
+    final int maxFatigueKm = fatiguePerKm.isEmpty ? 0 : fatiguePerKm.indexWhere((v) => v == maxFatigue) + 1;
 
     return Scaffold(
       appBar: AppBar(
@@ -83,45 +83,50 @@ class MetricDetailScreen extends StatelessWidget {
               const SizedBox(height: 30),
               const Text('Fatigue per km', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: fatiguePerKm.length,
-                itemBuilder: (context, index) {
-                  final value = fatiguePerKm[index];
-                  if (value == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final barWidth = value * 2.0; // max 200px se 100%
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Row(
-                      children: [
-                        SizedBox(width: 60, child: Text('KM ${index + 1}', style: const TextStyle(fontSize: 14))),
-                        Stack(
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final double maxBarWidth = 200.0;
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: fatiguePerKm.length,
+                    itemBuilder: (context, index) {
+                      final value = fatiguePerKm[index];
+                      if (value == null) {
+                        return const SizedBox.shrink();
+                      }
+                      final barWidth = (value / 100) * maxBarWidth; // max 200px se 100%
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 6),
+                        child: Row(
                           children: [
-                            Container(
-                              width: 200,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
+                            SizedBox(width: 60, child: Text('KM ${index + 1}', style: const TextStyle(fontSize: 14))),
+                            Stack(
+                              children: [
+                                Container(
+                                  width: maxBarWidth,
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                                Container(
+                                  width: barWidth.clamp(0.0, maxBarWidth),
+                                  height: 20,
+                                  decoration: BoxDecoration(
+                                    color: _getBarColor(value),
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                ),
+                              ],
                             ),
-                            Container(
-                              width: barWidth.clamp(0.0, 200.0),
-                              height: 20,
-                              decoration: BoxDecoration(
-                                color: _getBarColor(value),
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                            ),
+                            const SizedBox(width: 8),
+                            Text('${value.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 14)),
                           ],
                         ),
-                        const SizedBox(width: 8),
-                        Text('${value.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 14)),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 },
               ),
@@ -129,26 +134,35 @@ class MetricDetailScreen extends StatelessWidget {
               const Text('Deviation from baseline of fatigue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Wrap(
-                spacing: 12.0, // Horizontal space between items
-                runSpacing: 8.0, // Vertical space between lines
-                alignment: WrapAlignment.center,
-                children: fatiguePerKm.map((kmFatigue) {
+                spacing: 8.0,
+                runSpacing: 8.0,
+                alignment: WrapAlignment.start,
+                children: List.generate(fatiguePerKm.length, (index) {
+                  final kmFatigue = fatiguePerKm[index];
                   if (kmFatigue == null) {
-                    return const Text('N/A');
+                    return const SizedBox.shrink();
                   }
                   final deviation = kmFatigue - averageFatigue;
                   final sign = deviation >= 0 ? '+' : '';
                   final color = deviation > 0 ? Colors.red.shade700 : Colors.green.shade700;
 
-                  return Text(
-                    '$sign${deviation.toStringAsFixed(0)}%',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+                  return Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: color.withOpacity(0.5)),
+                    ),
+                    child: Text(
+                      'KM ${index + 1}: $sign${deviation.toStringAsFixed(1)}%',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
                     ),
                   );
-                }).toList(),
+                }),
               ),
               const SizedBox(height: 30),
             ],
