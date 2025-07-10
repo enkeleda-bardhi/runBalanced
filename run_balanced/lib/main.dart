@@ -6,6 +6,7 @@ import 'package:run_balanced/firebase_options.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/screens/homepage_screen.dart';
 import 'package:run_balanced/screens/profile_screen.dart';
+import 'package:run_balanced/theme/theme.dart';
 import 'package:run_balanced/theme/theme_provider.dart';
 import 'package:run_balanced/services/impact_api_service.dart';
 import 'screens/login_screen.dart';
@@ -22,11 +23,13 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProxyProvider<UserProfileProvider, DataProvider>(
-          create: (context) => DataProvider(
-            Provider.of<UserProfileProvider>(context, listen: false),
-          ),
-          update: (context, userProfile, previousDataProvider) =>
-              previousDataProvider!..updateUserProfile(userProfile),
+          create:
+              (context) => DataProvider(
+                Provider.of<UserProfileProvider>(context, listen: false),
+              ),
+          update:
+              (context, userProfile, previousDataProvider) =>
+                  previousDataProvider!..updateUserProfile(userProfile),
         ),
       ],
       child: const MyApp(),
@@ -44,6 +47,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'runBalanced',
       theme: themeProvider.themeData,
+      // darkTheme: darkMode,
+      // themeMode: ThemeMode.system,
       home: AuthWrapper(),
     );
   }
