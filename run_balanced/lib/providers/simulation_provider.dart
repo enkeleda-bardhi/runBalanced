@@ -378,6 +378,7 @@ class DataProvider with ChangeNotifier {
         final newSession = TrainingSession.fromMap(session, id: docRef.id);
         lastSession = newSession;
         savedSessions.add(newSession);
+        savedSessions.sort((a, b) => b.timestamp.compareTo(a.timestamp));
         notifyListeners();
         return newSession;
       } else {
