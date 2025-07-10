@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/simulation_provider.dart';
 import 'package:run_balanced/screens/recap_detail_screen.dart';
+import 'package:run_balanced/widgets/animated_fatigue_widget.dart';
 import 'package:run_balanced/widgets/controls_widget.dart';
 import 'package:run_balanced/widgets/progress_bar_widget.dart';
 import 'package:run_balanced/widgets/stats_row_widget.dart';
@@ -29,17 +30,22 @@ class TrainingScreen extends StatelessWidget {
                   heartRate: data.heartRate,
                 ),
                 const SizedBox(height: 20),
-                ProgressBarWidget(
+                AnimatedFatigueWidget(
                   label: "Cardio Fatigue",
                   value: data.cardioState,
+                  subtitle: "Based on HR, SpO2, and more",
                 ),
-                ProgressBarWidget(
+                const SizedBox(height: 12),
+                AnimatedFatigueWidget(
                   label: "Joint Fatigue",
                   value: data.jointState,
+                  subtitle: "Based on impact and repetition",
                 ),
-                ProgressBarWidget(
+                const SizedBox(height: 12),
+                AnimatedFatigueWidget(
                   label: "Muscle Fatigue",
                   value: data.muscleState,
+                  subtitle: "Based on biomechanical asymmetry",
                 ),
                 const Spacer(),
                 ControlsWidget(
