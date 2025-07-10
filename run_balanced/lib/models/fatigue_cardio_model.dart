@@ -3,19 +3,19 @@ import 'utilities.dart';
 // --- Model Configuration ---
 // These weights determine the contribution of each metric to the final score.
 // They should sum to 1.0.
-const double wHR = 0.30;   // Heart Rate
-const double wHRV = 0.25;  // Heart Rate Variability
+const double wHR = 0.35;   // Heart Rate
+const double wHRV = 0.20;  // Heart Rate Variability
 const double wSpO2 = 0.20; // Blood Oxygen
 const double wBP = 0.15;   // Blood Pressure
 const double wTemp = 0.10; // Temperature
 
 // Define expected physiological ranges for a typical run.
 // These are used to normalize the raw values into a 0-1 scale.
-const double minHR = 80.0, maxHR = 190.0;
+const double minHR = 50.0, maxHR = 190.0;
 const double minHRV = 20.0, maxHRV = 120.0;
-const double minSpO2 = 92.0, maxSpO2 = 100.0;
-const double minBP = 120.0, maxBP = 160.0;
-const double minTemp = 36.8, maxTemp = 38.5;
+const double minSpO2 = 91.0, maxSpO2 = 100.0;
+const double minBP = 70.0, maxBP = 160.0;
+const double minTemp = 36.0, maxTemp = 38.5;
 // --- End of Configuration ---
 
 
