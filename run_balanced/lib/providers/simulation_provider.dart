@@ -14,12 +14,12 @@ import 'package:run_balanced/models/fatigue_cardio_model.dart';
 import 'package:run_balanced/models/fatigue_joint_model.dart';
 import 'package:run_balanced/models/utilities.dart';
 
-class DataProvider with ChangeNotifier {
+class SimulationProvider with ChangeNotifier {
   Duration _elapsed = Duration.zero;
   Timer? _timer;
   UserProfileProvider userProfileProvider;
 
-  DataProvider(this.userProfileProvider) {
+  SimulationProvider(this.userProfileProvider) {
     fetchAllSessions();
   }
 

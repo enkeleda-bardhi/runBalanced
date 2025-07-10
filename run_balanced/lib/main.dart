@@ -22,9 +22,9 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProxyProvider<UserProfileProvider, DataProvider>(
+        ChangeNotifierProxyProvider<UserProfileProvider, SimulationProvider>(
           create:
-              (context) => DataProvider(
+              (context) => SimulationProvider(
                 Provider.of<UserProfileProvider>(context, listen: false),
               ),
           update:

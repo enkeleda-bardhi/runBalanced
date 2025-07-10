@@ -35,7 +35,7 @@ class RecapDetailScreen extends StatelessWidget {
     final heartRateSpots = _convertToSpots(dataSnapshots, 'heartRate');
 
     Future<void> deleteSessionById(String id) async {
-      Provider.of<DataProvider>(context, listen: false).deleteSessionById(id);
+      Provider.of<SimulationProvider>(context, listen: false).deleteSessionById(id);
     }
 
     return Scaffold(
