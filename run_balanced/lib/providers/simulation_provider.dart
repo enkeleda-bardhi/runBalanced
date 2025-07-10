@@ -183,13 +183,13 @@ class DataProvider with ChangeNotifier {
         // Find all data points for the completed kilometer using the efficient lookup
         final biomechLeftForKm = _biomechDataLeft.where((e) {
             final distance = timeToDistanceMap[e['time'] as num? ?? 0] ?? 0.0;
-            return distance.floor() == currentKm;
+            return distance.ceil() == currentKm;
         }).toList();
         final biomechRightForKm = _biomechDataRight.where((e) {
             final distance = timeToDistanceMap[e['time'] as num? ?? 0] ?? 0.0;
-            return distance.floor() == currentKm;
+            return distance.ceil() == currentKm;
         }).toList();
-        final cardioDataForKm = _cardioSimData.where((e) => (e['distance_km'] as num? ?? 0.0).floor() == currentKm).toList();
+        final cardioDataForKm = _cardioSimData.where((e) => (e['distance_km'] as num? ?? 0.0).ceil() == currentKm).toList();
         
         // Calculate and store fatigue for the completed kilometer
         jliLeftPerKm[currentKm] = _calculateJliForKm(biomechLeftForKm);
