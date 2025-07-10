@@ -45,7 +45,7 @@ class DataProvider with ChangeNotifier {
   // Per-kilometer calculated fatigue data
   Map<int, double> jliLeftPerKm = {};
   Map<int, double> jliRightPerKm = {};
-  Map<int, int> cardioFatiguePerKm = {};
+  Map<int, double> cardioFatiguePerKm = {};
   Map<int, double> asymmetryPerKm = {};
 
   // Data for saving session
@@ -166,7 +166,7 @@ class DataProvider with ChangeNotifier {
 
       if ((_elapsed.inSeconds)%5 == 0) {
         // Update heart rate every 5 seconds
-        calories += (met * 3.5 * (userProfileProvider.weight)) / (200 * 60);
+        calories +=  met*0.0014*userProfileProvider.weight;
       }
      
 
@@ -215,7 +215,7 @@ class DataProvider with ChangeNotifier {
         angle: (currentBiomechPointRight['theta'] as num? ?? 0.0).toDouble(),
         repetitions: (currentBiomechPointRight['R'] as num? ?? 0).toInt(),
       );
-      final int cardioFatigueInstant = calculateCardioFatigue(
+      final double cardioFatigueInstant = calculateCardioFatigue(
         hr: heartRate,
         hrv: (currentCardioPoint['HRV'] as num? ?? 0.0).toDouble(),
         spo2: (currentCardioPoint['SpO2'] as num? ?? 0.0).toDouble(),
@@ -230,7 +230,7 @@ class DataProvider with ChangeNotifier {
       );
 
       jointState = (jliLeftInstant + jliRightInstant) / 2;
-      cardioState = cardioFatigueInstant.toDouble();
+      cardioState = cardioFatigueInstant;
       muscleState = asymmetryInstant;
 
       if (currentTime - _lastSnapshotSecond >= 5) {
@@ -245,36 +245,33 @@ class DataProvider with ChangeNotifier {
   // Helper method to calculate JLI for a given kilometer's data
   double _calculateJliForKm(List<Map<String, dynamic>> biomechData) {
     if (biomechData.isEmpty) return 0.0;
-    final fAvg = avg(biomechData.map((e) => e['F'] as num? ?? 0).toList());
-    final thetaAvg = avg(biomechData.map((e) => e['theta'] as num? ?? 0).toList());
-    final rAvg = avg(biomechData.map((e) => e['R'] as num? ?? 0).toList());
-    return calculateJLI(force: fAvg, angle: thetaAvg, repetitions: rAvg.toInt());
+    final jliValues = biomechData.map((e) => calculateJLI(
+      force: (e['F'] as num? ?? 0.0).toDouble(),
+      angle: (e['theta'] as num? ?? 0.0).toDouble(),
+      repetitions: (e['R'] as num? ?? 0).toInt(),
+    )).toList();
+    return avg(jliValues);
   }
 
   // Helper method to calculate Cardio Fatigue for a given kilometer's data
-  int _calculateCardioFatigueForKm(List<Map<String, dynamic>> cardioData, List<int> hrList, int km) {
-    if (cardioData.isEmpty) return 0;
-    final hrvAvg = avg(cardioData.map((e) => (e['HRV'] as num? ?? 0)).toList());
-    final spo2Avg = avg(cardioData.map((e) => (e['SpO2'] as num? ?? 0)).toList());
-    final bpAvg = avg(cardioData.map((e) => (e['BP'] as num? ?? 0)).toList());
-    final tempAvg = avg(cardioData.map((e) => (e['Temp'] as num? ?? 0)).toList());
-    
-    // Find the time range for the current kilometer
-    final startTime = cardioData.first['time'] as num? ?? 0;
-    final endTime = cardioData.last['time'] as num? ?? 0;
+  double _calculateCardioFatigueForKm(List<Map<String, dynamic>> cardioData, List<int> hrList, int km) {
+    if (cardioData.isEmpty) return 0.0;
 
-    // Calculate the average heart rate for the kilometer
-    final hrForKm = hrList.sublist(startTime.toInt(), (endTime.toInt() + 1).clamp(0, hrList.length));
-    final hrAvg = avg(hrForKm);
+    final fatigueValues = cardioData.map((e) {
+      final time = (e['time'] as num? ?? 0).toInt();
+      final hr = (time < hrList.length) ? hrList[time] * 2 : 0; // Apply the same *2 logic for testing
+      final pointDistance = (e['distance_km'] as num? ?? 0.0).toDouble(); // Get the actual distance for this point
+      return calculateCardioFatigue(
+        hr: hr,
+        hrv: (e['HRV'] as num? ?? 0.0).toDouble(),
+        spo2: (e['SpO2'] as num? ?? 0.0).toDouble(),
+        bp: (e['BP'] as num? ?? 0).toInt(),
+        temp: (e['Temp'] as num? ?? 0.0).toDouble(),
+        distanceKm: pointDistance, // Use the actual distance
+      );
+    }).toList();
 
-    return calculateCardioFatigue(
-      hr: hrAvg.toInt(),
-      hrv: hrvAvg,
-      spo2: spo2Avg,
-      bp: bpAvg.toInt(),
-      temp: tempAvg,
-      distanceKm: km.toDouble(),
-    );
+    return avg(fatigueValues);
   }
 
   void togglePlayPause() async {
@@ -346,9 +343,10 @@ class DataProvider with ChangeNotifier {
     final now = DateTime.now();
     final avgPace = avg(dataSnapshots.map((s) => (s['pace'] as num? ?? 0.0)).toList());
     final avgHeartRate = avg(dataSnapshots.map((s) => (s['heartRate'] as num? ?? 0.0)).toList());
-    final avgCardio = avg(dataSnapshots.map((s) => (s['cardio'] as num? ?? 0.0)).toList());
-    final avgJoints = avg(dataSnapshots.map((s) => (s['joints'] as num? ?? 0.0)).toList());
-    final avgMuscles = avg(dataSnapshots.map((s) => (s['muscles'] as num? ?? 0.0)).toList());
+    // Calculate averages from the per-kilometer data for consistency
+    final avgCardio = avg(cardioFatiguePerKm.values.toList());
+    final avgJoints = avg([...jliLeftPerKm.values, ...jliRightPerKm.values]);
+    final avgMuscles = avg(asymmetryPerKm.values.toList());
 
     final session = {
       'time': formattedTime,

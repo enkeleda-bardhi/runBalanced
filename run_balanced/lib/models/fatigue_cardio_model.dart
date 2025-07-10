@@ -25,7 +25,7 @@ const double minTemp = 36.0, maxTemp = 38.5;
 /// Each metric is normalized to a 0-1 "fatigue contribution" scale, weighted, and then combined.
 ///
 /// Returns a fatigue score clamped between 0 and 100.
-int calculateCardioFatigue({
+double calculateCardioFatigue({
   required int hr,
   required double hrv,
   required double spo2,
@@ -52,5 +52,5 @@ int calculateCardioFatigue({
                      (tempScore * wTemp);
 
   // Scale to 0-100 and clamp to ensure the value is within bounds.
-  return (totalScore * 100).clamp(0, 100).toInt();
+  return (totalScore * 100).clamp(0, 100).toDouble();
 }
