@@ -4,7 +4,6 @@ import 'package:run_balanced/providers/simulation_provider.dart';
 import 'package:run_balanced/screens/recap_detail_screen.dart';
 import 'package:run_balanced/widgets/animated_fatigue_widget.dart';
 import 'package:run_balanced/widgets/controls_widget.dart';
-import 'package:run_balanced/widgets/progress_bar_widget.dart';
 import 'package:run_balanced/widgets/stats_row_widget.dart';
 import 'package:run_balanced/widgets/timer_widget.dart';
 
