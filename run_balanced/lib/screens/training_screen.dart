@@ -31,7 +31,7 @@ class TrainingScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 ProgressBarWidget(
                   label: "Cardio Fatigue",
-                  value: data.breathState,
+                  value: data.cardioState,
                 ),
                 ProgressBarWidget(
                   label: "Joint Fatigue",

@@ -1,146 +1,168 @@
 import 'package:flutter/material.dart';
+import 'package:run_balanced/models/training_session.dart';
+import 'package:run_balanced/theme/theme.dart';
+
+enum FatigueMetricType {
+  muscles,
+  joints,
+  cardio,
+}
 
 class MetricDetailScreen extends StatelessWidget {
-  final List<int> fatiguePerKm = [58, 66, 66, 70, 20, 82, 30, 49, 12, 65, 89]; // valori % per km
-  final int averageFatigue = 74;
-  final int maxFatigue = 92;
-  final int maxFatigueKm = 6;
+  final TrainingSession session;
+  final FatigueMetricType metricType;
+
+  const MetricDetailScreen({
+    super.key,
+    required this.session,
+    required this.metricType,
+  });
 
   @override
   Widget build(BuildContext context) {
+    late String title;
+    late IconData icon;
+    late Color color;
+    late List<double?> fatiguePerKm;
+    late double averageFatigue;
+
+    switch (metricType) {
+      case FatigueMetricType.muscles:
+        title = 'Muscular Fatigue';
+        icon = Icons.fitness_center;
+        color = AppColors.muscleFatigue;
+        fatiguePerKm = session.getMuscleData();
+        averageFatigue = session.avgMuscles ?? 0;
+        break;
+      case FatigueMetricType.joints:
+        title = 'Joint Fatigue';
+        icon = Icons.personal_injury_outlined;
+        color = AppColors.jointFatigue;
+        fatiguePerKm = session.getJointData();
+        averageFatigue = session.avgJoints ?? 0;
+        break;
+      case FatigueMetricType.cardio:
+        title = 'Cardio Fatigue';
+        icon = Icons.monitor_heart;
+        color = AppColors.cardioFatigue;
+        fatiguePerKm = session.getCardioData();
+        averageFatigue = session.avgCardio ?? 0;
+        break;
+    }
+
+    final double maxFatigue = fatiguePerKm.whereType<double>().fold<double>(0, (prev, elem) => elem > prev ? elem : prev);
+    final int maxFatigueKm = fatiguePerKm.indexWhere((v) => v == maxFatigue) + 1;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F5F0),
+      appBar: AppBar(
+        backgroundColor: AppColors.onSurface,
+        elevation: 0,
+      ),
+      backgroundColor: AppColors.surface,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 40),
-            Row(
-              children: const [
-                Icon(Icons.fitness_center, size: 30, color: Colors.green),
-                SizedBox(width: 10),
-                Text(
-                  'Muscular Fatigue',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Media: $averageFatigue%   Massima: $maxFatigue% al km $maxFatigueKm',
-              style: const TextStyle(fontSize: 16),
-            ),
-
-            const SizedBox(height: 30),
-            const Text('Fatica per km', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-
-            const SizedBox(height: 10),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: fatiguePerKm.length,
-              itemBuilder: (context, index) {
-                final value = fatiguePerKm[index];
-                final barWidth = value * 2.0; // max 200px se 100%
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 6),
-                  child: Row(
-                    children: [
-                      SizedBox(width: 60, child: Text('KM ${index + 1}', style: const TextStyle(fontSize: 14))),
-                      Stack(
-                        children: [
-                          Container(
-                            width: 200,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                          Container(
-                            width: barWidth.clamp(0.0, 200.0),
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: _getBarColor(value),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(width: 8),
-                      Text('$value%', style: const TextStyle(fontSize: 14)),
-                    ],
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(icon, size: 30, color: color),
+                  const SizedBox(width: 10),
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                );
-              },
-            ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Average: ${averageFatigue.toStringAsFixed(1)}%   Max: ${maxFatigue.toStringAsFixed(1)}% in km $maxFatigueKm',
+                style: const TextStyle(fontSize: 16),
+              ),
+              const SizedBox(height: 30),
+              const Text('Fatigue per km', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: fatiguePerKm.length,
+                itemBuilder: (context, index) {
+                  final value = fatiguePerKm[index];
+                  if (value == null) {
+                    return const SizedBox.shrink();
+                  }
+                  final barWidth = value * 2.0; // max 200px se 100%
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Row(
+                      children: [
+                        SizedBox(width: 60, child: Text('KM ${index + 1}', style: const TextStyle(fontSize: 14))),
+                        Stack(
+                          children: [
+                            Container(
+                              width: 200,
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                            Container(
+                              width: barWidth.clamp(0.0, 200.0),
+                              height: 20,
+                              decoration: BoxDecoration(
+                                color: _getBarColor(value),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(width: 8),
+                        Text('${value.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 14)),
+                      ],
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 30),
+              const Text('Deviation from baseline of fatigue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 12.0, // Horizontal space between items
+                runSpacing: 8.0, // Vertical space between lines
+                alignment: WrapAlignment.center,
+                children: fatiguePerKm.map((kmFatigue) {
+                  if (kmFatigue == null) {
+                    return const Text('N/A');
+                  }
+                  final deviation = kmFatigue - averageFatigue;
+                  final sign = deviation >= 0 ? '+' : '';
+                  final color = deviation > 0 ? Colors.red.shade700 : Colors.green.shade700;
 
-            const SizedBox(height: 30),
-            const Text('Deviazione della fatica', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
-                Text('+12%'),
-                Text('-3%'),
-                Text('+7%'),
-                Text('0%'),
-                Text('-5%'),
-                Text('+7%'),
-                Text('0%'),
-                Text('-5%'),
-                Text('-3%'),
-                Text('+7%'),
-                Text('0%')
-              ],
-            ),
-
-            const SizedBox(height: 30),
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
-                    Text(
-                      'Affaticamento elevato',
-                      style: TextStyle(fontWeight: FontWeight.bold),
+                  return Text(
+                    '$sign${deviation.toStringAsFixed(0)}%',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: color,
                     ),
-                    Text('tra i km 4 e 5'),
-                  ],
-                ),
-                const Spacer(),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: CircularProgressIndicator(
-                        value: averageFatigue / 100,
-                        backgroundColor: Colors.greenAccent,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-                        strokeWidth: 6,
-                      ),
-                    ),
-                    Text(
-                      '$averageFatigue%',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: 30),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Color _getBarColor(int value) {
-    if (value < 60) return Colors.orange;
-    if (value < 70) return Colors.yellow.shade700;
-    if (value < 85) return Colors.lightGreen;
-    return Colors.green.shade800;
+  Color _getBarColor(double? value) {
+    if (value == null) return AppColors.fatigueOptimal;
+    if (value < 60) return AppColors.fatigueOptimal;
+    if (value < 70) return AppColors.fatigueModerate;
+    if (value < 85) return AppColors.fatigueHigh;
+    return AppColors.fatigueCritical;
   }
 }

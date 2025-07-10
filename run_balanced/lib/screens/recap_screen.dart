@@ -84,7 +84,7 @@ class RecapScreen extends StatelessWidget {
                                         style: theme.textTheme.bodyMedium,
                                       ),
                                       Text(
-                                        "Cardio fatigue: ${session.avgBreath?.toStringAsFixed(2)}%",
+                                        "Cardio fatigue: ${session.avgCardio?.toStringAsFixed(2)}%",
                                         style: theme.textTheme.bodyMedium,
                                       ),
                                       Text(

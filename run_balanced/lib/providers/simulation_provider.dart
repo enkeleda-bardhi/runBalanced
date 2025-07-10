@@ -41,7 +41,7 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
   double met = 8.0; // MET value for running, can be adjusted
 
   // Fatigue state for UI
-  double breathState = 0.0;
+  double cardioState = 0.0;
   double jointState = 0.0;
   double muscleState = 0.0;
 
@@ -209,7 +209,7 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
 
         // Update UI state variables with instant values
         jointState = (jliLeftInstant + jliRightInstant) / 2;
-        breathState = cardioFatigueInstant.toDouble();
+        cardioState = cardioFatigueInstant.toDouble();
         muscleState = asymmetryInstant;
         // --- END OF INSTANT CALCULATION ---
 
@@ -234,7 +234,7 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
       'calories': calories,
       'pace': pace,
       'heartRate': heartRate.toDouble(),
-      'breath': breathState,
+      'cardio': cardioState,
       'joints': jointState,
       'muscles': muscleState,
     });
@@ -259,7 +259,7 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
     calories = 0.0;
     pace = 0.0;
     heartRate = 0;
-    breathState = 0;
+    cardioState = 0;
     jointState = 0;
     muscleState = 0;
 
@@ -278,7 +278,7 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
     // Calculate average states from snapshots
     final avgPace = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['pace'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
     final avgHeartRate = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['heartRate'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
-    final avgBreath = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['breath'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
+    final avgCardio = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['cardio'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
     final avgJoints = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['joints'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
     final avgMuscles = dataSnapshots.isNotEmpty ? dataSnapshots.map((s) => s['muscles'] as double).reduce((a, b) => a + b) / dataSnapshots.length : 0.0;
 
@@ -288,14 +288,14 @@ void updateUserProfile(UserProfileProvider newUserProfileProvider) {
       'calories': calories,
       'avgPace': avgPace,
       'avgHeartRate': avgHeartRate,
-      'avgBreath': avgBreath,
+      'avgCardio': avgCardio,
       'avgJoints': avgJoints,
       'avgMuscles': avgMuscles,
       'dataSnapshots': dataSnapshots,
       'timestamp': Timestamp.fromDate(now),
       'statesPerKm': {
         'joints': jliLeftPerKm.map((key, value) => MapEntry(key.toString(), value)),
-        'breath': cardioFatiguePerKm.map((key, value) => MapEntry(key.toString(), value)),
+        'cardio': cardioFatiguePerKm.map((key, value) => MapEntry(key.toString(), value)),
         'muscles': asymmetryPerKm.map((key, value) => MapEntry(key.toString(), value)),
       },
     };

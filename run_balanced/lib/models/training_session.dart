@@ -11,7 +11,7 @@ class TrainingSession {
 
   final double? avgPace;
   final double? avgHeartRate;
-  final double? avgBreath;
+  final double? avgCardio;
   final double? avgJoints;
   final double? avgMuscles;
 
@@ -25,7 +25,7 @@ class TrainingSession {
     required this.timestamp,
     this.avgPace,
     this.avgHeartRate,
-    this.avgBreath,
+    this.avgCardio,
     this.avgJoints,
     this.avgMuscles,
   });
@@ -41,7 +41,7 @@ class TrainingSession {
   List<double> getCardioData() {
     final snapshots = dataSnapshots;
     if (snapshots == null || snapshots.isEmpty) return [];
-    return snapshots.map((s) => (s['breath'] as num).toDouble()).toList();
+    return snapshots.map((s) => (s['cardio'] as num).toDouble()).toList();
   }
 
   /// Extracts the list of muscle fatigue (asymmetry) data points for charting.
@@ -63,7 +63,7 @@ class TrainingSession {
       timestamp: timestamp,
       avgPace: avgPace,
       avgHeartRate: avgHeartRate,
-      avgBreath: avgBreath,
+      avgCardio: avgCardio,
       avgJoints: avgJoints,
       avgMuscles: avgMuscles,
     );
@@ -85,7 +85,7 @@ class TrainingSession {
       // Read the pre-calculated averages directly from the data map.
       avgPace: (data['avgPace'] as num?)?.toDouble(),
       avgHeartRate: (data['avgHeartRate'] as num?)?.toDouble(),
-      avgBreath: (data['avgBreath'] as num?)?.toDouble(),
+      avgCardio: (data['avgCardio'] as num?)?.toDouble(),
       avgJoints: (data['avgJoints'] as num?)?.toDouble(),
       avgMuscles: (data['avgMuscles'] as num?)?.toDouble(),
       timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -103,7 +103,7 @@ class TrainingSession {
       // Add the average fields so they are saved to Firestore.
       'avgPace': avgPace,
       'avgHeartRate': avgHeartRate,
-      'avgBreath': avgBreath,
+      'avgCardio': avgCardio,
       'avgJoints': avgJoints,
       'avgMuscles': avgMuscles,
       // Save dataSnapshots only if not null

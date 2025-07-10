@@ -65,20 +65,21 @@ class RecapDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text("Physiological Metrics", style: theme.textTheme.displayMedium),
             const SizedBox(height: 12),
-            // BREATH
+            // CARDIO
             GestureDetector(
               onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-
+                      session: session,
+                      metricType: FatigueMetricType.cardio,
                     ),
                   ),
                 );
               },
               child: Text(
-                "Avg. breath: ${session.avgBreath?.toStringAsFixed(1)}%",
+                "Avg. cardio: ${session.avgCardio?.toStringAsFixed(1)}%",
                 style: theme.textTheme.bodyLarge?.copyWith(color: Colors.teal),
               ),
             ),
@@ -90,6 +91,8 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
+                      session: session,
+                      metricType: FatigueMetricType.joints,
                     ),
                   ),
                 );
@@ -107,6 +110,8 @@ class RecapDetailScreen extends StatelessWidget {
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
+                      session: session,
+                      metricType: FatigueMetricType.muscles,
                     ),
                   ),
                 );
