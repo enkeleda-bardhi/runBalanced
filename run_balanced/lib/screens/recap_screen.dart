@@ -36,7 +36,7 @@ class RecapScreen extends StatelessWidget {
                           if (sessions.isNotEmpty) ...[
                             ...sessions.map((session) {
                               final dateFormatted = DateFormat(
-                                'yyyy-MM-dd HH:mm:ss',
+                                'yyyy-MM-dd HH:mm',
                               ).format(session.timestamp);
 
                               return Card(
@@ -63,36 +63,21 @@ class RecapScreen extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       const SizedBox(height: 8),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          _buildStat(theme, Icons.timer_outlined, session.time),
+                                          _buildStat(theme, Icons.space_bar_outlined, "${session.distance.toStringAsFixed(2)} km"),
+                                          _buildStat(theme, Icons.speed_outlined, "${session.avgPace?.toStringAsFixed(2)} min/km"),
+                                        ],
+                                      ),
+                                      const Divider(height: 20),
                                       Text(
-                                        "Time: ${session.time}",
+                                        "Avg. Heart rate: ${session.avgHeartRate?.toStringAsFixed(0)} bpm",
                                         style: theme.textTheme.bodyMedium,
                                       ),
                                       Text(
-                                        "Distance: ${session.distance.toStringAsFixed(2)} km",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        "Pace: ${session.avgPace?.toStringAsFixed(2)} min/km",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        "Calories: ${session.calories.toStringAsFixed(2)} kcal",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        "Heart rate: ${session.avgHeartRate?.toStringAsFixed(2)} bpm",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        "Cardio fatigue: ${session.avgBreath?.toStringAsFixed(2)}%",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        "Joint fatigue: ${session.avgJoints?.toStringAsFixed(2)}%",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        "Muscle fatigue: ${session.avgMuscles?.toStringAsFixed(2)}%",
+                                        "Calories: ${session.calories.toStringAsFixed(0)} kcal",
                                         style: theme.textTheme.bodyMedium,
                                       ),
                                     ],
@@ -132,6 +117,16 @@ class RecapScreen extends StatelessWidget {
                     ),
         );
       },
+    );
+  }
+
+  Widget _buildStat(ThemeData theme, IconData icon, String value) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: theme.iconTheme.color?.withOpacity(0.8)),
+        const SizedBox(width: 4),
+        Text(value, style: theme.textTheme.bodyMedium),
+      ],
     );
   }
 
@@ -178,11 +173,6 @@ class RecapScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 8),
-            if (session.time != null)
-              Text(
-                "Time: ${session.time}",
-                style: theme.textTheme.bodyMedium,
-              ),
             Text(
               "Duration: ${formatDuration(session.duration)}",
               style: theme.textTheme.bodyMedium,

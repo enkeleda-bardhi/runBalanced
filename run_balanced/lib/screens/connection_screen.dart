@@ -9,11 +9,11 @@ class ConnectionsScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     final List<Connection> connections = [
-      Connection(name: "Polar H10", status: "Connected", icon: Icons.favorite),
+      Connection(name: "Garmin Edge 540", status: "Connected", icon: Icons.bluetooth_connected_outlined),
       Connection(
-        name: "Foot Sensor",
-        status: "Disconnected",
-        icon: Icons.directions_run,
+        name: "Knee Sensor",
+        status: "Connected",
+        icon: Icons.bluetooth_connected_outlined,
       ),
     ];
 
@@ -25,6 +25,13 @@ class ConnectionsScreen extends StatelessWidget {
           final conn = connections[index];
           return _buildConnectionCard(context, conn, theme);
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // TODO: Implement logic to add a new device.
+        },
+        tooltip: 'Add Device',
+        child: const Icon(Icons.add),
       ),
     );
   }

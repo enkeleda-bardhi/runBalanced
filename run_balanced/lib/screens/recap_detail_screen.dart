@@ -1,5 +1,5 @@
 import 'package:run_balanced/screens/metric_detail_screen.dart';
-
+import 'package:run_balanced/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -65,55 +65,69 @@ class RecapDetailScreen extends StatelessWidget {
             const SizedBox(height: 20),
             Text("Physiological Metrics", style: theme.textTheme.displayMedium),
             const SizedBox(height: 12),
-            // BREATH
-            GestureDetector(
-              onTap: () {
+            
+            ElevatedButton.icon(
+              icon: const Icon(Icons.monitor_heart),
+              label: Text("View Cardio Details (${session.avgCardio?.toStringAsFixed(1)}%)"),
+              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
-
+                      session: session,
+                      metricType: FatigueMetricType.cardio,
                     ),
                   ),
                 );
               },
-              child: Text(
-                "Avg. breath: ${session.avgBreath?.toStringAsFixed(1)}%",
-                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.teal),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.cardioFatigue,
+                foregroundColor: AppColors.surface,
+                minimumSize: const Size(double.infinity, 48),
               ),
             ),
+            const SizedBox(height: 8),
 
-// JOINTS
-            GestureDetector(
-              onTap: () {
+            ElevatedButton.icon(
+              icon: const Icon(Icons.personal_injury_outlined),
+              label: Text("View Joints Details (${session.avgJoints?.toStringAsFixed(1)}%)"),
+              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
+                      session: session,
+                      metricType: FatigueMetricType.joints,
                     ),
                   ),
                 );
               },
-              child: Text(
-                "Avg. joints: ${session.avgJoints?.toStringAsFixed(1)}%",
-                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.orange),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.jointFatigue,
+                foregroundColor: AppColors.surface,
+                minimumSize: const Size(double.infinity, 48),
               ),
             ),
+            const SizedBox(height: 8),
 
-// MUSCLES
-            GestureDetector(
-              onTap: () {
+            ElevatedButton.icon(
+              icon: const Icon(Icons.fitness_center),
+              label: Text("View Muscles Details (${session.avgMuscles?.toStringAsFixed(1)}%)"),
+              onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => MetricDetailScreen(
+                      session: session,
+                      metricType: FatigueMetricType.muscles,
                     ),
                   ),
                 );
               },
-              child: Text(
-                "Avg. muscles: ${session.avgMuscles?.toStringAsFixed(1)}%",
-                style: theme.textTheme.bodyLarge?.copyWith(color: Colors.green),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.muscleFatigue,
+                foregroundColor: AppColors.surface,
+                minimumSize: const Size(double.infinity, 48),
               ),
             ),
 

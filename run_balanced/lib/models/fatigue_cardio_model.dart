@@ -1,4 +1,30 @@
-import 'km_avg.dart';
+import 'utilities.dart';
+
+// --- Model Configuration ---
+// These weights determine the contribution of each metric to the final score.
+// They should sum to 1.0.
+const double wHR = 0.30;   // Heart Rate
+const double wHRV = 0.25;  // Heart Rate Variability
+const double wSpO2 = 0.20; // Blood Oxygen
+const double wBP = 0.15;   // Blood Pressure
+const double wTemp = 0.10; // Temperature
+
+// Define expected physiological ranges for a typical run.
+// These are used to normalize the raw values into a 0-1 scale.
+const double minHR = 80.0, maxHR = 190.0;
+const double minHRV = 20.0, maxHRV = 120.0;
+const double minSpO2 = 92.0, maxSpO2 = 100.0;
+const double minBP = 120.0, maxBP = 160.0;
+const double minTemp = 36.8, maxTemp = 38.5;
+// --- End of Configuration ---
+
+
+/// Calculates a cardio fatigue score using a weighted average of normalized physiological metrics.
+///
+/// This approach provides a smoother, more realistic fatigue score compared to a step-based system.
+/// Each metric is normalized to a 0-1 "fatigue contribution" scale, weighted, and then combined.
+///
+/// Returns a fatigue score clamped between 0 and 100.
 int calculateCardioFatigue({
   required int hr,
   required double hrv,
@@ -7,71 +33,24 @@ int calculateCardioFatigue({
   required double temp,
   required double distanceKm,
 }) {
-  int score = 0;
-  if (hr >= 90 && hr < 100) {
-    score += 5;
-  } else if (hr < 110) {
-    score += 10;
-  } else if (hr >= 110) {
-    score += 25;
-  }
+  // Normalize each metric to a 0-1 "fatigue contribution" score.
+  
+  // For HR, BP, Temp: a higher value means higher fatigue.
+  final hrScore = normalize(hr.toDouble(), minHR, maxHR);
+  final bpScore = normalize(bp.toDouble(), minBP, maxBP);
+  final tempScore = normalize(temp, minTemp, maxTemp);
 
-  if (hrv < 30) {
-    score += 25;
-  } else if (hrv < 40) {
-    score += 10;
-  } else if (hrv < 50) {
-    score += 5;
-  }
+  // For HRV, SpO2: a lower value means higher fatigue, so we invert the normalized value.
+  final hrvScore = 1.0 - normalize(hrv, minHRV, maxHRV);
+  final spo2Score = 1.0 - normalize(spo2, minSpO2, maxSpO2);
 
-  if (spo2 < 91) {
-    score += 15;
-  } else if (spo2 < 93) {
-    score += 10;
-  } else if (spo2 < 95) {
-    score += 5;
-  }
+  // Calculate the final score by summing the weighted contributions.
+  final totalScore = (hrScore * wHR) +
+                     (hrvScore * wHRV) +
+                     (spo2Score * wSpO2) +
+                     (bpScore * wBP) +
+                     (tempScore * wTemp);
 
-  if (bp >= 150) {
-    score += 15;
-  } else if (bp >= 140) {
-    score += 10;
-  } else if (bp >= 130) {
-    score += 5;
-  }
-
-  if (temp >= 37.5) {
-    score += 10;
-  } else if (temp >= 37.2) {
-    score += 5;
-  }
-
-  return score.clamp(0, 100);
-}
-
-// più devia dalla norma più aumenta il punteggio
-
-
-Map<int, int> calculateCardioFatiguePerKm(List<Map<String, dynamic>> cardioData, List<int> hrList) {
-  final grouped = groupByKm(cardioData, 'distance_km');
-  final Map<int, int> result = {};
-  int i = 0;
-  grouped.forEach((km, entries) {
-    // Use safe casting with default values to prevent null errors.
-    final hrvAvg = avg(entries.map((e) => (e['HRV'] as num? ?? 0)).toList());
-    final spo2Avg = avg(entries.map((e) => (e['SpO2'] as num? ?? 0)).toList());
-    final bpAvg = avg(entries.map((e) => (e['BP'] as num? ?? 0)).toList());
-    final tempAvg = avg(entries.map((e) => (e['Temp'] as num? ?? 0)).toList());
-    final hr = hrList.isNotEmpty ? hrList[i.clamp(0, hrList.length - 1)] : 0;
-    i++;
-    result[km] = calculateCardioFatigue(
-      hr: hr,
-      hrv: hrvAvg,
-      spo2: spo2Avg,
-      bp: bpAvg.toInt(),
-      temp: tempAvg,
-      distanceKm: km.toDouble(),
-    );
-  });
-  return result;
+  // Scale to 0-100 and clamp to ensure the value is within bounds.
+  return (totalScore * 100).clamp(0, 100).toInt();
 }

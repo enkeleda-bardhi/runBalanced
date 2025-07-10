@@ -5,13 +5,14 @@ class TrainingSession {
   final String time;
   final double distance;
   final double calories;
-  final Map<String, Map<String, double>> statesPerKm;
+  // Change the type to handle mixed int/double values from Firestore
+  final Map<String, dynamic> statesPerKm;
   final List<Map<String, dynamic>>? dataSnapshots;
   final DateTime timestamp;
 
   final double? avgPace;
   final double? avgHeartRate;
-  final double? avgBreath;
+  final double? avgCardio;
   final double? avgJoints;
   final double? avgMuscles;
 
@@ -25,30 +26,33 @@ class TrainingSession {
     required this.timestamp,
     this.avgPace,
     this.avgHeartRate,
-    this.avgBreath,
+    this.avgCardio,
     this.avgJoints,
     this.avgMuscles,
   });
 
   /// Extracts the list of joint fatigue data points for charting.
-  List<double> getJointData() {
-    final snapshots = dataSnapshots;
-    if (snapshots == null || snapshots.isEmpty) return [];
-    return snapshots.map((s) => (s['joints'] as num).toDouble()).toList();
+  List<double?> getJointData() {
+    final perKmData = statesPerKm['joints'] as Map<String, dynamic>? ?? {};
+    if (perKmData.isEmpty) return [];
+    final sortedKeys = perKmData.keys.map(int.parse).toList()..sort();
+    return sortedKeys.map((k) => (perKmData[k.toString()] as num?)?.toDouble()).toList();
   }
 
   /// Extracts the list of cardio fatigue data points for charting.
-  List<double> getCardioData() {
-    final snapshots = dataSnapshots;
-    if (snapshots == null || snapshots.isEmpty) return [];
-    return snapshots.map((s) => (s['breath'] as num).toDouble()).toList();
+  List<double?> getCardioData() {
+    final perKmData = statesPerKm['cardio'] as Map<String, dynamic>? ?? {};
+    if (perKmData.isEmpty) return [];
+    final sortedKeys = perKmData.keys.map(int.parse).toList()..sort();
+    return sortedKeys.map((k) => (perKmData[k.toString()] as num?)?.toDouble()).toList();
   }
 
   /// Extracts the list of muscle fatigue (asymmetry) data points for charting.
-  List<double> getMuscleData() {
-    final snapshots = dataSnapshots;
-    if (snapshots == null || snapshots.isEmpty) return [];
-    return snapshots.map((s) => (s['muscles'] as num).toDouble()).toList();
+  List<double?> getMuscleData() {
+    final perKmData = statesPerKm['muscles'] as Map<String, dynamic>? ?? {};
+    if (perKmData.isEmpty) return [];
+    final sortedKeys = perKmData.keys.map(int.parse).toList()..sort();
+    return sortedKeys.map((k) => (perKmData[k.toString()] as num?)?.toDouble()).toList();
   }
 
   /// Creates a copy of the session with a new ID. Useful after saving to Firestore.
@@ -63,32 +67,30 @@ class TrainingSession {
       timestamp: timestamp,
       avgPace: avgPace,
       avgHeartRate: avgHeartRate,
-      avgBreath: avgBreath,
+      avgCardio: avgCardio,
       avgJoints: avgJoints,
       avgMuscles: avgMuscles,
     );
   }
 
-  factory TrainingSession.fromMap(
-    Map<String, dynamic> data, {
-    required String id,
-  }) {
+  factory TrainingSession.fromMap(Map<String, dynamic> map, {required String id}) {
     return TrainingSession(
       id: id,
-      time: data['time'] ?? '00:00:00',
-      distance: (data['distance'] as num?)?.toDouble() ?? 0.0,
-      calories: (data['calories'] as num?)?.toDouble() ?? 0.0,
-      statesPerKm: (data['statesPerKm'] as Map<String, dynamic>?)?.map(
-        (key, value) => MapEntry(key, (value as Map).map((k,v) => MapEntry(k.toString(), (v as num).toDouble())))
-      ) ?? {},
-      dataSnapshots: data['dataSnapshots'] != null ? List<Map<String, dynamic>>.from(data['dataSnapshots']) : null,
+      time: map['time'] ?? '00:00:00',
+      distance: (map['distance'] as num? ?? 0.0).toDouble(),
+      calories: (map['calories'] as num? ?? 0.0).toDouble(),
+      // Ensure the map is parsed correctly
+      statesPerKm: Map<String, dynamic>.from(map['statesPerKm'] ?? {}),
+      dataSnapshots: map['dataSnapshots'] != null
+          ? List<Map<String, dynamic>>.from(map['dataSnapshots'])
+          : null,
+      timestamp: (map['timestamp'] as Timestamp? ?? Timestamp.now()).toDate(),
       // Read the pre-calculated averages directly from the data map.
-      avgPace: (data['avgPace'] as num?)?.toDouble(),
-      avgHeartRate: (data['avgHeartRate'] as num?)?.toDouble(),
-      avgBreath: (data['avgBreath'] as num?)?.toDouble(),
-      avgJoints: (data['avgJoints'] as num?)?.toDouble(),
-      avgMuscles: (data['avgMuscles'] as num?)?.toDouble(),
-      timestamp: (data['timestamp'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      avgPace: (map['avgPace'] as num?)?.toDouble(),
+      avgHeartRate: (map['avgHeartRate'] as num?)?.toDouble(),
+      avgCardio: (map['avgCardio'] as num?)?.toDouble(),
+      avgJoints: (map['avgJoints'] as num?)?.toDouble(),
+      avgMuscles: (map['avgMuscles'] as num?)?.toDouble(),
     );
   }
 
@@ -103,7 +105,7 @@ class TrainingSession {
       // Add the average fields so they are saved to Firestore.
       'avgPace': avgPace,
       'avgHeartRate': avgHeartRate,
-      'avgBreath': avgBreath,
+      'avgCardio': avgCardio,
       'avgJoints': avgJoints,
       'avgMuscles': avgMuscles,
       // Save dataSnapshots only if not null
