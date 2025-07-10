@@ -6,23 +6,24 @@ class AppColors {
   static const Color primary = Colors.indigoAccent;
   static const Color secondary = Colors.lightBlueAccent;
   static const Color tertiary = Color.fromARGB(255, 193, 193, 193);
-  
+
+  static const Color secondaryLight = Color.fromARGB(255, 196, 224, 247);
+
   // Others
   static const Color error = Colors.redAccent;
-
 
   // Fitness-specific colors
   static const Color heartRate = Color(0xFFE53E3E);
   static const Color calories = Color(0xFFFF8C00);
   static const Color distance = Color(0xFF38A169);
   static const Color pace = Color(0xFF3182CE);
-  
+
   // Fatigue zones
   static const Color fatigueOptimal = Color(0xFF48BB78);
   static const Color fatigueModerate = Color(0xFFF6E05E);
   static const Color fatigueHigh = Color(0xFFF56565);
   static const Color fatigueCritical = Color(0xFFE53E3E);
-  
+
   // Fatigue types
   static const Color cardioFatigue = Colors.red; // Red for cardio fatigue
   static const Color jointFatigue = Colors.orange; // Orange for joint fatigue
@@ -31,13 +32,10 @@ class AppColors {
   // UI colors
   static const Color surface = Color.fromARGB(255, 248, 250, 251);
   static const Color onSurface = Color.fromARGB(255, 30, 30, 30);
-  
+
   // Timer specific gradients (using your primary color)
-  static const List<Color> timerGradient = [
-    primary,
-    secondary,
-  ];
-  
+  static const List<Color> timerGradient = [primary, secondary];
+
   static const List<Color> timerGradientDark = [
     Color.fromARGB(255, 52, 36, 94), // Darker purple for dark mode
     Color.fromARGB(255, 53, 70, 162),
@@ -71,7 +69,7 @@ class AppTextStyles {
     fontWeight: FontWeight.bold,
     height: 1.2,
   );
-  
+
   static TextStyle headline2 = TextStyle(
     fontSize: headlineSize,
     fontWeight: FontWeight.w600,
@@ -95,7 +93,7 @@ class AppTextStyles {
     fontWeight: FontWeight.w500,
     letterSpacing: 1.2,
   );
-  
+
   static TextStyle timerTime = TextStyle(
     fontSize: timerTimeSize,
     fontWeight: FontWeight.w300,
@@ -142,23 +140,79 @@ ThemeData lightMode = ThemeData(
   ),
 
   cardColor: AppColors.tertiary,
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.surface,
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      textStyle: AppTextStyles.body1.copyWith(
+        fontWeight: FontWeight.bold,
+        color: AppColors.surface,
+      ),
+    ),
+  ),
+  textButtonTheme: TextButtonThemeData(
+    style: ButtonStyle(
+      foregroundColor: WidgetStateProperty.all(AppColors.primary),
+      textStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+        if (states.contains(WidgetState.hovered)) {
+          return AppTextStyles.body1.copyWith(
+            fontWeight: FontWeight.w500,
+            decoration: TextDecoration.underline,
+          );
+        }
+        return AppTextStyles.body1.copyWith(fontWeight: FontWeight.w500);
+      }),
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+      padding: WidgetStateProperty.all(EdgeInsets.zero),
+    ),
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: AppColors.secondaryLight, width: 2),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: AppColors.tertiary, width: 1),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: const Color.fromARGB(255, 185, 0, 0),
+        width: 2,
+      ),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: const Color.fromARGB(255, 185, 0, 0),
+        width: 2,
+      ),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    labelStyle: TextStyle(color: AppColors.tertiary), // Normal label style
+    floatingLabelStyle: TextStyle(
+      color: AppColors.tertiary,
+    ), // Label color when focused
+  ),
 );
 
 ThemeData darkMode = ThemeData(
-  useMaterial3: true, // Keep Material 3 enabled
+  useMaterial3: true,
   brightness: Brightness.dark,
   primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: AppColors.onSurface,
+  scaffoldBackgroundColor: AppColors.onSurface, // dark background
   canvasColor: AppColors.onSurface,
-  // FIX: Use a light color for icons to be visible on a dark background
-  iconTheme: IconThemeData(color: AppColors.surface),
+  iconTheme: IconThemeData(color: AppColors.surface), // light icons
   appBarTheme: AppBarTheme(
-    backgroundColor: AppColors.surface,
-    foregroundColor: AppColors.onSurface,
-    // FIX: Make AppBar icons match the title color for consistency
-    iconTheme: IconThemeData(color: AppColors.onSurface),
+    backgroundColor: AppColors.onSurface, // dark app bar background
+    foregroundColor: AppColors.surface, // light text/icons
+    iconTheme: IconThemeData(color: AppColors.surface),
     titleTextStyle: TextStyle(
-      color: AppColors.onSurface,
+      color: AppColors.surface,
       fontSize: AppTextStyles.appBarTitleSize,
     ),
   ),
@@ -183,7 +237,66 @@ ThemeData darkMode = ThemeData(
       color: AppColors.surface,
     ),
   ),
-
-  focusColor: AppColors.primary,
-  cardColor: AppColors.secondary,
+  cardColor: Colors.grey[850], // darker card color for dark theme
+  elevatedButtonTheme: ElevatedButtonThemeData(
+    style: ElevatedButton.styleFrom(
+      backgroundColor: AppColors.primary,
+      foregroundColor: AppColors.surface,
+      padding: const EdgeInsets.symmetric(vertical: 14),
+      textStyle: AppTextStyles.body1.copyWith(
+        fontWeight: FontWeight.bold,
+        color: AppColors.surface,
+      ),
+    ),
+  ),
+  textButtonTheme: TextButtonThemeData(
+    style: ButtonStyle(
+      foregroundColor: WidgetStateProperty.all(AppColors.secondary),
+      textStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
+        if (states.contains(WidgetState.hovered)) {
+          return AppTextStyles.body1.copyWith(
+            fontWeight: FontWeight.w500,
+            decoration: TextDecoration.underline,
+          );
+        }
+        return AppTextStyles.body1.copyWith(fontWeight: FontWeight.w500);
+      }),
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      shape: WidgetStateProperty.all(
+        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+      ),
+      padding: WidgetStateProperty.all(EdgeInsets.zero),
+    ),
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    focusedBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: AppColors.secondary.withAlpha((0.7 * 255).round()),
+        width: 2,
+      ),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderSide: BorderSide(color: Colors.grey.shade600, width: 1),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    errorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: const Color.fromARGB(255, 185, 0, 0),
+        width: 2,
+      ),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    focusedErrorBorder: OutlineInputBorder(
+      borderSide: BorderSide(
+        color: const Color.fromARGB(255, 185, 0, 0),
+        width: 2,
+      ),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    labelStyle: TextStyle(color: Colors.grey.shade400),
+    floatingLabelStyle: TextStyle(
+      color: Colors.grey.shade400.withAlpha((0.7 * 255).round()),
+    ),
+  ),
 );

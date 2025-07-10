@@ -3,13 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
+import 'package:run_balanced/screens/login_screen.dart';
 import 'package:run_balanced/theme/theme_provider.dart';
 import 'training_screen.dart';
 import 'programs_screen.dart';
 import 'recap_screen.dart';
 import 'connection_screen.dart';
 import 'challenges_screen.dart';
-import 'settings_screen.dart';
+// import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -39,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     RecapScreen(),
     ConnectionsScreen(),
     ChallengesScreen(),
-    SettingsScreen(),
+    // SettingsScreen(),
     ProfileScreen(),
   ];
 
@@ -49,7 +50,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Recap',
     'Connections',
     'Challenges',
-    'Settings',
+    // 'Settings',
     'Profile',
   ];
 
@@ -171,6 +172,10 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () async {
                 Navigator.pop(context);
                 await FirebaseAuth.instance.signOut();
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (_) => LoginScreen()),
+                );
               },
             ),
 
@@ -205,8 +210,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return Icon(Icons.link);
       case 4:
         return Icon(Icons.flag);
-      case 5:
-        return Icon(Icons.settings);
+      // case 5:
+      //   return Icon(Icons.settings);
       default:
         return Icon(Icons.circle);
     }

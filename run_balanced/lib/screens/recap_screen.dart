@@ -18,103 +18,123 @@ class RecapScreen extends StatelessWidget {
         final theme = Theme.of(context);
 
         return Scaffold(
-          body: dataProvider.isLoading
-              ? const Center(child: LoadingSpinnerWidget())
-              : (sessions.isEmpty && exerciseSessions.isEmpty)
+          body:
+              dataProvider.isLoading
+                  ? const Center(child: LoadingSpinnerWidget())
+                  : (sessions.isEmpty && exerciseSessions.isEmpty)
                   ? Center(
-                      child: Text(
-                        "No saved sessions",
-                        style: theme.textTheme.titleLarge,
-                      ),
-                    )
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Original Training Sessions
-                          if (sessions.isNotEmpty) ...[
-                            ...sessions.map((session) {
-                              final dateFormatted = DateFormat(
-                                'yyyy-MM-dd HH:mm',
-                              ).format(session.timestamp);
-
-                              return Card(
-                                color: theme.cardColor,
-                                elevation: 2,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(16),
-                                  leading: Icon(
-                                    Icons.directions_run,
-                                    color: theme.iconTheme.color,
-                                    size: 32,
-                                  ),
-                                  title: Text(
-                                    "Session on $dateFormatted",
-                                    style: theme.textTheme.bodyLarge!.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      const SizedBox(height: 8),
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          _buildStat(theme, Icons.timer_outlined, session.time),
-                                          _buildStat(theme, Icons.space_bar_outlined, "${session.distance.toStringAsFixed(2)} km"),
-                                          _buildStat(theme, Icons.speed_outlined, "${session.avgPace?.toStringAsFixed(2)} min/km"),
-                                        ],
-                                      ),
-                                      const Divider(height: 20),
-                                      Text(
-                                        "Avg. Heart rate: ${session.avgHeartRate?.toStringAsFixed(0)} bpm",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                      Text(
-                                        "Calories: ${session.calories.toStringAsFixed(0)} kcal",
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                    ],
-                                  ),
-                                  isThreeLine: true,
-                                  trailing: Icon(
-                                    Icons.arrow_forward_ios,
-                                    color: theme.iconTheme.color,
-                                  ),
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => RecapDetailScreen(session: session),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              );
-                            }),
-                          ],
-                          
-                          // Exercise Sessions Section
-                          if (exerciseSessions.isNotEmpty) ...[
-                            if (sessions.isNotEmpty) const SizedBox(height: 24),
-                            Text(
-                              "Past Exercise Sessions",
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            ...exerciseSessions.map((session) => _buildExerciseSessionCard(session, theme)),
-                          ],
-                        ],
-                      ),
+                    child: Text(
+                      "No saved sessions",
+                      style: theme.textTheme.titleLarge,
                     ),
+                  )
+                  : SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Original Training Sessions
+                        if (sessions.isNotEmpty) ...[
+                          ...sessions.map((session) {
+                            final dateFormatted = DateFormat(
+                              'yyyy-MM-dd HH:mm',
+                            ).format(session.timestamp);
+
+                            return Card(
+                              color: theme.cardColor,
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              margin: const EdgeInsets.symmetric(vertical: 8),
+                              child: ListTile(
+                                contentPadding: const EdgeInsets.all(16),
+                                leading: Icon(
+                                  Icons.directions_run,
+                                  color: theme.iconTheme.color,
+                                  size: 32,
+                                ),
+                                title: Text(
+                                  "Session on $dateFormatted",
+                                  style: theme.textTheme.bodyLarge!.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        _buildStat(
+                                          theme,
+                                          Icons.timer_outlined,
+                                          session.time,
+                                        ),
+                                        _buildStat(
+                                          theme,
+                                          Icons.space_bar_outlined,
+                                          "${session.distance.toStringAsFixed(2)} km",
+                                        ),
+                                        _buildStat(
+                                          theme,
+                                          Icons.speed_outlined,
+                                          "${session.avgPace?.toStringAsFixed(2)} min/km",
+                                        ),
+                                      ],
+                                    ),
+                                    const Divider(height: 20),
+                                    Text(
+                                      "Avg. Heart rate: ${session.avgHeartRate?.toStringAsFixed(0)} bpm",
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
+                                    Text(
+                                      "Calories: ${session.calories.toStringAsFixed(0)} kcal",
+                                      style: theme.textTheme.bodyMedium,
+                                    ),
+                                  ],
+                                ),
+                                isThreeLine: true,
+                                trailing: Icon(
+                                  Icons.arrow_forward_ios,
+                                  color: theme.iconTheme.color,
+                                ),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (_) => RecapDetailScreen(
+                                            session: session,
+                                          ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                          }),
+                        ],
+
+                        // Exercise Sessions Section
+                        if (exerciseSessions.isNotEmpty) ...[
+                          if (sessions.isNotEmpty) const SizedBox(height: 24),
+                          Text(
+                            "Past Exercise Sessions",
+                            style: theme.textTheme.headlineSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          ...exerciseSessions.map(
+                            (session) =>
+                                _buildExerciseSessionCard(session, theme),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
         );
       },
     );
@@ -152,9 +172,7 @@ class RecapScreen extends StatelessWidget {
     return Card(
       color: theme.cardColor,
       elevation: 2,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       margin: const EdgeInsets.symmetric(vertical: 8),
       child: ListTile(
         contentPadding: const EdgeInsets.all(16),
@@ -199,10 +217,7 @@ class RecapScreen extends StatelessWidget {
           ],
         ),
         isThreeLine: true,
-        trailing: Icon(
-          Icons.fitness_center,
-          color: theme.iconTheme.color,
-        ),
+        trailing: Icon(Icons.fitness_center, color: theme.iconTheme.color),
       ),
     );
   }
