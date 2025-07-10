@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/simulation_provider.dart';
 import 'package:run_balanced/screens/recap_detail_screen.dart';
-import 'package:run_balanced/theme/theme.dart';
 import 'package:run_balanced/widgets/controls_widget.dart';
 import 'package:run_balanced/widgets/progress_bar_widget.dart';
 import 'package:run_balanced/widgets/stats_row_widget.dart';

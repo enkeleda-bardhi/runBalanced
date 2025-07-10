@@ -21,7 +21,6 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => UserProfileProvider()),
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        // The DataProvider now correctly depends on UserProfileProvider
         ChangeNotifierProxyProvider<UserProfileProvider, DataProvider>(
           create: (context) => DataProvider(
             Provider.of<UserProfileProvider>(context, listen: false),
@@ -30,7 +29,6 @@ void main() async {
               previousDataProvider!..updateUserProfile(userProfile),
         ),
       ],
-      // The child should be here, at the end of the MultiProvider
       child: const MyApp(),
     ),
   );
@@ -39,7 +37,6 @@ void main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
