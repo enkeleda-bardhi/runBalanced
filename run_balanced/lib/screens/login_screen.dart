@@ -1,9 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:run_balanced/screens/signup_screen.dart';
 import 'package:run_balanced/screens/forgot_password_screen.dart';
-
-const double kDefaultPadding = 16.0;
+import 'package:run_balanced/theme/theme.dart';
 
 class LoginScreen extends StatelessWidget {
   LoginScreen({super.key});
@@ -17,7 +16,6 @@ class LoginScreen extends StatelessWidget {
         email: emailController.text.trim(),
         password: passwordController.text.trim(),
       );
-      // On success, you can navigate to your home screen
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(
         context,
@@ -27,6 +25,7 @@ class LoginScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: Column(
@@ -34,11 +33,15 @@ class LoginScreen extends StatelessWidget {
           children: [
             Text(
               'Login Run Balanced',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: AppTextStyles.headline2.copyWith(
+                color: theme.appBarTheme.titleTextStyle?.color,
+              ),
             ),
             Text(
               'Welcome back!',
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.normal),
+              style: AppTextStyles.caption.copyWith(
+                color: theme.appBarTheme.titleTextStyle?.color,
+              ),
             ),
           ],
         ),
@@ -46,28 +49,22 @@ class LoginScreen extends StatelessWidget {
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(kDefaultPadding),
+          padding: const EdgeInsets.all(AppSpacing.md),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextField(
                 controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
               ),
-              SizedBox(height: kDefaultPadding),
+              const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true,
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
@@ -82,11 +79,11 @@ class LoginScreen extends StatelessWidget {
                   child: Text('Forgot Password?'),
                 ),
               ),
-              SizedBox(height: kDefaultPadding),
+              const SizedBox(height: AppSpacing.md),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text("Don't have an account yet? "),
+                  const Text("Don't have an account yet? "),
                   GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -97,7 +94,7 @@ class LoginScreen extends StatelessWidget {
                     child: Text(
                       'Sign up',
                       style: TextStyle(
-                        color: Theme.of(context).primaryColor,
+                        color: theme.primaryColor,
                         fontWeight: FontWeight.bold,
                         decoration: TextDecoration.underline,
                       ),
@@ -105,12 +102,15 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: kDefaultPadding),
-              ElevatedButton(
-                onPressed: () async {
-                  await loginUserWithEmailAndPassword(context);
-                },
-                child: Text('Login'),
+              const SizedBox(height: AppSpacing.md * 1.5),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () async {
+                    await loginUserWithEmailAndPassword(context);
+                  },
+                  child: const Text('Login'),
+                ),
               ),
             ],
           ),

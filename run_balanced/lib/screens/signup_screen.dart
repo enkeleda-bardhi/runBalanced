@@ -1,8 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:run_balanced/screens/profile_screen.dart';
-
-const double kDefaultPadding = 16.0;
+import 'package:run_balanced/theme/theme.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -56,43 +55,37 @@ class _SignupScreenState extends State<SignupScreen> {
     return Scaffold(
       appBar: AppBar(title: Text('Sign Up')),
       body: Padding(
-        padding: const EdgeInsets.all(kDefaultPadding),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               TextFormField(
                 controller: emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Email'),
                 validator: (value) => value!.isEmpty ? 'Required' : null,
                 keyboardType: TextInputType.emailAddress,
               ),
-              SizedBox(height: kDefaultPadding),
+              SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: passwordController,
                 obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Password'),
                 validator: (value) {
-                  if (value != null && value.isNotEmpty && value.length < 6) {
+                  if (value == null || value.isEmpty) {
+                    return 'Password is required';
+                  }
+                  if (value.length < 6) {
                     return 'Password must be at least 6 characters';
                   }
                   return null;
                 },
               ),
-              SizedBox(height: kDefaultPadding),
+              SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: confirmPasswordController,
                 obscureText: true,
-                decoration: InputDecoration(
-                  labelText: 'Confirm Password',
-                  border: OutlineInputBorder(),
-                ),
+                decoration: InputDecoration(labelText: 'Confirm Password'),
                 validator: (value) {
                   if (passwordController.text.isNotEmpty &&
                       value != passwordController.text) {
