@@ -1,7 +1,6 @@
 import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/simulation_provider.dart';
 import 'package:run_balanced/screens/metric_detail_screen.dart';
-import 'package:run_balanced/screens/recap_screen.dart';
 import 'package:run_balanced/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
