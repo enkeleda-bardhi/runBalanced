@@ -6,6 +6,7 @@ import 'package:run_balanced/widgets/stats_row_widget.dart';
 import 'package:run_balanced/widgets/progress_bar_widget.dart';
 import 'package:run_balanced/widgets/controls_widget.dart';
 import 'package:run_balanced/providers/data_provider.dart';
+import 'package:run_balanced/theme/app_spacing.dart';
 
 class TrainingScreen extends StatelessWidget {
   const TrainingScreen({super.key});
@@ -16,7 +17,7 @@ class TrainingScreen extends StatelessWidget {
 
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           children: [
             TimerWidget(time: data.formattedTime),
@@ -26,7 +27,7 @@ class TrainingScreen extends StatelessWidget {
               pace: data.pace,
               heartRate: data.heartRate,
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.lg),
             ProgressBarWidget(label: "Breath", value: data.breathState),
             ProgressBarWidget(label: "Joints", value: data.jointState),
             ProgressBarWidget(label: "Muscles", value: data.muscleState),
@@ -48,9 +49,9 @@ class TrainingScreen extends StatelessWidget {
                     );
                   }
                 } catch (e) {
-                  ScaffoldMessenger.of(
-                    context,
-                  ).showSnackBar(SnackBar(content: Text("Error while saving")));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Error while saving")),
+                  );
                 }
               },
             ),

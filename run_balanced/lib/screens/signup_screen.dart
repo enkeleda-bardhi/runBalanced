@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:run_balanced/screens/profile_screen.dart';
-
-const double kDefaultPadding = 16.0;
+import 'package:run_balanced/theme/app_spacing.dart';
+import 'package:run_balanced/theme/app_text_styles.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -25,7 +25,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (password != confirmPassword) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Passwords do not match')));
+      ).showSnackBar(const SnackBar(content: Text('Passwords do not match')));
       return;
     }
 
@@ -36,10 +36,10 @@ class _SignupScreenState extends State<SignupScreen> {
       );
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Account created!')));
+      ).showSnackBar(const SnackBar(content: Text('Account created!')));
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
+        MaterialPageRoute(builder: (context) => const ProfileScreen()),
       );
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,42 +51,44 @@ class _SignupScreenState extends State<SignupScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Sign Up')),
+      appBar: AppBar(title: const Text('Sign Up')),
       body: Padding(
-        padding: const EdgeInsets.all(kDefaultPadding),
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            Text("Create a new account", style: AppTextStyles.headline2),
+            const SizedBox(height: AppSpacing.md),
             TextField(
               controller: emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Email',
                 border: OutlineInputBorder(),
               ),
               keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: kDefaultPadding),
+            const SizedBox(height: AppSpacing.md),
             TextField(
               controller: passwordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Password',
                 border: OutlineInputBorder(),
               ),
-              keyboardType: TextInputType.emailAddress,
             ),
-            SizedBox(height: kDefaultPadding),
+            const SizedBox(height: AppSpacing.md),
             TextField(
               controller: confirmPasswordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 labelText: 'Confirm Password',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             ElevatedButton(
               onPressed: () => signUp(context),
-              child: Text('Create Account'),
+              child: const Text('Create Account'),
             ),
           ],
         ),

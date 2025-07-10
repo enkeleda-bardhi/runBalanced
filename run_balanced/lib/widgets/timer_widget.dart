@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:run_balanced/theme/app_text_styles.dart';
-import '../theme/theme.dart';
 import '../theme/app_spacing.dart';
 import '../theme/app_colors.dart';
 
