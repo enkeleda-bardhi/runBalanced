@@ -80,7 +80,7 @@ class MetricDetailScreen extends StatelessWidget {
               const SizedBox(height: 10),
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final double maxBarWidth = 200.0;
+                  final double maxBarWidth = constraints.maxWidth - 120; // 60 for label + 50 for value + 10 for spacing
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -90,7 +90,7 @@ class MetricDetailScreen extends StatelessWidget {
                       if (value == null) {
                         return const SizedBox.shrink();
                       }
-                      final barWidth = (value / 100) * maxBarWidth; // max 200px se 100%
+                      final barWidth = (value / 100) * maxBarWidth; 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Row(
@@ -127,7 +127,7 @@ class MetricDetailScreen extends StatelessWidget {
                   );
                 },
               ),
-              if (fatiguePerKm.whereType<double>().length > 2) ...[
+              //if (fatiguePerKm.whereType<double>().length > 2) ...[
                 const SizedBox(height: 30),
                 const Text('Deviation from baseline of fatigue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 10),
@@ -167,7 +167,7 @@ class MetricDetailScreen extends StatelessWidget {
                     );
                   }),
                 ),
-              ],
+              //],
               const SizedBox(height: 30),
             ],
           ),
@@ -177,10 +177,13 @@ class MetricDetailScreen extends StatelessWidget {
   }
 
   Color _getBarColor(double? value) {
-    if (value == null) return AppColors.fatigueOptimal;
-    if (value < 60) return AppColors.fatigueOptimal;
-    if (value < 70) return AppColors.fatigueModerate;
-    if (value < 85) return AppColors.fatigueHigh;
-    return AppColors.fatigueCritical;
+    switch (metricType) {
+      case FatigueMetricType.muscles:
+        return AppColors.muscleFatigue;
+      case FatigueMetricType.joints:
+        return AppColors.jointFatigue;
+      case FatigueMetricType.cardio:
+        return AppColors.cardioFatigue;
+    }
   }
 }
