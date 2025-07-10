@@ -75,17 +75,12 @@ class MetricDetailScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
-              Text(
-                'Average: ${averageFatigue.toStringAsFixed(1)}%   Max: ${maxFatigue.toStringAsFixed(1)}% in km $maxFatigueKm',
-                style: const TextStyle(fontSize: 16),
-              ),
               const SizedBox(height: 30),
               const Text('Fatigue per km', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               LayoutBuilder(
                 builder: (context, constraints) {
-                  final double maxBarWidth = 200.0;
+                  final double maxBarWidth = constraints.maxWidth - 120; // 60 for label + 50 for value + 10 for spacing
                   return ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -95,34 +90,36 @@ class MetricDetailScreen extends StatelessWidget {
                       if (value == null) {
                         return const SizedBox.shrink();
                       }
-                      final barWidth = (value / 100) * maxBarWidth; // max 200px se 100%
+                      final barWidth = (value / 100) * maxBarWidth; 
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         child: Row(
                           children: [
                             SizedBox(width: 60, child: Text('KM ${index + 1}', style: const TextStyle(fontSize: 14))),
-                            Stack(
-                              children: [
-                                Container(
-                                  width: maxBarWidth,
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(4),
+                            Expanded(
+                              child: Stack(
+                                alignment: Alignment.centerLeft,
+                                children: [
+                                  Container(
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
                                   ),
-                                ),
-                                Container(
-                                  width: barWidth.clamp(0.0, maxBarWidth),
-                                  height: 20,
-                                  decoration: BoxDecoration(
-                                    color: _getBarColor(value),
-                                    borderRadius: BorderRadius.circular(4),
+                                  Container(
+                                    width: barWidth,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: _getBarColor(value),
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                             const SizedBox(width: 8),
-                            Text('${value.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 14)),
+                            SizedBox(width: 50, child: Text('${value.toStringAsFixed(1)}%', style: const TextStyle(fontSize: 14))),
                           ],
                         ),
                       );
@@ -130,40 +127,47 @@ class MetricDetailScreen extends StatelessWidget {
                   );
                 },
               ),
-              const SizedBox(height: 30),
-              const Text('Deviation from baseline of fatigue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8.0,
-                runSpacing: 8.0,
-                alignment: WrapAlignment.start,
-                children: List.generate(fatiguePerKm.length, (index) {
-                  final kmFatigue = fatiguePerKm[index];
-                  if (kmFatigue == null) {
-                    return const SizedBox.shrink();
-                  }
-                  final deviation = kmFatigue - averageFatigue;
-                  final sign = deviation >= 0 ? '+' : '-';
-                  final color = deviation > 0 ? Colors.red.shade700 : Colors.green.shade700;
+              //if (fatiguePerKm.whereType<double>().length > 2) ...[
+                const SizedBox(height: 30),
+                const Text('Deviation from baseline of fatigue', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 10),
+                Text(
+                  'Average: ${averageFatigue.toStringAsFixed(1)}%   Max: ${maxFatigue.toStringAsFixed(1)}% in km $maxFatigueKm',
+                  style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 8.0,
+                  runSpacing: 8.0,
+                  alignment: WrapAlignment.start,
+                  children: List.generate(fatiguePerKm.length, (index) {
+                    final kmFatigue = fatiguePerKm[index];
+                    if (kmFatigue == null) {
+                      return const SizedBox.shrink();
+                    }
+                    final deviation = kmFatigue - averageFatigue;
+                    final sign = deviation > 0 ? '+' : '';
+                    final color = deviation >= 0 ? Colors.red.shade700 : Colors.green.shade700;
 
-                  return Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: color.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: color.withOpacity(0.5)),
-                    ),
-                    child: Text(
-                      'KM ${index + 1}: $sign${deviation.toStringAsFixed(1)}%',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        color: color,
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: color.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: color.withOpacity(0.5)),
                       ),
-                    ),
-                  );
-                }),
-              ),
+                      child: Text(
+                        'KM ${index + 1}: $sign${deviation.toStringAsFixed(1)}%',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: color,
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              //],
               const SizedBox(height: 30),
             ],
           ),
@@ -173,10 +177,13 @@ class MetricDetailScreen extends StatelessWidget {
   }
 
   Color _getBarColor(double? value) {
-    if (value == null) return AppColors.fatigueOptimal;
-    if (value < 60) return AppColors.fatigueOptimal;
-    if (value < 70) return AppColors.fatigueModerate;
-    if (value < 85) return AppColors.fatigueHigh;
-    return AppColors.fatigueCritical;
+    switch (metricType) {
+      case FatigueMetricType.muscles:
+        return AppColors.muscleFatigue;
+      case FatigueMetricType.joints:
+        return AppColors.jointFatigue;
+      case FatigueMetricType.cardio:
+        return AppColors.cardioFatigue;
+    }
   }
 }

@@ -45,7 +45,7 @@ class DataProvider with ChangeNotifier {
   // Per-kilometer calculated fatigue data
   Map<int, double> jliLeftPerKm = {};
   Map<int, double> jliRightPerKm = {};
-  Map<int, int> cardioFatiguePerKm = {};
+  Map<int, double> cardioFatiguePerKm = {};
   Map<int, double> asymmetryPerKm = {};
 
   // Data for saving session
@@ -84,38 +84,28 @@ class DataProvider with ChangeNotifier {
   Future<void> _loadSimulationData() async {
     _setLoading(true);
     try {
-      _cardioSimData = await loadCsvData(
-        'lib/assets/data/cardio_simulation.csv',
-      );
-      _biomechDataLeft = await loadCsvData(
-        'lib/assets/data/biomech_simulation.csv',
-      );
-
+      _cardioSimData = await loadCsvData('lib/assets/data/cardio_simulation.csv');
+      _biomechDataLeft = await loadCsvData('lib/assets/data/biomech_simulation.csv');
+      
       final random = Random();
-      _biomechDataRight =
-          _biomechDataLeft.map((e) {
-            final newE = Map<String, dynamic>.from(e);
-            final forceMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
-            final angleMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
-            final repMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
-            newE['F'] = (e['F'] as num? ?? 0) * forceMultiplier;
-            newE['R'] = ((e['R'] as num? ?? 0) * repMultiplier).round();
-            newE['theta'] = (e['theta'] as num? ?? 0) * angleMultiplier;
-            return newE;
-          }).toList();
+      _biomechDataRight = _biomechDataLeft.map((e) {
+        final newE = Map<String, dynamic>.from(e);
+        final forceMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
+        final angleMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
+        final repMultiplier = 1.0 + (random.nextDouble() * 0.1 - 0.05);
+        newE['F'] = (e['F'] as num? ?? 0) * forceMultiplier;
+        newE['R'] = ((e['R'] as num? ?? 0) * repMultiplier).round();
+        newE['theta'] = (e['theta'] as num? ?? 0) * angleMultiplier;
+        return newE;
+      }).toList();
 
       final heartRateApiData = await ImpactApiService.fetchHeartRateDay(
-        day: DateFormat(
-          'yyyy-MM-dd',
-        ).format(DateTime.now().subtract(const Duration(days: 2))),
+        day: DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(const Duration(days: 2))),
       );
       _hrList = heartRateApiData.map((e) => (e['value'] as int)).toList();
 
-      _maxTime =
-          _cardioSimData
-              .map((e) => e['time'] as num? ?? 0)
-              .reduce((a, b) => a > b ? a : b)
-              .toInt();
+      _maxTime = _cardioSimData.map((e) => e['time'] as num? ?? 0).reduce((a, b) => a > b ? a : b).toInt();
+
     } catch (e) {
       debugPrint("Error loading simulation data: $e");
     } finally {
@@ -149,20 +139,19 @@ class DataProvider with ChangeNotifier {
       );
 
       distance = (currentCardioPoint['distance_km'] as num? ?? 0.0).toDouble();
-
+      
       // Keep the new pace calculation
-
+      
       if (distance > 0) {
-        if ((_elapsed.inSeconds) % 5 == 0) {
-          pace = (_elapsed.inSeconds / 60.0) / distance;
+        if ((_elapsed.inSeconds)%5 == 0) {
+        pace = (_elapsed.inSeconds / 60.0) / distance;
         }
       } else {
         pace = 0.0;
       }
 
       if (_hrIndex < _hrList.length) {
-        heartRate =
-            _hrList[_hrIndex] * 2; // Simulate heart rate doubling for testing
+        heartRate = _hrList[_hrIndex]*2; // Simulate heart rate doubling for testing
         _hrIndex++;
       }
 
@@ -173,12 +162,13 @@ class DataProvider with ChangeNotifier {
         met = 8.0; // Moderate activity
       } else {
         met = 10.0; // Vigorous activity
-      }
+      } 
 
-      if ((_elapsed.inSeconds) % 5 == 0) {
+      if ((_elapsed.inSeconds)%5 == 0) {
         // Update heart rate every 5 seconds
-        calories += (met * 3.5 * (userProfileProvider.weight)) / (200 * 60);
+        calories +=  met*0.0014*userProfileProvider.weight;
       }
+     
 
       // --- PER-KILOMETER FATIGUE CALCULATION ---
       // Check if a new kilometer has been completed
@@ -188,41 +178,25 @@ class DataProvider with ChangeNotifier {
         _lastCompletedKm = currentKm;
 
         // Create a lookup map for efficiency
-        final timeToDistanceMap = {
-          for (var e in _cardioSimData)
-            (e['time'] as num): (e['distance_km'] as num? ?? 0.0),
-        };
+        final timeToDistanceMap = {for (var e in _cardioSimData) (e['time'] as num) : (e['distance_km'] as num? ?? 0.0)};
 
         // Find all data points for the completed kilometer using the efficient lookup
-        final biomechLeftForKm =
-            _biomechDataLeft.where((e) {
-              final distance = timeToDistanceMap[e['time'] as num? ?? 0] ?? 0.0;
-              return distance.floor() == currentKm;
-            }).toList();
-        final biomechRightForKm =
-            _biomechDataRight.where((e) {
-              final distance = timeToDistanceMap[e['time'] as num? ?? 0] ?? 0.0;
-              return distance.floor() == currentKm;
-            }).toList();
-        final cardioDataForKm =
-            _cardioSimData
-                .where(
-                  (e) => (e['distance_km'] as num? ?? 0.0).floor() == currentKm,
-                )
-                .toList();
-
+        final biomechLeftForKm = _biomechDataLeft.where((e) {
+            final distance = timeToDistanceMap[e['time'] as num? ?? 0] ?? 0.0;
+            return distance.ceil() == currentKm;
+        }).toList();
+        final biomechRightForKm = _biomechDataRight.where((e) {
+            final distance = timeToDistanceMap[e['time'] as num? ?? 0] ?? 0.0;
+            return distance.ceil() == currentKm;
+        }).toList();
+        final cardioDataForKm = _cardioSimData.where((e) => (e['distance_km'] as num? ?? 0.0).ceil() == currentKm).toList();
+        
         // Calculate and store fatigue for the completed kilometer
         jliLeftPerKm[currentKm] = _calculateJliForKm(biomechLeftForKm);
         jliRightPerKm[currentKm] = _calculateJliForKm(biomechRightForKm);
-        cardioFatiguePerKm[currentKm] = _calculateCardioFatigueForKm(
-          cardioDataForKm,
-          _hrList,
-          currentKm,
-        );
-
-        final spo2ForKm = avg(
-          cardioDataForKm.map((e) => (e['SpO2'] as num? ?? 0.0)).toList(),
-        );
+        cardioFatiguePerKm[currentKm] = _calculateCardioFatigueForKm(cardioDataForKm, _hrList, currentKm);
+        
+        final spo2ForKm = avg(cardioDataForKm.map((e) => (e['SpO2'] as num? ?? 0.0)).toList());
         asymmetryPerKm[currentKm] = asymmetryIndex(
           JLI_left: jliLeftPerKm[currentKm]!,
           JLI_right: jliRightPerKm[currentKm]!,
@@ -241,7 +215,7 @@ class DataProvider with ChangeNotifier {
         angle: (currentBiomechPointRight['theta'] as num? ?? 0.0).toDouble(),
         repetitions: (currentBiomechPointRight['R'] as num? ?? 0).toInt(),
       );
-      final int cardioFatigueInstant = calculateCardioFatigue(
+      final double cardioFatigueInstant = calculateCardioFatigue(
         hr: heartRate,
         hrv: (currentCardioPoint['HRV'] as num? ?? 0.0).toDouble(),
         spo2: (currentCardioPoint['SpO2'] as num? ?? 0.0).toDouble(),
@@ -256,7 +230,7 @@ class DataProvider with ChangeNotifier {
       );
 
       jointState = (jliLeftInstant + jliRightInstant) / 2;
-      cardioState = cardioFatigueInstant.toDouble();
+      cardioState = cardioFatigueInstant;
       muscleState = asymmetryInstant;
 
       if (currentTime - _lastSnapshotSecond >= 5) {
@@ -271,53 +245,33 @@ class DataProvider with ChangeNotifier {
   // Helper method to calculate JLI for a given kilometer's data
   double _calculateJliForKm(List<Map<String, dynamic>> biomechData) {
     if (biomechData.isEmpty) return 0.0;
-    final fAvg = avg(biomechData.map((e) => e['F'] as num? ?? 0).toList());
-    final thetaAvg = avg(
-      biomechData.map((e) => e['theta'] as num? ?? 0).toList(),
-    );
-    final rAvg = avg(biomechData.map((e) => e['R'] as num? ?? 0).toList());
-    return calculateJLI(
-      force: fAvg,
-      angle: thetaAvg,
-      repetitions: rAvg.toInt(),
-    );
+    final jliValues = biomechData.map((e) => calculateJLI(
+      force: (e['F'] as num? ?? 0.0).toDouble(),
+      angle: (e['theta'] as num? ?? 0.0).toDouble(),
+      repetitions: (e['R'] as num? ?? 0).toInt(),
+    )).toList();
+    return avg(jliValues);
   }
 
   // Helper method to calculate Cardio Fatigue for a given kilometer's data
-  int _calculateCardioFatigueForKm(
-    List<Map<String, dynamic>> cardioData,
-    List<int> hrList,
-    int km,
-  ) {
-    if (cardioData.isEmpty) return 0;
-    final hrvAvg = avg(cardioData.map((e) => (e['HRV'] as num? ?? 0)).toList());
-    final spo2Avg = avg(
-      cardioData.map((e) => (e['SpO2'] as num? ?? 0)).toList(),
-    );
-    final bpAvg = avg(cardioData.map((e) => (e['BP'] as num? ?? 0)).toList());
-    final tempAvg = avg(
-      cardioData.map((e) => (e['Temp'] as num? ?? 0)).toList(),
-    );
+  double _calculateCardioFatigueForKm(List<Map<String, dynamic>> cardioData, List<int> hrList, int km) {
+    if (cardioData.isEmpty) return 0.0;
 
-    // Find the time range for the current kilometer
-    final startTime = cardioData.first['time'] as num? ?? 0;
-    final endTime = cardioData.last['time'] as num? ?? 0;
+    final fatigueValues = cardioData.map((e) {
+      final time = (e['time'] as num? ?? 0).toInt();
+      final hr = (time < hrList.length) ? hrList[time] * 2 : 0; // Apply the same *2 logic for testing
+      final pointDistance = (e['distance_km'] as num? ?? 0.0).toDouble(); // Get the actual distance for this point
+      return calculateCardioFatigue(
+        hr: hr,
+        hrv: (e['HRV'] as num? ?? 0.0).toDouble(),
+        spo2: (e['SpO2'] as num? ?? 0.0).toDouble(),
+        bp: (e['BP'] as num? ?? 0).toInt(),
+        temp: (e['Temp'] as num? ?? 0.0).toDouble(),
+        distanceKm: pointDistance, // Use the actual distance
+      );
+    }).toList();
 
-    // Calculate the average heart rate for the kilometer
-    final hrForKm = hrList.sublist(
-      startTime.toInt(),
-      (endTime.toInt() + 1).clamp(0, hrList.length),
-    );
-    final hrAvg = avg(hrForKm);
-
-    return calculateCardioFatigue(
-      hr: hrAvg.toInt(),
-      hrv: hrvAvg,
-      spo2: spo2Avg,
-      bp: bpAvg.toInt(),
-      temp: tempAvg,
-      distanceKm: km.toDouble(),
-    );
+    return avg(fatigueValues);
   }
 
   void togglePlayPause() async {
@@ -387,21 +341,12 @@ class DataProvider with ChangeNotifier {
 
   Future<TrainingSession?> save() async {
     final now = DateTime.now();
-    final avgPace = avg(
-      dataSnapshots.map((s) => (s['pace'] as num? ?? 0.0)).toList(),
-    );
-    final avgHeartRate = avg(
-      dataSnapshots.map((s) => (s['heartRate'] as num? ?? 0.0)).toList(),
-    );
-    final avgCardio = avg(
-      dataSnapshots.map((s) => (s['cardio'] as num? ?? 0.0)).toList(),
-    );
-    final avgJoints = avg(
-      dataSnapshots.map((s) => (s['joints'] as num? ?? 0.0)).toList(),
-    );
-    final avgMuscles = avg(
-      dataSnapshots.map((s) => (s['muscles'] as num? ?? 0.0)).toList(),
-    );
+    final avgPace = avg(dataSnapshots.map((s) => (s['pace'] as num? ?? 0.0)).toList());
+    final avgHeartRate = avg(dataSnapshots.map((s) => (s['heartRate'] as num? ?? 0.0)).toList());
+    // Calculate averages from the per-kilometer data for consistency
+    final avgCardio = avg(cardioFatiguePerKm.values.toList());
+    final avgJoints = avg([...jliLeftPerKm.values, ...jliRightPerKm.values]);
+    final avgMuscles = avg(asymmetryPerKm.values.toList());
 
     final session = {
       'time': formattedTime,
@@ -415,15 +360,9 @@ class DataProvider with ChangeNotifier {
       'dataSnapshots': dataSnapshots,
       'timestamp': Timestamp.fromDate(now),
       'statesPerKm': {
-        'joints': jliLeftPerKm.map(
-          (key, value) => MapEntry(key.toString(), value),
-        ),
-        'cardio': cardioFatiguePerKm.map(
-          (key, value) => MapEntry(key.toString(), value),
-        ),
-        'muscles': asymmetryPerKm.map(
-          (key, value) => MapEntry(key.toString(), value),
-        ),
+        'joints': jliLeftPerKm.map((key, value) => MapEntry(key.toString(), value)),
+        'cardio': cardioFatiguePerKm.map((key, value) => MapEntry(key.toString(), value)),
+        'muscles': asymmetryPerKm.map((key, value) => MapEntry(key.toString(), value)),
       },
     };
 
@@ -497,12 +436,8 @@ class DataProvider with ChangeNotifier {
     _setLoading(true);
     try {
       await ImpactApiService.loadSettings();
-      final allFetchedSessions =
-          await ImpactApiService.fetchAllExerciseSessions();
-      allFetchedSessions.sort(
-        (a, b) =>
-            (b.date ?? DateTime(1970)).compareTo(a.date ?? DateTime(1970)),
-      );
+      final allFetchedSessions = await ImpactApiService.fetchAllExerciseSessions();
+      allFetchedSessions.sort((a, b) => (b.date ?? DateTime(1970)).compareTo(a.date ?? DateTime(1970)));
       exerciseSessions.clear();
       exerciseSessions.addAll(allFetchedSessions);
     } catch (e) {
@@ -530,6 +465,7 @@ class DataProvider with ChangeNotifier {
       debugPrint('Error deleting session: $e');
     }
   }
+  
 
   @override
   void dispose() {
