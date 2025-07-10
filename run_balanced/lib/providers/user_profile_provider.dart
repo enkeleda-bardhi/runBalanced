@@ -6,7 +6,7 @@ class UserProfileProvider with ChangeNotifier {
   String _imagePath = '';
   String _firstName = '';
   String _lastName = '';
-  double _age = 0.0;
+  int _age = 0;
   double _weight = 0.0;
   double _height = 0.0;
   bool _isLoaded = false;
@@ -14,7 +14,7 @@ class UserProfileProvider with ChangeNotifier {
   String get imagePath => _imagePath;
   String get firstName => _firstName;
   String get lastName => _lastName;
-  double get age => _age;
+  int get age => _age;
   double get weight => _weight;
   double get height => _height;
   bool get isLoaded => _isLoaded;
@@ -45,7 +45,7 @@ class UserProfileProvider with ChangeNotifier {
   Future<void> updateProfile({
     String? firstName,
     String? lastName,
-    double? age,
+    int? age,
     double? weight,
     double? height,
     String? imagePath,

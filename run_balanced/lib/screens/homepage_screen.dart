@@ -9,7 +9,7 @@ import 'programs_screen.dart';
 import 'recap_screen.dart';
 import 'connection_screen.dart';
 import 'challenges_screen.dart';
-import 'settings_screen.dart';
+// import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -39,7 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
     RecapScreen(),
     ConnectionsScreen(),
     ChallengesScreen(),
-    SettingsScreen(),
+    // SettingsScreen(),
     ProfileScreen(),
   ];
 
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
     'Recap',
     'Connections',
     'Challenges',
-    'Settings',
+    // 'Settings',
     'Profile',
   ];
 
@@ -205,8 +205,8 @@ class _HomeScreenState extends State<HomeScreen> {
         return Icon(Icons.link);
       case 4:
         return Icon(Icons.flag);
-      case 5:
-        return Icon(Icons.settings);
+      // case 5:
+      //   return Icon(Icons.settings);
       default:
         return Icon(Icons.circle);
     }
