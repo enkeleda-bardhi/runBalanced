@@ -1,4 +1,7 @@
+import 'package:provider/provider.dart';
+import 'package:run_balanced/providers/simulation_provider.dart';
 import 'package:run_balanced/screens/metric_detail_screen.dart';
+import 'package:run_balanced/screens/recap_screen.dart';
 import 'package:run_balanced/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -32,6 +35,10 @@ class RecapDetailScreen extends StatelessWidget {
     final paceSpots = _convertToSpots(dataSnapshots, 'pace');
     final heartRateSpots = _convertToSpots(dataSnapshots, 'heartRate');
 
+    Future<void> deleteSessionById(String id) async {
+      Provider.of<DataProvider>(context, listen: false).deleteSessionById(id);
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text("Session Details")),
       body: Padding(
@@ -63,20 +70,57 @@ class RecapDetailScreen extends StatelessWidget {
               style: theme.textTheme.bodyLarge,
             ),
             const SizedBox(height: 20),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ElevatedButton(
+                onPressed: () {
+                  deleteSessionById(session.id);
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  foregroundColor: AppColors.error,
+                  backgroundColor: AppColors.surface,
+                  side: const BorderSide(color: AppColors.error, width: 2),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.delete_forever,
+                      color: AppColors.error,
+                      size: AppTextStyles.displayLargeSize,
+                    ),
+                    SizedBox(width: 6), // space between icon and text
+                    Text(
+                      "Delete session",
+                      style: TextStyle(
+                        color: AppColors.error,
+                        fontSize: 14, // or your preferred size
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
             Text("Physiological Metrics", style: theme.textTheme.displayMedium),
             const SizedBox(height: 12),
-            
+
             ElevatedButton.icon(
               icon: const Icon(Icons.monitor_heart),
-              label: Text("View Cardio Details (${session.avgCardio?.toStringAsFixed(1)}%)"),
+              label: Text(
+                "View Cardio Details (${session.avgCardio?.toStringAsFixed(1)}%)",
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => MetricDetailScreen(
-                      session: session,
-                      metricType: FatigueMetricType.cardio,
-                    ),
+                    builder:
+                        (_) => MetricDetailScreen(
+                          session: session,
+                          metricType: FatigueMetricType.cardio,
+                        ),
                   ),
                 );
               },
@@ -90,15 +134,18 @@ class RecapDetailScreen extends StatelessWidget {
 
             ElevatedButton.icon(
               icon: const Icon(Icons.personal_injury_outlined),
-              label: Text("View Joints Details (${session.avgJoints?.toStringAsFixed(1)}%)"),
+              label: Text(
+                "View Joints Details (${session.avgJoints?.toStringAsFixed(1)}%)",
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => MetricDetailScreen(
-                      session: session,
-                      metricType: FatigueMetricType.joints,
-                    ),
+                    builder:
+                        (_) => MetricDetailScreen(
+                          session: session,
+                          metricType: FatigueMetricType.joints,
+                        ),
                   ),
                 );
               },
@@ -112,15 +159,18 @@ class RecapDetailScreen extends StatelessWidget {
 
             ElevatedButton.icon(
               icon: const Icon(Icons.fitness_center),
-              label: Text("View Muscles Details (${session.avgMuscles?.toStringAsFixed(1)}%)"),
+              label: Text(
+                "View Muscles Details (${session.avgMuscles?.toStringAsFixed(1)}%)",
+              ),
               onPressed: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => MetricDetailScreen(
-                      session: session,
-                      metricType: FatigueMetricType.muscles,
-                    ),
+                    builder:
+                        (_) => MetricDetailScreen(
+                          session: session,
+                          metricType: FatigueMetricType.muscles,
+                        ),
                   ),
                 );
               },
