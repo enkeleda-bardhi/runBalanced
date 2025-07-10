@@ -29,7 +29,7 @@ class TimerWidget extends StatelessWidget {
           Text(
             'WORKOUT TIME',
             style: AppTextStyles.timerLabel.copyWith(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.white.withAlpha(204),
             ),
           ),
           SizedBox(height: AppSpacing.sm),

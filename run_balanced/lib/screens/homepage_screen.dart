@@ -20,7 +20,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, this.initialIndex = 0}); // default to 0
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 // tiene traccia della schermata corrente. Inizialmente è 0 → la prima pagina (“Allenamento”)
@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
         };
       }
     } catch (e) {
-      print("Error fetching user details: $e");
+      debugPrint("Error fetching user details: $e");
     }
     return {'firstName': '', 'lastName': '', 'imageUrl': ''};
   }

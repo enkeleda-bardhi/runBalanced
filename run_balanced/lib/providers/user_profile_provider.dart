@@ -38,7 +38,7 @@ class UserProfileProvider with ChangeNotifier {
         notifyListeners();
       }
     } catch (e) {
-      print("Failed to load user profile: $e");
+      debugPrint("Failed to load user profile: $e");
     }
   }
 
@@ -77,7 +77,7 @@ class UserProfileProvider with ChangeNotifier {
           .doc(uid)
           .set(dataToUpdate, SetOptions(merge: true));
     } catch (e) {
-      print("Failed to update user profile: $e");
+      debugPrint("Failed to update user profile: $e");
     }
   }
 }

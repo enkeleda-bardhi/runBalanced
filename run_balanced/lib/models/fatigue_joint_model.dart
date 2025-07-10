@@ -1,23 +1,11 @@
-/// Calcola il Joint Load Index (JLI).
-/// 
-/// [force] Forza applicata.
-/// [angle] Angolo articolare.
-/// [repetitions] Numero di ripetizioni.
-/// [alpha], [beta], [gamma] sono coefficienti di ponderazione.
-/// Restituisce un valore compreso tra 0 e 100.
-/// Calculates the Joint Load Index (JLI) per kilometer from a list of biomechanical data.
+/// Calculates Joint Load Index (JLI).
 ///
-/// The function groups the input data by kilometer (using the 'time' field to determine the kilometer),
-/// then computes the average force (`F`), angle (`theta`), and repetitions (`R`) for each kilometer.
-/// It applies the [calculateJLI] function to these averages to obtain the JLI for each kilometer.
-///
-/// - [biomechData]: A list of maps containing biomechanical data. Each map should have keys:
-///   - `'F'`: Force value (num)
-///   - `'theta'`: Angle value (num)
-///   - `'R'`: Repetitions (num)
-///   - `'time'`: Time in seconds (used for grouping by kilometer)
-///
-/// Returns a map where the key is the kilometer (int) and the value is the calculated JLI (double) for that kilometer.
+/// [force] Applied force.
+/// [angle] Joint angle.
+/// [repetitions] Number of repetitions.
+/// [alpha], [beta], [gamma] are weighting coefficients.
+/// Returns a value between 0 and 100.
+
 
 import 'km_avg.dart';
 double calculateJLI({
@@ -39,8 +27,21 @@ double calculateJLI({
   return rawScore.clamp(0.0, 100.0);
 }
 
-/// Calculates the Joint Load Index (JLI) per kilometer.
-/// It now requires cardioData to map time to distance correctly.
+
+/// Calculates the Joint Load Index (JLI) per kilometer from a list of biomechanical data.
+///
+/// The function groups the input data by kilometer (using the 'time' field to determine the kilometer),
+/// then computes the average force (`F`), angle (`theta`), and repetitions (`R`) for each kilometer.
+/// It applies the [calculateJLI] function to these averages to obtain the JLI for each kilometer.
+///
+/// - [biomechData]: A list of maps containing biomechanical data. Each map should have keys:
+///   - `'F'`: Force value (num)
+///   - `'theta'`: Angle value (num)
+///   - `'R'`: Repetitions (num)
+///   - `'time'`: Time in seconds (used for grouping by kilometer)
+///
+/// Returns a map where the key is the kilometer (int) and the value is the calculated JLI (double) for that kilometer.
+
 Map<int, double> calculateJLIperKm(
   List<Map<String, dynamic>> biomechData,
   List<Map<String, dynamic>> cardioData,

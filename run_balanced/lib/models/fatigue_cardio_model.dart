@@ -8,24 +8,43 @@ int calculateCardioFatigue({
   required double distanceKm,
 }) {
   int score = 0;
-  if (hr >= 90 && hr < 100) score += 5;
-  else if (hr < 110) score += 10;
-  else if (hr >= 110) score += 25;
+  if (hr >= 90 && hr < 100) {
+    score += 5;
+  } else if (hr < 110) {
+    score += 10;
+  } else if (hr >= 110) {
+    score += 25;
+  }
 
-  if (hrv < 30) score += 25;
-  else if (hrv < 40) score += 10;
-  else if (hrv < 50) score += 5;
+  if (hrv < 30) {
+    score += 25;
+  } else if (hrv < 40) {
+    score += 10;
+  } else if (hrv < 50) {
+    score += 5;
+  }
 
-  if (spo2 < 91) score += 15;
-  else if (spo2 < 93) score += 10;
-  else if (spo2 < 95) score += 5;
+  if (spo2 < 91) {
+    score += 15;
+  } else if (spo2 < 93) {
+    score += 10;
+  } else if (spo2 < 95) {
+    score += 5;
+  }
 
-  if (bp >= 150) score += 15;
-  else if (bp >= 140) score += 10;
-  else if (bp >= 130) score += 5;
+  if (bp >= 150) {
+    score += 15;
+  } else if (bp >= 140) {
+    score += 10;
+  } else if (bp >= 130) {
+    score += 5;
+  }
 
-  if (temp >= 37.5) score += 10;
-  else if (temp >= 37.2) score += 5;
+  if (temp >= 37.5) {
+    score += 10;
+  } else if (temp >= 37.2) {
+    score += 5;
+  }
 
   return score.clamp(0, 100);
 }
