@@ -35,7 +35,7 @@ class RecapDetailScreen extends StatelessWidget {
     final heartRateSpots = _convertToSpots(dataSnapshots, 'heartRate');
 
     Future<void> deleteSessionById(String id) async {
-      Provider.of<DataProvider>(context, listen: false).deleteSessionById(id);
+      Provider.of<SimulationProvider>(context, listen: false).deleteSessionById(id);
     }
 
     return Scaffold(
@@ -201,7 +201,7 @@ class RecapDetailScreen extends StatelessWidget {
               xAxisLabel: 'Time (s)',
               yAxisLabel: 'Pace (min/km)',
               lineColor: Colors.red,
-              fixedMaxY: 20,
+              fixedMaxY: null,
             ),
             const SizedBox(height: 30),
 
@@ -210,9 +210,9 @@ class RecapDetailScreen extends StatelessWidget {
               title: 'Heart rate',
               spots: heartRateSpots,
               xAxisLabel: 'Time (s)',
-              yAxisLabel: 'Pace (min/km)',
+              yAxisLabel: 'Heart rate (bpm)',
               lineColor: Colors.purple,
-              fixedMaxY: 180,
+              fixedMaxY: null,
             ),
           ],
         ),

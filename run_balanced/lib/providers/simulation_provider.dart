@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/models/exercise.dart';
+import 'package:provider/provider.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/services/impact_api_service.dart';
 import 'package:run_balanced/providers/csv_loader.dart';
@@ -14,12 +15,12 @@ import 'package:run_balanced/models/fatigue_cardio_model.dart';
 import 'package:run_balanced/models/fatigue_joint_model.dart';
 import 'package:run_balanced/models/utilities.dart';
 
-class DataProvider with ChangeNotifier {
+class SimulationProvider with ChangeNotifier {
   Duration _elapsed = Duration.zero;
   Timer? _timer;
   UserProfileProvider userProfileProvider;
 
-  DataProvider(this.userProfileProvider) {
+  SimulationProvider(this.userProfileProvider) {
     fetchAllSessions();
   }
 
@@ -472,5 +473,20 @@ class DataProvider with ChangeNotifier {
   void dispose() {
     _timer?.cancel();
     super.dispose();
+  }
+
+  Future<void> start(BuildContext context) async {
+    if (isPlaying) return;
+
+    final userProfileProvider = Provider.of<UserProfileProvider>(context, listen: false);
+    if (!userProfileProvider.isLoaded) {
+      await userProfileProvider.loadUserProfile();
+    }
+
+    // Load simulation data files
+    await _loadSimulationData();
+
+    // Start or resume the timer
+    _startTimer();
   }
 }

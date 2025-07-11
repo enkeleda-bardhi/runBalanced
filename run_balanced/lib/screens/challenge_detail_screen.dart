@@ -66,6 +66,12 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
               ),
               const SizedBox(height: 16),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
                 onPressed: () {
                   toggleJoinStatus();
                   Navigator.pop(context, challenge);
@@ -73,7 +79,14 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 child: const Text("Leave Challenge"),
               ),
             ] else ...[
+              const SizedBox(height: 24),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 12,
+                  ),
+                ),
                 onPressed: () {
                   toggleJoinStatus();
                   Navigator.pop(context, challenge);

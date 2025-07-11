@@ -11,7 +11,7 @@ class RecapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<DataProvider>(
+    return Consumer<SimulationProvider>(
       builder: (context, dataProvider, child) {
         final sessions = dataProvider.savedSessions;
         final exerciseSessions = dataProvider.exerciseSessions;

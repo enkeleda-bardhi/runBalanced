@@ -12,8 +12,8 @@ class TrainingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Use a Consumer to listen for changes in DataProvider
-    return Consumer<DataProvider>(
+    // Use a Consumer to listen for changes in SimulationProvider
+    return Consumer<SimulationProvider>(
       builder: (context, data, child) {
         return Scaffold(
           body: SafeArea(

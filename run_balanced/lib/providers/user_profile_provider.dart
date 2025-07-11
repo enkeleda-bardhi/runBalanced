@@ -31,7 +31,7 @@ class UserProfileProvider with ChangeNotifier {
         _firstName = data['firstName'] ?? '';
         _lastName = data['lastName'] ?? '';
         _imagePath = data['imageUrl'] ?? '';
-        _age = (data['age'] ?? 0).toDouble();
+        _age = (data['age'] ?? 0).toInt();
         _weight = (data['weight'] ?? 0).toDouble();
         _height = (data['height'] ?? 0).toDouble();
         _isLoaded = true;
