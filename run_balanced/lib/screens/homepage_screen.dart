@@ -213,7 +213,7 @@ class _HomeScreenState extends State<HomeScreen> {
       // case 5:
       //   return Icon(Icons.settings);
       default:
-        return Icon(Icons.circle);
+        return Icon(Icons.person_2_outlined);
     }
   }
 }
