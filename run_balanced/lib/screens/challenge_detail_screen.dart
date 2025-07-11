@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../models/challenge.dart';
+import '../models/challenge_model.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
   final Challenge challenge;

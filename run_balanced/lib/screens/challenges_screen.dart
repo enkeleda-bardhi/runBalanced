@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../models/challenge.dart';
+import '../models/challenge_model.dart';
 import 'challenge_detail_screen.dart';
 
 class ChallengesScreen extends StatefulWidget {

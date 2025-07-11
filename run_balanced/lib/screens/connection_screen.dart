@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:run_balanced/models/connection.dart';
+import 'package:run_balanced/models/connection_model.dart';
 
 class ConnectionsScreen extends StatelessWidget {
   const ConnectionsScreen({super.key});
@@ -9,7 +9,11 @@ class ConnectionsScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     final List<Connection> connections = [
-      Connection(name: "Garmin Edge 540", status: "Connected", icon: Icons.bluetooth_connected_outlined),
+      Connection(
+        name: "Garmin Edge 540",
+        status: "Connected",
+        icon: Icons.bluetooth_connected_outlined,
+      ),
       Connection(
         name: "Knee Sensor",
         status: "Connected",

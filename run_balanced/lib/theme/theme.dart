@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-/// Enhanced color system with semantic colors for RunBalanced app
+/// Enhanced color system with semantic colors
 class AppColors {
   // Primary theme colors (using your existing deep purple)
-  static const Color primary = Colors.indigoAccent;
-  static const Color secondary = Colors.lightBlueAccent;
+  static const Color primary = Color(0xFF1976D2);
+  static const Color secondary = Color(0xFF90CAF9);
   static const Color tertiary = Color.fromARGB(255, 193, 193, 193);
 
   static const Color secondaryLight = Color.fromARGB(255, 196, 224, 247);
@@ -40,6 +40,16 @@ class AppColors {
     Color.fromARGB(255, 52, 36, 94), // Darker purple for dark mode
     Color.fromARGB(255, 53, 70, 162),
   ];
+
+  // Card colors for light mode
+  static const Color cardBackgroundLight = Colors.white;
+  static const Color cardBorderLight = primary;
+  static const Color cardShadowLight = Color.fromRGBO(0, 0, 0, 0.1);
+
+  // Card colors for dark mode
+  static const Color cardBackgroundDark = Color(0xFF121212);
+  static const Color cardBorderDark = Color.fromRGBO(100, 100, 255, 0.7);
+  static const Color cardShadowDark = Color.fromRGBO(0, 0, 0, 0.5);
 }
 
 /// Consistent spacing system
@@ -101,12 +111,41 @@ class AppTextStyles {
   );
 }
 
+final ColorScheme lightColorScheme = ColorScheme(
+  brightness: Brightness.light,
+  primary: AppColors.primary,
+  onPrimary: Colors.white,
+  secondary: AppColors.secondary,
+  onSecondary: Colors.black,
+  error: AppColors.error,
+  onError: Colors.white,
+  surface: AppColors.surface,
+  onSurface: AppColors.onSurface,
+  background: AppColors.surface,
+  onBackground: AppColors.onSurface,
+);
+
+final ColorScheme darkColorScheme = ColorScheme(
+  brightness: Brightness.dark,
+  primary: AppColors.primary,
+  onPrimary: Colors.black,
+  secondary: AppColors.secondary,
+  onSecondary: Colors.white,
+  error: AppColors.error,
+  onError: Colors.black,
+  surface: AppColors.onSurface,
+  onSurface: AppColors.surface,
+  background: AppColors.onSurface,
+  onBackground: AppColors.surface,
+);
+
 ThemeData lightMode = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
+  colorScheme: lightColorScheme,
   primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: AppColors.surface,
-  canvasColor: AppColors.surface,
+  scaffoldBackgroundColor: lightColorScheme.surface,
+  canvasColor: lightColorScheme.surface,
   iconTheme: IconThemeData(color: AppColors.onSurface),
   appBarTheme: AppBarTheme(
     backgroundColor: AppColors.onSurface,
@@ -139,7 +178,7 @@ ThemeData lightMode = ThemeData(
     ),
   ),
 
-  cardColor: AppColors.tertiary,
+  cardColor: AppColors.cardBackgroundLight,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.primary,
@@ -203,9 +242,10 @@ ThemeData lightMode = ThemeData(
 ThemeData darkMode = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
+  colorScheme: darkColorScheme,
   primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: AppColors.onSurface, // dark background
-  canvasColor: AppColors.onSurface,
+  scaffoldBackgroundColor: darkColorScheme.surface,
+  canvasColor: darkColorScheme.surface,
   iconTheme: IconThemeData(color: AppColors.surface), // light icons
   appBarTheme: AppBarTheme(
     backgroundColor: AppColors.onSurface, // dark app bar background
@@ -237,7 +277,8 @@ ThemeData darkMode = ThemeData(
       color: AppColors.surface,
     ),
   ),
-  cardColor: Colors.grey[850], // darker card color for dark theme
+
+  cardColor: AppColors.cardBackgroundDark,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.primary,
@@ -270,14 +311,11 @@ ThemeData darkMode = ThemeData(
   ),
   inputDecorationTheme: InputDecorationTheme(
     focusedBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-        color: AppColors.secondary.withAlpha((0.7 * 255).round()),
-        width: 2,
-      ),
+      borderSide: BorderSide(color: AppColors.secondaryLight, width: 2),
       borderRadius: BorderRadius.circular(4),
     ),
     enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey.shade600, width: 1),
+      borderSide: BorderSide(color: Colors.grey, width: 1),
       borderRadius: BorderRadius.circular(4),
     ),
     errorBorder: OutlineInputBorder(
@@ -294,9 +332,7 @@ ThemeData darkMode = ThemeData(
       ),
       borderRadius: BorderRadius.circular(4),
     ),
-    labelStyle: TextStyle(color: Colors.grey.shade400),
-    floatingLabelStyle: TextStyle(
-      color: Colors.grey.shade400.withAlpha((0.7 * 255).round()),
-    ),
+    labelStyle: TextStyle(color: Colors.grey[500]),
+    floatingLabelStyle: TextStyle(color: AppColors.secondaryLight),
   ),
 );
