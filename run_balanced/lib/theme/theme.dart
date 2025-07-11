@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Primary theme colors (using your existing deep purple)
   static const Color primary = Color(0xFF1976D2);
-  static const Color secondary = Colors.lightBlueAccent;
+  static const Color secondary = Color(0xFF90CAF9);
   static const Color tertiary = Color.fromARGB(255, 193, 193, 193);
 
   static const Color secondaryLight = Color.fromARGB(255, 196, 224, 247);
