@@ -31,6 +31,10 @@ class Program {
       schedule: {
         "Week 1": ["Walk 5 min", "Run 1 min", "Repeat x5"],
         "Week 2": ["Walk 4 min", "Run 2 min", "Repeat x5"],
+        "Week 3": ["Walk 3 min", "Run 3 min", "Repeat x5"],
+        "Week 4": ["Walk 2 min", "Run 4 min", "Repeat x5"],
+        "Week 5": ["Walk 1 min", "Run 5 min", "Repeat x5"],
+        "Week 6": ["Run 20 min continuously"],
       },
     ),
     Program(
@@ -40,10 +44,12 @@ class Program {
           "Perfect for users with joint concerns. All exercises are low-impact and designed to reduce strain.",
       duration: "4 weeks",
       difficulty: "Easy",
-      icon: Icons.favorite,
+      icon: Icons.directions_walk,
       schedule: {
         "Week 1": ["Chair squats", "Wall pushups", "Leg raises"],
         "Week 2": ["Yoga stretches", "Side steps", "Planks"],
+        "Week 3": ["Seated marches", "Resistance band pulls", "Bridges"],
+        "Week 4": ["Step-ups", "Bird-dogs", "Toe taps"],
       },
     ),
     Program(
@@ -57,6 +63,11 @@ class Program {
       schedule: {
         "Week 1": ["Hip circles", "Arm swings", "Ankle rolls"],
         "Week 2": ["Deep squats", "Shoulder rolls", "Lunges"],
+        "Week 3": [
+          "Cossack squats",
+          "Thoracic rotations",
+          "World’s Greatest Stretch",
+        ],
       },
     ),
     Program(
@@ -70,6 +81,9 @@ class Program {
       schedule: {
         "Week 1": ["Superman pose", "Bird-dog", "Bridge"],
         "Week 2": ["Dead bug", "Side plank", "Wall angels"],
+        "Week 3": ["Glute kicks", "Cat-cow", "Pallof press"],
+        "Week 4": ["Reverse plank", "Cobra stretch", "Back extensions"],
+        "Week 5": ["Side leg lifts", "Shoulder shrugs", "Scapular retractions"],
       },
     ),
   ];
