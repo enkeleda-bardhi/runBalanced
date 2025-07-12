@@ -161,8 +161,8 @@ ThemeData lightMode = ThemeData(
   drawerTheme: const DrawerThemeData(backgroundColor: AppColors.surface),
   listTileTheme: const ListTileThemeData(
     selectedColor: AppColors.surface,
-    selectedTileColor: AppColors.tertiary,
-    iconColor: AppColors.onSurface,
+    selectedTileColor: AppColors.secondary,
+    iconColor: AppColors.primary,
     textColor: AppColors.onSurface,
   ),
   textTheme: TextTheme(
@@ -230,8 +230,8 @@ ThemeData darkMode = ThemeData(
   drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFF1A1A1A)),
   listTileTheme: ListTileThemeData(
     selectedColor: AppColors.surface,
-    selectedTileColor: AppColors.primary,
-    iconColor: AppColors.surface,
+    selectedTileColor: AppColors.secondary,
+    iconColor: AppColors.primary,
     textColor: AppColors.surface,
   ),
   textTheme: TextTheme(
