@@ -32,16 +32,6 @@ class GeneralLineChart extends StatelessWidget {
     this.fixedMaxY,
   });
 
-  // Helper function to measure text size
-  Size _textSize(String text, TextStyle style) {
-    final TextPainter textPainter = TextPainter(
-        text: TextSpan(text: text, style: style),
-        maxLines: 1,
-        textDirection: TextDirection.ltr)
-      ..layout(minWidth: 0, maxWidth: double.infinity);
-    return textPainter.size;
-  }
-
   @override
   Widget build(BuildContext context) {
     // Ensure spots are not empty to prevent range errors
@@ -59,11 +49,15 @@ class GeneralLineChart extends StatelessWidget {
     final actualMinY = 0.0; // Assuming Y always starts at 0
 
     // Normalize the spots to fit the 0-100 plotting scale
-    final scaledSpots = aSpots.map((spot) {
-      final scaledY = plotMinY +
-          (spot.y - actualMinY) * (plotMaxY - plotMinY) / (actualMaxY - actualMinY);
-      return FlSpot(spot.x, scaledY.isNaN ? 0.0 : scaledY);
-    }).toList();
+    final scaledSpots =
+        aSpots.map((spot) {
+          final scaledY =
+              plotMinY +
+              (spot.y - actualMinY) *
+                  (plotMaxY - plotMinY) /
+                  (actualMaxY - actualMinY);
+          return FlSpot(spot.x, scaledY.isNaN ? 0.0 : scaledY);
+        }).toList();
     // --- End of Data Scaling Logic ---
 
     final yInterval = ((plotMaxY - plotMinY) / 5).clamp(1.0, double.infinity);
@@ -78,127 +72,151 @@ class GeneralLineChart extends StatelessWidget {
         const SizedBox(height: 16),
         SizedBox(
           height: 250,
-          child: spots.isEmpty
-              ? const Center(child: Text("No data available to display."))
-              : LayoutBuilder(
-                  builder: (context, constraints) {
-                    final double xInterval = fixedXInterval ??
-                        (maxX / (constraints.maxWidth / 80))
-                            .clamp(1.0, double.infinity);
+          child:
+              spots.isEmpty
+                  ? const Center(child: Text("No data available to display."))
+                  : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final double xInterval =
+                          fixedXInterval ??
+                          (maxX / (constraints.maxWidth / 80)).clamp(
+                            1.0,
+                            double.infinity,
+                          );
 
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 16.0, left: 8.0),
-                      child: LineChart(
-                        LineChartData(
-                          minX: minX,
-                          maxX: maxX,
-                          minY: plotMinY, // Use fixed plotting min Y
-                          maxY: plotMaxY, // Use fixed plotting max Y
-                          titlesData: FlTitlesData(
-                            bottomTitles: AxisTitles(
-                              axisNameWidget: Text(xAxisLabel,
-                                  style: const TextStyle(fontSize: 12)),
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 32,
-                                interval: xInterval,
-                                getTitlesWidget: (value, meta) {
-                                  if (value == meta.max) return const SizedBox();
-                                  return Padding(
-                                    padding: const EdgeInsets.only(top: 6.0),
-                                    child: Text(value.toInt().toString(),
-                                        style: const TextStyle(fontSize: 10)),
-                                  );
-                                },
-                              ),
-                            ),
-                            leftTitles: AxisTitles(
-                              axisNameWidget: Text(yAxisLabel,
-                                  style: const TextStyle(fontSize: 12)),
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 40, // Can be a fixed size now
-                                interval: yInterval,
-                                getTitlesWidget: (value, meta) {
-                                  // Convert the scaled label value back to the original value for display
-                                  final originalValue = actualMinY +
-                                      (value - plotMinY) *
-                                          (actualMaxY - actualMinY) /
-                                          (plotMaxY - plotMinY);
-                                  return Text(
-                                    originalValue.toStringAsFixed(1),
-                                    style: const TextStyle(fontSize: 10),
-                                    textAlign: TextAlign.left,
-                                  );
-                                },
-                              ),
-                            ),
-                            topTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
-                            rightTitles: const AxisTitles(
-                                sideTitles: SideTitles(showTitles: false)),
-                          ),
-                          gridData: FlGridData(
-                            show: true,
-                            drawVerticalLine: true,
-                            getDrawingHorizontalLine: (value) => FlLine(
-                                color: Colors.grey.withOpacity(0.2),
-                                strokeWidth: 1),
-                            getDrawingVerticalLine: (value) => FlLine(
-                                color: Colors.grey.withOpacity(0.2),
-                                strokeWidth: 1),
-                          ),
-                          borderData: FlBorderData(
-                              show: true,
-                              border: Border.all(
-                                  color: Colors.grey.withOpacity(0.3))),
-                          lineBarsData: [
-                            LineChartBarData(
-                              spots: scaledSpots, // Use the scaled spots for plotting
-                              isCurved: isCurved,
-                              color: lineColor,
-                              barWidth: 3,
-                              dotData: FlDotData(show: showDots),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                gradient: LinearGradient(
-                                  colors: [
-                                    lineColor.withOpacity(0.3),
-                                    lineColor.withOpacity(0.0)
-                                  ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 16.0, left: 8.0),
+                        child: LineChart(
+                          LineChartData(
+                            minX: minX,
+                            maxX: maxX,
+                            minY: plotMinY, // Use fixed plotting min Y
+                            maxY: plotMaxY, // Use fixed plotting max Y
+                            titlesData: FlTitlesData(
+                              bottomTitles: AxisTitles(
+                                axisNameWidget: Text(
+                                  xAxisLabel,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 32,
+                                  interval: xInterval,
+                                  getTitlesWidget: (value, meta) {
+                                    if (value == meta.max)
+                                      return const SizedBox();
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 6.0),
+                                      child: Text(
+                                        value.toInt().toString(),
+                                        style: const TextStyle(fontSize: 10),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ),
+                              leftTitles: AxisTitles(
+                                axisNameWidget: Text(
+                                  yAxisLabel,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40, // Can be a fixed size now
+                                  interval: yInterval,
+                                  getTitlesWidget: (value, meta) {
+                                    // Convert the scaled label value back to the original value for display
+                                    final originalValue =
+                                        actualMinY +
+                                        (value - plotMinY) *
+                                            (actualMaxY - actualMinY) /
+                                            (plotMaxY - plotMinY);
+                                    return Text(
+                                      originalValue.toStringAsFixed(1),
+                                      style: const TextStyle(fontSize: 10),
+                                      textAlign: TextAlign.left,
+                                    );
+                                  },
+                                ),
+                              ),
+                              topTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
+                              rightTitles: const AxisTitles(
+                                sideTitles: SideTitles(showTitles: false),
+                              ),
                             ),
-                          ],
-                          lineTouchData: LineTouchData(
-                            handleBuiltInTouches: true,
-                            touchTooltipData: LineTouchTooltipData(
-                              getTooltipItems: (touchedSpots) {
-                                return touchedSpots.map((spot) {
-                                  // Convert the scaled tooltip Y value back to the original value
-                                  final originalY = actualMinY +
-                                      (spot.y - plotMinY) *
-                                          (actualMaxY - actualMinY) /
-                                          (plotMaxY - plotMinY);
+                            gridData: FlGridData(
+                              show: true,
+                              drawVerticalLine: true,
+                              getDrawingHorizontalLine:
+                                  (value) => FlLine(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    strokeWidth: 1,
+                                  ),
+                              getDrawingVerticalLine:
+                                  (value) => FlLine(
+                                    color: Colors.grey.withOpacity(0.2),
+                                    strokeWidth: 1,
+                                  ),
+                            ),
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.3),
+                              ),
+                            ),
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots:
+                                    scaledSpots, // Use the scaled spots for plotting
+                                isCurved: isCurved,
+                                color: lineColor,
+                                barWidth: 3,
+                                dotData: FlDotData(show: showDots),
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      lineColor.withOpacity(0.3),
+                                      lineColor.withOpacity(0.0),
+                                    ],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                              ),
+                            ],
+                            lineTouchData: LineTouchData(
+                              handleBuiltInTouches: true,
+                              touchTooltipData: LineTouchTooltipData(
+                                getTooltipItems: (touchedSpots) {
+                                  return touchedSpots.map((spot) {
+                                    // Convert the scaled tooltip Y value back to the original value
+                                    final originalY =
+                                        actualMinY +
+                                        (spot.y - plotMinY) *
+                                            (actualMaxY - actualMinY) /
+                                            (plotMaxY - plotMinY);
 
-                                  final xLabel = xAxisLabel.split(' ').first;
-                                  final yLabel = yAxisLabel.split(' ').first;
-                                  final tooltipText =
-                                      '$xLabel: ${spot.x.toStringAsFixed(1)}\n$yLabel: ${originalY.toStringAsFixed(2)}';
-                                  return LineTooltipItem(
-                                    tooltipText,
-                                    const TextStyle(
+                                    final xLabel = xAxisLabel.split(' ').first;
+                                    final yLabel = yAxisLabel.split(' ').first;
+                                    final tooltipText =
+                                        '$xLabel: ${spot.x.toStringAsFixed(1)}\n$yLabel: ${originalY.toStringAsFixed(2)}';
+                                    return LineTooltipItem(
+                                      tooltipText,
+                                      const TextStyle(
                                         color: Colors.white,
-                                        fontWeight: FontWeight.bold),
-                                  );
-                                }).toList();
-                              },
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    );
+                                  }).toList();
+                                },
+                              ),
                             ),
                           ),
                         ),
-                      ));
+                      );
                     },
                   ),
         ),
