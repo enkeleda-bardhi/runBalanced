@@ -1,70 +1,133 @@
 import 'package:flutter/material.dart';
 import 'package:run_balanced/models/connection_model.dart';
+import 'package:run_balanced/theme/theme.dart';
 
-class ConnectionsScreen extends StatelessWidget {
+class ConnectionsScreen extends StatefulWidget {
   const ConnectionsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  State<ConnectionsScreen> createState() => _ConnectionsScreenState();
+}
 
-    final List<Connection> connections = [
-      Connection(
-        name: "Garmin Edge 540",
-        status: "Connected",
-        icon: Icons.bluetooth_connected_outlined,
-      ),
-      Connection(
-        name: "Knee Sensor",
-        status: "Connected",
-        icon: Icons.bluetooth_connected_outlined,
-      ),
-    ];
+class _ConnectionsScreenState extends State<ConnectionsScreen> {
+  List<Connection> connections = Connection.sampleConnections;
+
+  void _handleMenuAction(String action, int index) {
+    setState(() {
+      switch (action) {
+        case 'connect':
+          connections[index] = connections[index].copyWith(status: 'Connected');
+          _showMessage('${connections[index].name} connected.');
+          break;
+        case 'disconnect':
+          connections[index] = connections[index].copyWith(
+            status: 'Disconnected',
+          );
+          _showMessage('${connections[index].name} disconnected.');
+          break;
+        case 'remove':
+          final removed = connections.removeAt(index);
+          _showMessage('${removed.name} removed.');
+          break;
+        case 'sync':
+          _showMessage('Syncing ${connections[index].name}...');
+          break;
+        case 'info':
+          _showDeviceInfo(connections[index]);
+          break;
+      }
+    });
+  }
+
+  void _showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  void _showDeviceInfo(Connection conn) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(conn.name),
+            content: Text(
+              'Status: ${conn.status}\nMore details coming soon...',
+            ),
+            actions: [
+              TextButton(
+                child: const Text('Close'),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ],
+          ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
+      backgroundColor: colorScheme.background,
       body: ListView.builder(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.md),
         itemCount: connections.length,
         itemBuilder: (context, index) {
-          final conn = connections[index];
-          return _buildConnectionCard(context, conn, theme);
+          return _buildConnectionCard(connections[index], index, colorScheme);
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implement logic to add a new device.
+          setState(() {
+            connections.add(
+              Connection(
+                name: "New Device ${connections.length + 1}",
+                status: "Disconnected",
+                icon: Icons.bluetooth_connected_outlined,
+              ),
+            );
+          });
         },
         tooltip: 'Add Device',
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
         child: const Icon(Icons.add),
       ),
     );
   }
 
   Widget _buildConnectionCard(
-    BuildContext context,
     Connection conn,
-    ThemeData theme,
+    int index,
+    ColorScheme colorScheme,
   ) {
     return Card(
-      color: theme.cardColor,
-      elevation: 2,
-      margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: colorScheme.surface,
+      elevation: 3,
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      shadowColor: Colors.black.withOpacity(0.05),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: colorScheme.primary, width: 1.5),
+      ),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Icon(conn.icon, color: theme.iconTheme.color, size: 32),
-        title: Text(conn.name, style: theme.textTheme.bodyLarge),
+        contentPadding: const EdgeInsets.all(AppSpacing.md),
+        leading: Icon(conn.icon, size: 32, color: colorScheme.primary),
+        title: Text(
+          conn.name,
+          style: AppTextStyles.headline2.copyWith(color: colorScheme.onSurface),
+        ),
         subtitle: Text(
           conn.status,
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: _getStatusColor(conn.status),
+          style: AppTextStyles.caption.copyWith(
+            color: _getStatusColor(conn.status, colorScheme),
           ),
         ),
         trailing: PopupMenuButton<String>(
-          icon: Icon(Icons.more_vert, color: theme.iconTheme.color),
-          onSelected: (value) {
-            // Implement actions here
-          },
+          icon: Icon(Icons.more_vert, color: colorScheme.onSurface),
+          color: colorScheme.surface,
+          onSelected: (action) => _handleMenuAction(action, index),
           itemBuilder:
               (context) => [
                 if (conn.status == "Connected")
@@ -83,16 +146,16 @@ class ConnectionsScreen extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String status) {
+  Color _getStatusColor(String status, ColorScheme colorScheme) {
     switch (status.toLowerCase()) {
       case 'connected':
-        return Colors.green;
+        return colorScheme.primary;
       case 'syncing':
-        return Colors.orange;
+        return colorScheme.secondary;
       case 'disconnected':
-        return Colors.red;
+        return colorScheme.error;
       default:
-        return Colors.grey;
+        return colorScheme.outline;
     }
   }
 }

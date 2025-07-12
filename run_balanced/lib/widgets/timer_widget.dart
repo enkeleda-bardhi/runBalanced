@@ -9,15 +9,13 @@ class TimerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    
+    final colorScheme = theme.colorScheme;
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: isDark 
-            ? AppColors.timerGradientDark
-            : AppColors.timerGradient,
+          colors: AppColors.timerGradient,
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -28,15 +26,17 @@ class TimerWidget extends StatelessWidget {
         children: [
           Text(
             'WORKOUT TIME',
-            style: AppTextStyles.timerLabel.copyWith(
-              color: Colors.white.withAlpha(204),
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: colorScheme.onPrimary.withOpacity(0.8),
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1.2,
             ),
           ),
-          SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             time,
             style: AppTextStyles.timerTime.copyWith(
-              color: Colors.white,
+              color: colorScheme.onPrimary,
             ),
           ),
         ],

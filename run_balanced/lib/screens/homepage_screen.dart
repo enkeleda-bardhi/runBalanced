@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           return Row(
                             children: [
                               CircleAvatar(
-                                radius: 30,
+                                radius: 40,
                                 backgroundImage:
                                     userProfile.imagePath.isNotEmpty
                                         ? FileImage(File(userProfile.imagePath))
