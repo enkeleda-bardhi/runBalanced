@@ -1,12 +1,12 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 
 /// Enhanced color system with semantic colors
 class AppColors {
-  // Primary theme colors (using your existing deep purple)
+  // Primary theme colors
   static const Color primary = Color(0xFF1976D2);
   static const Color secondary = Color(0xFF90CAF9);
   static const Color tertiary = Color.fromARGB(255, 193, 193, 193);
-
   static const Color secondaryLight = Color.fromARGB(255, 196, 224, 247);
 
   // Others
@@ -25,34 +25,35 @@ class AppColors {
   static const Color fatigueCritical = Color(0xFFE53E3E);
 
   // Fatigue types
-  static const Color cardioFatigue = Colors.red; // Red for cardio fatigue
-  static const Color jointFatigue = Colors.orange; // Orange for joint fatigue
-  static const Color muscleFatigue = Colors.green; // Green for muscle fatigue
+  static const Color cardioFatigue = Colors.red;
+  static const Color jointFatigue = Colors.orange;
+  static const Color muscleFatigue = Colors.green;
 
   // UI colors
-  static const Color surface = Color.fromARGB(255, 248, 250, 251);
-  static const Color onSurface = Color.fromARGB(255, 30, 30, 30);
+  static const Color surface = Color(0xFFF8FAFB); // Light mode surface
+  static const Color onSurface = Color(0xFF1E1E1E); // Text on light surfaces
 
-  // Timer specific gradients (using your primary color)
+  static const Color darkSurface = Color(0xFF2A2A2A); // Dark mode surface
+  static const Color darkCardBackground = Color(
+    0xFF202020,
+  ); // Card bg in dark mode
+
+  // Timer gradients
   static const List<Color> timerGradient = [primary, secondary];
-
   static const List<Color> timerGradientDark = [
-    Color.fromARGB(255, 52, 36, 94), // Darker purple for dark mode
-    Color.fromARGB(255, 53, 70, 162),
+    Color(0xFF34245E),
+    Color(0xFF3546A2),
   ];
 
-  // Card colors for light mode
+  // Card colors
   static const Color cardBackgroundLight = Colors.white;
   static const Color cardBorderLight = primary;
   static const Color cardShadowLight = Color.fromRGBO(0, 0, 0, 0.1);
-
-  // Card colors for dark mode
-  static const Color cardBackgroundDark = Color(0xFF121212);
   static const Color cardBorderDark = Color.fromRGBO(100, 100, 255, 0.7);
   static const Color cardShadowDark = Color.fromRGBO(0, 0, 0, 0.5);
 }
 
-/// Consistent spacing system
+/// Spacing system
 class AppSpacing {
   static const double xs = 4.0;
   static const double sm = 8.0;
@@ -62,9 +63,8 @@ class AppSpacing {
   static const double xxl = 48.0;
 }
 
-/// Typography system - shared font sizes and weights
+/// Typography system
 class AppTextStyles {
-  // Font sizes
   static double displayLargeSize = 32.0;
   static double displayMediumSize = 28.0;
   static double headlineSize = 24.0;
@@ -111,6 +111,7 @@ class AppTextStyles {
   );
 }
 
+/// Color schemes
 final ColorScheme lightColorScheme = ColorScheme(
   brightness: Brightness.light,
   primary: AppColors.primary,
@@ -133,51 +134,43 @@ final ColorScheme darkColorScheme = ColorScheme(
   onSecondary: Colors.white,
   error: AppColors.error,
   onError: Colors.black,
-  surface: AppColors.onSurface,
-  onSurface: AppColors.surface,
-  background: AppColors.onSurface,
-  onBackground: AppColors.surface,
+  surface: AppColors.darkSurface,
+  onSurface: Colors.white,
+  background: Color.fromARGB(255, 47, 47, 47),
+  onBackground: Colors.white,
 );
 
+/// Theme definitions
 ThemeData lightMode = ThemeData(
   useMaterial3: true,
   brightness: Brightness.light,
   colorScheme: lightColorScheme,
   primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: lightColorScheme.surface,
-  canvasColor: lightColorScheme.surface,
-  iconTheme: IconThemeData(color: AppColors.primary),
+  scaffoldBackgroundColor: AppColors.surface,
+  canvasColor: AppColors.surface,
+  iconTheme: const IconThemeData(color: AppColors.primary),
   appBarTheme: AppBarTheme(
     backgroundColor: AppColors.onSurface,
     foregroundColor: AppColors.surface,
-    iconTheme: IconThemeData(color: AppColors.surface),
+    iconTheme: const IconThemeData(color: AppColors.surface),
     titleTextStyle: TextStyle(
       color: AppColors.surface,
       fontSize: AppTextStyles.appBarTitleSize,
     ),
   ),
-  drawerTheme: DrawerThemeData(backgroundColor: AppColors.surface),
-  listTileTheme: ListTileThemeData(
+  drawerTheme: const DrawerThemeData(backgroundColor: AppColors.surface),
+  listTileTheme: const ListTileThemeData(
     selectedColor: AppColors.surface,
     selectedTileColor: AppColors.tertiary,
     iconColor: AppColors.onSurface,
     textColor: AppColors.onSurface,
   ),
   textTheme: TextTheme(
-    bodyLarge: TextStyle(color: AppColors.onSurface),
-    bodyMedium: TextStyle(color: AppColors.onSurface),
-    displayLarge: TextStyle(
-      fontSize: AppTextStyles.displayLargeSize,
-      fontWeight: FontWeight.bold,
-      color: AppColors.onSurface,
-    ),
-    displayMedium: TextStyle(
-      fontSize: AppTextStyles.displayMediumSize,
-      fontWeight: FontWeight.w600,
-      color: AppColors.onSurface,
-    ),
+    bodyLarge: const TextStyle(color: AppColors.onSurface),
+    bodyMedium: const TextStyle(color: AppColors.onSurface),
+    displayLarge: AppTextStyles.headline1.copyWith(color: AppColors.onSurface),
+    displayMedium: AppTextStyles.headline2.copyWith(color: AppColors.onSurface),
   ),
-
   cardColor: AppColors.cardBackgroundLight,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
@@ -193,20 +186,15 @@ ThemeData lightMode = ThemeData(
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(
       foregroundColor: WidgetStateProperty.all(AppColors.primary),
-      textStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
-        if (states.contains(WidgetState.hovered)) {
-          return AppTextStyles.body1.copyWith(
-            fontWeight: FontWeight.w500,
-            decoration: TextDecoration.underline,
-          );
-        }
-        return AppTextStyles.body1.copyWith(fontWeight: FontWeight.w500);
+      textStyle: WidgetStateProperty.resolveWith((states) {
+        return AppTextStyles.body1.copyWith(
+          fontWeight: FontWeight.w500,
+          decoration:
+              states.contains(WidgetState.hovered)
+                  ? TextDecoration.underline
+                  : null,
+        );
       }),
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      ),
-      padding: WidgetStateProperty.all(EdgeInsets.zero),
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
@@ -218,24 +206,8 @@ ThemeData lightMode = ThemeData(
       borderSide: BorderSide(color: AppColors.tertiary, width: 1),
       borderRadius: BorderRadius.circular(4),
     ),
-    errorBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-        color: const Color.fromARGB(255, 185, 0, 0),
-        width: 2,
-      ),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-        color: const Color.fromARGB(255, 185, 0, 0),
-        width: 2,
-      ),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    labelStyle: TextStyle(color: AppColors.tertiary), // Normal label style
-    floatingLabelStyle: TextStyle(
-      color: AppColors.tertiary,
-    ), // Label color when focused
+    labelStyle: const TextStyle(color: AppColors.tertiary),
+    floatingLabelStyle: const TextStyle(color: AppColors.tertiary),
   ),
 );
 
@@ -243,20 +215,19 @@ ThemeData darkMode = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: darkColorScheme,
-  primaryColor: AppColors.primary,
-  scaffoldBackgroundColor: darkColorScheme.surface,
-  canvasColor: darkColorScheme.surface,
-  iconTheme: IconThemeData(color: AppColors.secondary), // light icons
+  scaffoldBackgroundColor: darkColorScheme.background,
+  canvasColor: darkColorScheme.background,
+  iconTheme: IconThemeData(color: darkColorScheme.onSurface),
   appBarTheme: AppBarTheme(
-    backgroundColor: AppColors.onSurface, // dark app bar background
-    foregroundColor: AppColors.surface, // light text/icons
-    iconTheme: IconThemeData(color: AppColors.surface),
+    backgroundColor: darkColorScheme.surface,
+    foregroundColor: darkColorScheme.onSurface,
+    iconTheme: IconThemeData(color: darkColorScheme.onSurface),
     titleTextStyle: TextStyle(
-      color: AppColors.surface,
+      color: darkColorScheme.onSurface,
       fontSize: AppTextStyles.appBarTitleSize,
     ),
   ),
-  drawerTheme: DrawerThemeData(backgroundColor: Colors.grey[900]),
+  drawerTheme: const DrawerThemeData(backgroundColor: Color(0xFF1A1A1A)),
   listTileTheme: ListTileThemeData(
     selectedColor: AppColors.surface,
     selectedTileColor: AppColors.primary,
@@ -264,21 +235,12 @@ ThemeData darkMode = ThemeData(
     textColor: AppColors.surface,
   ),
   textTheme: TextTheme(
-    bodyLarge: TextStyle(color: AppColors.surface),
-    bodyMedium: TextStyle(color: AppColors.surface),
-    displayLarge: TextStyle(
-      fontSize: AppTextStyles.displayLargeSize,
-      fontWeight: FontWeight.bold,
-      color: AppColors.surface,
-    ),
-    displayMedium: TextStyle(
-      fontSize: AppTextStyles.displayMediumSize,
-      fontWeight: FontWeight.w600,
-      color: AppColors.surface,
-    ),
+    bodyLarge: const TextStyle(color: AppColors.surface),
+    bodyMedium: const TextStyle(color: AppColors.surface),
+    displayLarge: AppTextStyles.headline1.copyWith(color: AppColors.surface),
+    displayMedium: AppTextStyles.headline2.copyWith(color: AppColors.surface),
   ),
-
-  cardColor: AppColors.cardBackgroundDark,
+  cardColor: AppColors.darkCardBackground,
   elevatedButtonTheme: ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       backgroundColor: AppColors.primary,
@@ -293,20 +255,15 @@ ThemeData darkMode = ThemeData(
   textButtonTheme: TextButtonThemeData(
     style: ButtonStyle(
       foregroundColor: WidgetStateProperty.all(AppColors.secondary),
-      textStyle: WidgetStateProperty.resolveWith<TextStyle>((states) {
-        if (states.contains(WidgetState.hovered)) {
-          return AppTextStyles.body1.copyWith(
-            fontWeight: FontWeight.w500,
-            decoration: TextDecoration.underline,
-          );
-        }
-        return AppTextStyles.body1.copyWith(fontWeight: FontWeight.w500);
+      textStyle: WidgetStateProperty.resolveWith((states) {
+        return AppTextStyles.body1.copyWith(
+          fontWeight: FontWeight.w500,
+          decoration:
+              states.contains(WidgetState.hovered)
+                  ? TextDecoration.underline
+                  : null,
+        );
       }),
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      shape: WidgetStateProperty.all(
-        RoundedRectangleBorder(borderRadius: BorderRadius.zero),
-      ),
-      padding: WidgetStateProperty.all(EdgeInsets.zero),
     ),
   ),
   inputDecorationTheme: InputDecorationTheme(
@@ -315,24 +272,10 @@ ThemeData darkMode = ThemeData(
       borderRadius: BorderRadius.circular(4),
     ),
     enabledBorder: OutlineInputBorder(
-      borderSide: BorderSide(color: Colors.grey, width: 1),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    errorBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-        color: const Color.fromARGB(255, 185, 0, 0),
-        width: 2,
-      ),
-      borderRadius: BorderRadius.circular(4),
-    ),
-    focusedErrorBorder: OutlineInputBorder(
-      borderSide: BorderSide(
-        color: const Color.fromARGB(255, 185, 0, 0),
-        width: 2,
-      ),
+      borderSide: const BorderSide(color: Colors.grey, width: 1),
       borderRadius: BorderRadius.circular(4),
     ),
     labelStyle: TextStyle(color: Colors.grey[500]),
-    floatingLabelStyle: TextStyle(color: AppColors.secondaryLight),
+    floatingLabelStyle: const TextStyle(color: AppColors.secondaryLight),
   ),
 );
