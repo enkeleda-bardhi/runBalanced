@@ -215,6 +215,7 @@ ThemeData darkMode = ThemeData(
   useMaterial3: true,
   brightness: Brightness.dark,
   colorScheme: darkColorScheme,
+  primaryColor: AppColors.primary,
   scaffoldBackgroundColor: darkColorScheme.background,
   canvasColor: darkColorScheme.background,
   iconTheme: IconThemeData(color: darkColorScheme.onSurface),
