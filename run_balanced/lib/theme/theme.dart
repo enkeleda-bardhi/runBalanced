@@ -146,7 +146,7 @@ ThemeData lightMode = ThemeData(
   primaryColor: AppColors.primary,
   scaffoldBackgroundColor: lightColorScheme.surface,
   canvasColor: lightColorScheme.surface,
-  iconTheme: IconThemeData(color: AppColors.onSurface),
+  iconTheme: IconThemeData(color: AppColors.primary),
   appBarTheme: AppBarTheme(
     backgroundColor: AppColors.onSurface,
     foregroundColor: AppColors.surface,
@@ -246,7 +246,7 @@ ThemeData darkMode = ThemeData(
   primaryColor: AppColors.primary,
   scaffoldBackgroundColor: darkColorScheme.surface,
   canvasColor: darkColorScheme.surface,
-  iconTheme: IconThemeData(color: AppColors.surface), // light icons
+  iconTheme: IconThemeData(color: AppColors.secondary), // light icons
   appBarTheme: AppBarTheme(
     backgroundColor: AppColors.onSurface, // dark app bar background
     foregroundColor: AppColors.surface, // light text/icons

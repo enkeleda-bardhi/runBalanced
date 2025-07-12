@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../models/challenge_model.dart';
+import '../theme/theme.dart';
 
 class ChallengeDetailScreen extends StatefulWidget {
   final Challenge challenge;
@@ -23,11 +24,7 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
   void toggleJoinStatus() {
     setState(() {
       challenge.isJoined = !challenge.isJoined;
-      if (challenge.isJoined) {
-        challenge.joinedDate = DateTime.now();
-      } else {
-        challenge.joinedDate = null;
-      }
+      challenge.joinedDate = challenge.isJoined ? DateTime.now() : null;
     });
   }
 
@@ -40,21 +37,30 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final color = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(title: Text(challenge.title)),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Center(
+              child: Icon(
+                challenge.icon,
+                size: 64,
+                color: theme.iconTheme.color,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
             Text(challenge.description, style: theme.textTheme.bodyLarge),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
             Text(
               "Duration: ${challenge.durationDays} days",
               style: theme.textTheme.bodyMedium,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             if (challenge.isJoined) ...[
               Text(
                 "Joined on: ${DateFormat.yMMMd().format(challenge.joinedDate!)}",
@@ -64,36 +70,92 @@ class _ChallengeDetailScreenState extends State<ChallengeDetailScreen> {
                 "Progress: ${getProgressDays()} / ${challenge.durationDays} days",
                 style: theme.textTheme.bodyMedium,
               ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
-                onPressed: () {
-                  toggleJoinStatus();
-                  Navigator.pop(context, challenge);
-                },
-                child: const Text("Leave Challenge"),
-              ),
-            ] else ...[
-              const SizedBox(height: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 24,
-                    vertical: 12,
-                  ),
-                ),
-                onPressed: () {
-                  toggleJoinStatus();
-                  Navigator.pop(context, challenge);
-                },
-                child: const Text("Join Challenge"),
+              const SizedBox(height: AppSpacing.md),
+              LinearProgressIndicator(
+                value: getProgressDays() / challenge.durationDays,
+                color: color.primary,
+                backgroundColor: color.surface.withOpacity(0.3),
+                minHeight: 6,
               ),
             ],
+
+            // Benefits Section
+            const SizedBox(height: AppSpacing.lg),
+            Text("Benefits", style: theme.textTheme.displayMedium),
+            const SizedBox(height: AppSpacing.sm),
+            ...challenge.benefits.map(
+              (b) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "• ",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    Expanded(child: Text(b, style: theme.textTheme.bodyLarge)),
+                  ],
+                ),
+              ),
+            ),
+
+            // Tips Section
+            const SizedBox(height: AppSpacing.lg),
+            Text("Tips for Success", style: theme.textTheme.displayMedium),
+            const SizedBox(height: AppSpacing.sm),
+            ...challenge.tips.map(
+              (tip) => Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "• ",
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                    Expanded(
+                      child: Text(tip, style: theme.textTheme.bodyLarge),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Motivational Quote
+            const SizedBox(height: AppSpacing.lg),
+            Text("Motivational Quote", style: theme.textTheme.displayMedium),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              '"${challenge.quote}"',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                fontStyle: FontStyle.italic,
+                color: color.secondary,
+              ),
+            ),
+
+            // Join / Leave Button
+            const SizedBox(height: AppSpacing.xl),
+            ElevatedButton(
+              onPressed: () {
+                toggleJoinStatus();
+                Navigator.pop(context, challenge);
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xl,
+                  vertical: AppSpacing.sm,
+                ),
+                child: Text(
+                  challenge.isJoined ? "Leave Challenge" : "Join Challenge",
+                ),
+              ),
+            ),
           ],
         ),
       ),

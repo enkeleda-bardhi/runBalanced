@@ -10,79 +10,62 @@ class ProgramDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final color = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           program.title,
-          style: AppTextStyles.headline2.copyWith(color: colorScheme.onSurface),
+          style: theme.textTheme.displayMedium?.copyWith(
+            color: color.onSurface,
+          ),
         ),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        children: [
-          Icon(program.icon, size: 60, color: colorScheme.primary),
-          const SizedBox(height: AppSpacing.lg),
-          Text(
-            program.subtitle,
-            style: AppTextStyles.headline2.copyWith(
-              color: colorScheme.onSurface,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(child: Icon(program.icon, size: 64, color: color.primary)),
+            const SizedBox(height: AppSpacing.lg),
+            Text(program.subtitle, style: theme.textTheme.bodyLarge),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              "Duration: ${program.duration}",
+              style: theme.textTheme.bodyMedium,
             ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Text(
-            "Duration: ${program.duration}",
-            style: AppTextStyles.body1.copyWith(color: colorScheme.onSurface),
-          ),
-          Text(
-            "Difficulty: ${program.difficulty}",
-            style: AppTextStyles.body1.copyWith(color: colorScheme.onSurface),
-          ),
-          const SizedBox(height: AppSpacing.lg),
-          Text(
-            "About This Program",
-            style: AppTextStyles.headline2.copyWith(
-              color: colorScheme.onSurface,
+            Text(
+              "Difficulty: ${program.difficulty}",
+              style: theme.textTheme.bodyMedium,
             ),
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            program.description,
-            style: AppTextStyles.body1.copyWith(color: colorScheme.onSurface),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          Text(
-            "Weekly Schedule",
-            style: AppTextStyles.headline2.copyWith(
-              color: colorScheme.onSurface,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          ...program.schedule.entries
-              .map((entry) => _buildDayCard(entry, colorScheme))
-              .toList(),
-        ],
+            const SizedBox(height: AppSpacing.lg),
+            Text("About This Program", style: theme.textTheme.displayMedium),
+            const SizedBox(height: AppSpacing.sm),
+            Text(program.description, style: theme.textTheme.bodyLarge),
+            const SizedBox(height: AppSpacing.xl),
+            Text("Weekly Schedule", style: theme.textTheme.displayMedium),
+            const SizedBox(height: AppSpacing.sm),
+            ...program.schedule.entries
+                .map((entry) => _buildDayCard(entry, theme))
+                .toList(),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildDayCard(
-    MapEntry<String, List<String>> entry,
-    ColorScheme colorScheme,
-  ) {
+  Widget _buildDayCard(MapEntry<String, List<String>> entry, ThemeData theme) {
+    final color = theme.colorScheme;
+
     return Card(
-      color: colorScheme.surface,
+      color: theme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.primary, width: 1.5),
+        side: BorderSide(color: color.primary, width: 1.5),
       ),
       margin: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: ExpansionTile(
-        title: Text(
-          entry.key,
-          style: AppTextStyles.body1.copyWith(color: colorScheme.onSurface),
-        ),
+        title: Text(entry.key, style: theme.textTheme.bodyLarge),
         tilePadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
         childrenPadding: const EdgeInsets.only(
           left: AppSpacing.md,
@@ -98,12 +81,7 @@ class ProgramDetailScreen extends StatelessWidget {
                     dense: true,
                     visualDensity: VisualDensity.compact,
                     contentPadding: EdgeInsets.zero,
-                    title: Text(
-                      exercise,
-                      style: AppTextStyles.body1.copyWith(
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
+                    title: Text(exercise, style: theme.textTheme.bodyMedium),
                   ),
                 )
                 .toList(),
