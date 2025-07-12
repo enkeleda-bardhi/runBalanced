@@ -9,7 +9,6 @@ import 'programs_screen.dart';
 import 'recap_screen.dart';
 import 'connection_screen.dart';
 import 'challenges_screen.dart';
-// import 'settings_screen.dart';
 import 'profile_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
