@@ -62,12 +62,7 @@ class MetricDetailScreen extends StatelessWidget {
             : fatiguePerKm.indexWhere((v) => v == maxFatigue) + 1;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: colorScheme.surface,
-        foregroundColor: colorScheme.onSurface,
-        elevation: 0,
-      ),
+      appBar: AppBar(title: Text(title)),
       backgroundColor: colorScheme.background,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
