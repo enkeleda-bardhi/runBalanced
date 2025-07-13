@@ -1,16 +1,36 @@
 # run_balanced
 
-A new Flutter project.
+A Flutter app for tracking and analyzing running sessions with a focus on fatigue metrics.
+
+## Features
+
+- User authentication (Firebase)
+- Start, pause, and save running sessions
+- Real-time stats: distance, pace, heart rate, calories
+- Fatigue analysis (muscles, joints, cardio) with detailed graphs
+- Light and dark mode support
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. Clone the repository.
+2. Run `flutter pub get` to install dependencies.
+3. Run the app:  
+   `flutter run`
 
-A few resources to get you started if this is your first Flutter project:
+## Project Structure
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- `lib/screens/` – Main app screens
+- `lib/widgets/` – Reusable UI components
+- `lib/models/` – Data models
+- `lib/providers/` – State management
+- `lib/theme/` – App theme
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Requirements
+
+- Flutter 3.x
+
+## Team
+
+Enkeleda Bardhi
+Benedetta Corso
+Vincent Leone
