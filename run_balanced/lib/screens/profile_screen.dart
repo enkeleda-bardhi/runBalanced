@@ -8,7 +8,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:run_balanced/main.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
-import 'package:run_balanced/screens/homepage_screen.dart';
 import 'package:run_balanced/theme/theme.dart';
 
 class ProfileScreen extends StatefulWidget {
