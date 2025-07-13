@@ -103,8 +103,9 @@ class GeneralLineChart extends StatelessWidget {
                                   reservedSize: 32,
                                   interval: xInterval,
                                   getTitlesWidget: (value, meta) {
-                                    if (value == meta.max)
+                                    if (value == meta.max) {
                                       return const SizedBox();
+                                    }
                                     return Padding(
                                       padding: const EdgeInsets.only(top: 6.0),
                                       child: Text(

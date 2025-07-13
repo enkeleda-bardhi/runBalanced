@@ -70,7 +70,9 @@ class AuthWrapper extends StatelessWidget {
   Future<bool> _userDetailsExist(String uid) async {
     final doc =
         await FirebaseFirestore.instance.collection('Users').doc(uid).get();
+    print('Profile saved for UID: ${FirebaseAuth.instance.currentUser!.uid}');
     return doc.exists;
+    
   }
 
   @override

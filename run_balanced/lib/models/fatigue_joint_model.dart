@@ -1,3 +1,6 @@
+/// Calculates Joint Load Index (JLI) utilities.
+library;
+
 /// Calculates Joint Load Index (JLI).
 ///
 /// [force] Applied force.

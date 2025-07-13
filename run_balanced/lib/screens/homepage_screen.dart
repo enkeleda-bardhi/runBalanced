@@ -170,6 +170,8 @@ class _HomeScreenState extends State<HomeScreen> {
               onTap: () async {
                 Navigator.pop(context);
                 await FirebaseAuth.instance.signOut();
+                print("Signed out: ${FirebaseAuth.instance.currentUser}");
+
               },
             ),
 

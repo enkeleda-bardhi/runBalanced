@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:run_balanced/screens/profile_screen.dart';
+import 'package:run_balanced/main.dart';
 import 'package:run_balanced/theme/theme.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -38,9 +38,9 @@ class _SignupScreenState extends State<SignupScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Account created!')));
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => ProfileScreen()),
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const AuthWrapper()),
+          (route) => false,
         );
       } on FirebaseAuthException catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
