@@ -34,6 +34,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _imageName; // To store the name of the selected image
   String? _lastEdited; // To store the formatted last edited time
   bool _isNewUser = false;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void initState() {
@@ -268,8 +270,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: newPasswordController,
-                        decoration: InputDecoration(labelText: 'New Password'),
-                        obscureText: true,
+                        obscureText: _obscureNewPassword,
+                        decoration: InputDecoration(
+                          labelText: 'New Password',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureNewPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureNewPassword = !_obscureNewPassword;
+                              });
+                            },
+                          ),
+                        ),
                         validator: (value) {
                           if (value != null &&
                               value.isNotEmpty &&
@@ -293,10 +310,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: confirmPasswordController,
+                        obscureText: _obscureConfirmPassword,
                         decoration: InputDecoration(
                           labelText: 'Confirm New Password',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
                         ),
-                        obscureText: true,
                         validator: (value) {
                           if (newPasswordController.text.isNotEmpty &&
                               value != newPasswordController.text) {

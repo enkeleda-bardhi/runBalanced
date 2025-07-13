@@ -16,6 +16,8 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   Future<void> signUp(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
@@ -69,8 +71,23 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: passwordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Password'),
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Password is required';
@@ -92,8 +109,23 @@ class _SignupScreenState extends State<SignupScreen> {
               SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: confirmPasswordController,
-                obscureText: true,
-                decoration: InputDecoration(labelText: 'Confirm Password'),
+                obscureText: _obscureConfirmPassword,
+                decoration: InputDecoration(
+                  labelText: 'Confirm Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword = !_obscureConfirmPassword;
+                      });
+                    },
+                  ),
+                ),
                 validator: (value) {
                   if (passwordController.text.isNotEmpty &&
                       value != passwordController.text) {
@@ -102,6 +134,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   return null;
                 },
               ),
+
               SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () => signUp(context),
