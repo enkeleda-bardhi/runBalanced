@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart'; // Importing intl package for formatting the date
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:run_balanced/main.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
 import 'package:run_balanced/screens/homepage_screen.dart';
 import 'package:run_balanced/theme/theme.dart';
@@ -181,10 +182,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ).showSnackBar(SnackBar(content: Text(message)));
 
       if (isNewUser) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
+        if (isNewUser) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AuthWrapper()),
+          );
+        }
       }
     }
   }
