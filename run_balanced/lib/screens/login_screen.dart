@@ -4,11 +4,18 @@ import 'package:run_balanced/screens/signup_screen.dart';
 import 'package:run_balanced/screens/forgot_password_screen.dart';
 import 'package:run_balanced/theme/theme.dart';
 
-class LoginScreen extends StatelessWidget {
-  LoginScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  bool _obscurePassword = true;
 
   Future<void> loginUserWithEmailAndPassword(BuildContext context) async {
     try {
@@ -55,14 +62,29 @@ class LoginScreen extends StatelessWidget {
             children: [
               TextField(
                 controller: emailController,
-                decoration: InputDecoration(labelText: 'Email'),
+                decoration: const InputDecoration(labelText: 'Email'),
                 keyboardType: TextInputType.emailAddress,
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: passwordController,
-                decoration: InputDecoration(labelText: 'Password'),
-                obscureText: true,
+                obscureText: _obscurePassword,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  suffixIcon: IconButton(
+                    icon: Icon(
+                      _obscurePassword
+                          ? Icons.visibility_off
+                          : Icons.visibility,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    onPressed: () {
+                      setState(() {
+                        _obscurePassword = !_obscurePassword;
+                      });
+                    },
+                  ),
+                ),
               ),
               const SizedBox(height: 8),
               Align(
@@ -76,7 +98,7 @@ class LoginScreen extends StatelessWidget {
                       ),
                     );
                   },
-                  child: Text('Forgot Password?'),
+                  child: const Text('Forgot Password?'),
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
@@ -88,7 +110,9 @@ class LoginScreen extends StatelessWidget {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignupScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => const SignupScreen(),
+                        ),
                       );
                     },
                     child: Text(

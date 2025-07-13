@@ -3,11 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart'; // Importing intl package for formatting the date
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:run_balanced/main.dart';
 import 'package:run_balanced/providers/user_profile_provider.dart';
-import 'package:run_balanced/screens/homepage_screen.dart';
 import 'package:run_balanced/theme/theme.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -32,6 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _localImagePath;
   String? _imageName; // To store the name of the selected image
   String? _lastEdited; // To store the formatted last edited time
+  bool _isNewUser = false;
+  bool _obscureNewPassword = true;
+  bool _obscureConfirmPassword = true;
 
   @override
   void initState() {
@@ -82,6 +85,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _localImage = File(_localImagePath!);
           }
           _lastEdited = editedFormatted;
+        });
+      } else {
+        setState(() {
+          _isNewUser = true;
         });
       }
     } catch (e) {
@@ -176,10 +183,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ).showSnackBar(SnackBar(content: Text(message)));
 
       if (isNewUser) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomeScreen()),
-        );
+        if (isNewUser) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const AuthWrapper()),
+          );
+        }
       }
     }
   }
@@ -199,6 +208,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar:
+          _isNewUser
+              ? AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+                  },
+                ),
+                title: Text('Complete Profile'),
+              )
+              : null,
       body:
           _isLoading
               ? Center(child: CircularProgressIndicator())
@@ -248,24 +269,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: newPasswordController,
-                        decoration: InputDecoration(labelText: 'New Password'),
-                        obscureText: true,
+                        obscureText: _obscureNewPassword,
+                        decoration: InputDecoration(
+                          labelText: 'New Password',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureNewPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureNewPassword = !_obscureNewPassword;
+                              });
+                            },
+                          ),
+                        ),
                         validator: (value) {
                           if (value != null &&
                               value.isNotEmpty &&
                               value.length < 6) {
                             return 'Password must be at least 6 characters';
                           }
+
+                          final regex = RegExp(
+                            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$',
+                          );
+
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !regex.hasMatch(value)) {
+                            return 'Include upper, lower, number & special character';
+                          }
+
                           return null;
                         },
                       ),
                       SizedBox(height: AppSpacing.md),
                       TextFormField(
                         controller: confirmPasswordController,
+                        obscureText: _obscureConfirmPassword,
                         decoration: InputDecoration(
                           labelText: 'Confirm New Password',
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscureConfirmPassword
+                                  ? Icons.visibility_off
+                                  : Icons.visibility,
+                              color: Theme.of(context).primaryColor,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _obscureConfirmPassword =
+                                    !_obscureConfirmPassword;
+                              });
+                            },
+                          ),
                         ),
-                        obscureText: true,
                         validator: (value) {
                           if (newPasswordController.text.isNotEmpty &&
                               value != newPasswordController.text) {
