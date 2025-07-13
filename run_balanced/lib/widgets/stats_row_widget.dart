@@ -14,6 +14,13 @@ class StatsRowWidget extends StatelessWidget {
     required this.heartRate,
   });
 
+  String _formatPace(double pace) {
+    if (pace.isNaN || pace.isInfinite || pace <= 0) return "--:--";
+    final int minutes = pace.floor();
+    final int seconds = ((pace - minutes) * 60).round();
+    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -25,7 +32,10 @@ class StatsRowWidget extends StatelessWidget {
               label: "Distance (km)",
               value: distance.toStringAsFixed(2),
             ),
-            _StatItem(label: "Pace (min/km)", value: pace.toStringAsFixed(2)),
+            _StatItem(
+              label: "Pace (min/km)",
+              value: _formatPace(pace),
+            ),
           ],
         ),
         const SizedBox(height: 12),

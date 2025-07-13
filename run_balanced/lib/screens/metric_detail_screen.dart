@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/theme/theme.dart';
+import 'package:fl_chart/fl_chart.dart';
+import 'package:run_balanced/widgets/line_chart_widget.dart';
 
 enum FatigueMetricType { muscles, joints, cardio }
 
@@ -24,6 +26,7 @@ class MetricDetailScreen extends StatelessWidget {
     late Color fatigueColor;
     late List<double?> fatiguePerKm;
     late double averageFatigue;
+    late String fatigueMetricKey;
 
     switch (metricType) {
       case FatigueMetricType.muscles:
@@ -32,6 +35,7 @@ class MetricDetailScreen extends StatelessWidget {
         fatigueColor = AppColors.muscleFatigue;
         fatiguePerKm = session.getMuscleData();
         averageFatigue = session.avgMuscles ?? 0;
+        fatigueMetricKey = 'muscles';
         break;
       case FatigueMetricType.joints:
         title = 'Joint Fatigue';
@@ -39,6 +43,7 @@ class MetricDetailScreen extends StatelessWidget {
         fatigueColor = AppColors.jointFatigue;
         fatiguePerKm = session.getJointData();
         averageFatigue = session.avgJoints ?? 0;
+        fatigueMetricKey = 'joints';
         break;
       case FatigueMetricType.cardio:
         title = 'Cardio Fatigue';
@@ -46,8 +51,22 @@ class MetricDetailScreen extends StatelessWidget {
         fatigueColor = AppColors.cardioFatigue;
         fatiguePerKm = session.getCardioData();
         averageFatigue = session.avgCardio ?? 0;
+        fatigueMetricKey = 'cardio';
         break;
     }
+
+    final List<FlSpot> fatigueSpots = (session.dataSnapshots ?? [])
+        .map((snapshot) {
+          if (snapshot == null || snapshot is! Map) return null;
+          final time = (snapshot['time'] as num?)?.toDouble();
+          final value = (snapshot[fatigueMetricKey] as num?)?.toDouble();
+          if (time != null && value != null) {
+            return FlSpot(time, value);
+          }
+          return null;
+        })
+        .whereType<FlSpot>()
+        .toList();
 
     final double maxFatigue =
         fatiguePerKm.isEmpty
@@ -196,6 +215,15 @@ class MetricDetailScreen extends StatelessWidget {
               ),
 
               const SizedBox(height: 30),
+              if (fatigueSpots.length > 1)
+                GeneralLineChart(
+                  title: 'Instantaneous $title Trend',
+                  spots: fatigueSpots,
+                  xAxisLabel: 'Time (s)',
+                  yAxisLabel: 'Fatigue (%)',
+                  lineColor: fatigueColor,
+                  fixedMaxY: 100,
+                ),
             ],
           ),
         ),
