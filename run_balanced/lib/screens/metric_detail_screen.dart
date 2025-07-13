@@ -57,7 +57,6 @@ class MetricDetailScreen extends StatelessWidget {
 
     final List<FlSpot> fatigueSpots = (session.dataSnapshots ?? [])
         .map((snapshot) {
-          if (snapshot == null || snapshot is! Map) return null;
           final time = (snapshot['time'] as num?)?.toDouble();
           final value = (snapshot[fatigueMetricKey] as num?)?.toDouble();
           if (time != null && value != null) {
