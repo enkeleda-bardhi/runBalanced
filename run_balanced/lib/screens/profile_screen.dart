@@ -32,6 +32,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _localImagePath;
   String? _imageName; // To store the name of the selected image
   String? _lastEdited; // To store the formatted last edited time
+  bool _isNewUser = false;
 
   @override
   void initState() {
@@ -82,6 +83,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _localImage = File(_localImagePath!);
           }
           _lastEdited = editedFormatted;
+        });
+      } else {
+        setState(() {
+          _isNewUser = true;
         });
       }
     } catch (e) {
@@ -199,6 +204,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar:
+          _isNewUser
+              ? AppBar(
+                leading: IconButton(
+                  icon: Icon(Icons.arrow_back),
+                  onPressed: () async {
+                    await FirebaseAuth.instance.signOut();
+                  },
+                ),
+                title: Text('Complete Profile'),
+              )
+              : null,
       body:
           _isLoading
               ? Center(child: CircularProgressIndicator())
