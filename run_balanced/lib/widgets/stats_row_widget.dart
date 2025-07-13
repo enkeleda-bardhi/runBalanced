@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:run_balanced/utils/utilities.dart';
 
 class StatsRowWidget extends StatelessWidget {
   final double distance;
@@ -25,7 +26,10 @@ class StatsRowWidget extends StatelessWidget {
               label: "Distance (km)",
               value: distance.toStringAsFixed(2),
             ),
-            _StatItem(label: "Pace (min/km)", value: pace.toStringAsFixed(2)),
+            _StatItem(
+              label: "Pace (min/km)",
+              value: formatPace(pace),
+            ),
           ],
         ),
         const SizedBox(height: 12),

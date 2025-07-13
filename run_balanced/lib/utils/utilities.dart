@@ -17,3 +17,10 @@ double avg(List<num> values) {
   final sum = values.fold<double>(0.0, (previousValue, element) => previousValue + element);
   return sum / values.length;
 }
+
+String formatPace(double? pace) {
+  if (pace == null || pace.isNaN || pace.isInfinite || pace <= 0) return "--:--";
+  final int minutes = pace.floor();
+  final int seconds = ((pace - minutes) * 60).round();
+  return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+}

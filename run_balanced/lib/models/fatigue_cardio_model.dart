@@ -1,4 +1,4 @@
-import 'utilities.dart';
+import '../utils/utilities.dart';
 
 // --- Model Configuration ---
 // These weights determine the contribution of each metric to the final score.
