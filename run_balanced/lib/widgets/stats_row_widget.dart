@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:run_balanced/models/utilities.dart';
+import 'package:run_balanced/utils/utilities.dart';
 
 class StatsRowWidget extends StatelessWidget {
   final double distance;

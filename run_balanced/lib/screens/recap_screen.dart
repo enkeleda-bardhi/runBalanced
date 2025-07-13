@@ -6,7 +6,7 @@ import 'package:run_balanced/screens/recap_detail_screen.dart';
 import 'package:run_balanced/widgets/loading_spinner_widget.dart';
 import 'package:run_balanced/models/exercise.dart';
 import 'package:run_balanced/theme/theme.dart';
-import 'package:run_balanced/models/utilities.dart';
+import 'package:run_balanced/utils/utilities.dart';
 
 class RecapScreen extends StatelessWidget {
   const RecapScreen({super.key});
