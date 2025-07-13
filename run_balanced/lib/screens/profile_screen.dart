@@ -256,6 +256,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               value.length < 6) {
                             return 'Password must be at least 6 characters';
                           }
+
+                          final regex = RegExp(
+                            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$',
+                          );
+
+                          if (value != null &&
+                              value.isNotEmpty &&
+                              !regex.hasMatch(value)) {
+                            return 'Include upper, lower, number & special character';
+                          }
+
                           return null;
                         },
                       ),
