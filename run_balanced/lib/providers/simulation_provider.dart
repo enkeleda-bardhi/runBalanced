@@ -13,7 +13,7 @@ import 'package:run_balanced/providers/csv_loader.dart';
 import 'package:run_balanced/models/asymmetry_index_model.dart';
 import 'package:run_balanced/models/fatigue_cardio_model.dart';
 import 'package:run_balanced/models/fatigue_joint_model.dart';
-import 'package:run_balanced/models/utilities.dart';
+import 'package:run_balanced/utils/utilities.dart';
 
 class SimulationProvider with ChangeNotifier {
   Duration _elapsed = Duration.zero;

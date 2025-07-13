@@ -1,4 +1,4 @@
-import 'package:run_balanced/models/utilities.dart';
+import 'package:run_balanced/utils/utilities.dart';
 
 // --- Model Configuration ---
 // These weights determine how much each component contributes to the final index.

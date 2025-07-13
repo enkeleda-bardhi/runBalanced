@@ -7,7 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/widgets/line_chart_widget.dart';
-import 'package:run_balanced/models/utilities.dart';
+import 'package:run_balanced/utils/utilities.dart';
 
 class RecapDetailScreen extends StatelessWidget {
   final TrainingSession session;
