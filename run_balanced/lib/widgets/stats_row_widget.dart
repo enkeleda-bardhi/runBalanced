@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:run_balanced/models/utilities.dart';
 
 class StatsRowWidget extends StatelessWidget {
   final double distance;
@@ -14,13 +15,6 @@ class StatsRowWidget extends StatelessWidget {
     required this.heartRate,
   });
 
-  String _formatPace(double pace) {
-    if (pace.isNaN || pace.isInfinite || pace <= 0) return "--:--";
-    final int minutes = pace.floor();
-    final int seconds = ((pace - minutes) * 60).round();
-    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -34,7 +28,7 @@ class StatsRowWidget extends StatelessWidget {
             ),
             _StatItem(
               label: "Pace (min/km)",
-              value: _formatPace(pace),
+              value: formatPace(pace),
             ),
           ],
         ),

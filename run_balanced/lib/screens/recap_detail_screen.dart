@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:run_balanced/models/training_session.dart';
 import 'package:run_balanced/widgets/line_chart_widget.dart';
+import 'package:run_balanced/models/utilities.dart';
 
 class RecapDetailScreen extends StatelessWidget {
   final TrainingSession session;
@@ -57,7 +58,7 @@ class RecapDetailScreen extends StatelessWidget {
               style: theme.textTheme.bodyLarge,
             ),
             Text(
-              "Avg. pace: ${session.avgPace?.toStringAsFixed(2)} min/km",
+              "Avg. pace: ${formatPace(session.avgPace)} min/km",
               style: theme.textTheme.bodyLarge,
             ),
             Text(
